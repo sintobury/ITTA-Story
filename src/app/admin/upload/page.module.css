@@ -1,0 +1,118 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2rem;
+}
+
+.section h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    color: var(--primary);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.sectionHeader h2 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.formGroup {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formGroup label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--foreground);
+}
+
+.input,
+.textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.fileInput {
+    padding: 0.5rem 0;
+}
+
+/* Page Cards */
+.pagesList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.pageCard {
+    background: #f8f9fa;
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.pageHeader h3 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.removeBtn {
+    background: none;
+    border: none;
+    color: var(--danger);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.removeBtn:hover {
+    text-decoration: underline;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+}
