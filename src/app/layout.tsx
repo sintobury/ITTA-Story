@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { BlockedUserProvider } from "@/context/BlockedUserContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,12 +24,14 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <LanguageProvider>
-            <BlockedUserProvider>
-              <Navbar />
-              <main className="container" style={{ paddingBottom: "2rem" }}>
-                {children}
-              </main>
-            </BlockedUserProvider>
+            <ThemeProvider>
+              <BlockedUserProvider>
+                <Navbar />
+                <main className="container" style={{ paddingBottom: "2rem" }}>
+                  {children}
+                </main>
+              </BlockedUserProvider>
+            </ThemeProvider>
           </LanguageProvider>
         </AuthProvider>
       </body>

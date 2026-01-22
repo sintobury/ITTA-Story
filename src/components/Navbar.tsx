@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useTheme, Theme } from "@/context/ThemeContext";
 import styles from "./Navbar.module.css";
 import { Language } from "@/lib/translations";
 
 export default function Navbar() {
     const { user, logout } = useAuth();
     const { language, setLanguage, t } = useLanguage();
+    const { theme, setTheme } = useTheme();
 
     return (
         <nav className={styles.navbar}>
@@ -18,6 +20,22 @@ export default function Navbar() {
                 </Link>
 
                 <div className={styles.actions}>
+                    <select
+                        value={theme}
+                        onChange={(e) => setTheme(e.target.value as Theme)}
+                        className={styles.langSelect}
+                        style={{ marginRight: '0.5rem', padding: '0.4rem', borderRadius: '6px' }}
+                    >
+                        <option value="default">Default</option>
+                        <option value="modern">Modern</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="green">Green</option>
+                        <option value="blue">Blue</option>
+                        <option value="midnight">Midnight</option>
+                        <option value="classic">Classic</option>
+                        <option value="fairy">Fairytale</option>
+                    </select>
+
                     <select
                         value={language}
                         onChange={(e) => setLanguage(e.target.value as Language)}
