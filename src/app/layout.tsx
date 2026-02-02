@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={gowunDodum.className}>
+      <body className={gowunDodum.className} suppressHydrationWarning={true}>
         {/* 전역 상태 관리자들 (로그인, 언어, 테마 등) */}
         <AuthProvider>
           <LanguageProvider>
