@@ -1,3 +1,9 @@
+/**
+ * [BlockedUserContext.tsx]
+ * 차단된 사용자 목록을 관리하는 컨텍스트 파일입니다.
+ * 관리자(Admin)가 특정 유저를 차단(Block)하거나 해제(Unblock)하는 기능을 제공하며,
+ * 차단된 유저는 댓글 작성 등의 활동이 제한될 수 있습니다.
+ */
 "use client";
 
 import React, { createContext, useContext, useState } from "react";

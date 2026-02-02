@@ -1,3 +1,9 @@
+/**
+ * [login/page.tsx]
+ * 사용자 로그인 페이지입니다.
+ * - 아이디와 비밀번호를 입력받아 로그인을 처리합니다.
+ * - 실제 인증 대신 Mock 데이터를 사용하여 로그인을 시뮬레이션합니다.
+ */
 "use client";
 
 import { useState } from "react";

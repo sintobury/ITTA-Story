@@ -1,3 +1,8 @@
+/**
+ * [LanguageContext.tsx]
+ * 다국어(한국어, 영어, 일본어, 중국어) 지원 기능을 관리하는 컨텍스트 파일입니다.
+ * 사용자가 선택한 언어에 따라 앱 전체의 텍스트(translations.ts)를 실시간으로 변경해줍니다.
+ */
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";

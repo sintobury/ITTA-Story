@@ -1,5 +1,5 @@
 :root {
-  /* Default Theme (Clean & Eye-friendly) */
+  /* 기본 테마 변수 (Clean & Eye-friendly) */
   --background: #f8f9fa;
   --foreground: #333333;
   --primary: #4a90e2;
@@ -10,15 +10,16 @@
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   --success: #28a745;
   --danger: #dc3545;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* 폰트는 layout.tsx에서 Next/Font로 주입되므로 여기서는 상속받도록 설정 */
+  --font-sans: inherit;
   --radius: 6px;
 
-  /* Layout Variables default */
+  /* 레이아웃 변수 */
   --nav-height: 60px;
   --container-max-width: 1200px;
 }
 
-/* Modern Theme (High Contrast, Bold, Sharp) */
+/* Modern Theme (고대비, 선명함) */
 [data-theme='modern'] {
   --background: #ffffff;
   --foreground: #000000;
@@ -31,7 +32,7 @@
   --radius: 0px;
 }
 
-/* Pastel Theme (Soft, Dreamy, Rounded) */
+/* Pastel Theme (부드러움, 몽환적) */
 [data-theme='pastel'] {
   --background: #fff0f3;
   --foreground: #594a4e;
@@ -44,20 +45,23 @@
   --radius: 24px;
 }
 
-/* Green Theme (Nature, Comfortable, Boxed) */
+/* Green Theme (눈이 편안함, 민트/파스텔 그린) - 사용자 선택 픽! */
 [data-theme='green'] {
   --background: #e8f5e9;
+  /* 부드러운 민트 배경 */
   --foreground: #1b5e20;
   --primary: #43a047;
+  /* 자연스러운 초록 */
   --primary-hover: #2e7d32;
   --secondary: #4caf50;
   --border: #c8e6c9;
   --card-bg: #ffffff;
   --card-shadow: 4px 4px 0px rgba(67, 160, 71, 0.2);
+  /* 약간의 입체감 */
   --radius: 12px;
 }
 
-/* Blue Theme (Professional, Trust, Wide) */
+/* Blue Theme (신뢰감, 전문적) */
 [data-theme='blue'] {
   --background: #f0f4f8;
   --foreground: #243b53;
@@ -70,57 +74,43 @@
   --radius: 4px;
 }
 
-/* Midnight Theme (Dark, Neon, Cyber) */
+/* Midnight Theme (다크 모드, 네온) */
 [data-theme='midnight'] {
   --background: #0f0f13;
-  /* Very dark blue/black */
   --foreground: #e0e0e0;
   --primary: #bd93f9;
-  /* Neon Purple */
   --primary-hover: #ff79c6;
-  /* Neon Pink */
   --secondary: #6272a4;
   --border: #44475a;
   --card-bg: #1e1e24;
   --card-shadow: 0 0 15px rgba(189, 147, 249, 0.15);
-  /* Glow effect */
   --radius: 12px;
 }
 
-/* Classic Theme (Paper, Serif, Old Book) */
+/* Classic Theme (종이 질감, 명조체) */
 [data-theme='classic'] {
   --background: #fdf6e3;
-  /* Beige paper */
   --foreground: #3b2f2f;
-  /* Dark sepia text */
   --primary: #8b4513;
-  /* Saddle Brown */
   --primary-hover: #5d4037;
   --secondary: #8d6e63;
   --border: #d7ccc8;
   --card-bg: #fffbf0;
   --card-shadow: 0 4px 8px rgba(62, 39, 35, 0.1);
   --radius: 2px;
-  --font-sans: 'Merriweather', 'Georgia', serif;
-  /* Switch to Serif */
 }
 
-/* Fairytale Theme (Kids, Playful, Colorful) */
+/* Fairytale Theme (동화, 키즈) */
 [data-theme='fairy'] {
   --background: #e0f7fa;
-  /* Light Cyan */
   --foreground: #01579b;
   --primary: #ffad15;
-  /* orange-yellow */
   --primary-hover: #ffca28;
   --secondary: #4fc3f7;
   --border: #b3e5fc;
   --card-bg: #ffffff;
   --card-shadow: 6px 6px 0px #4dd0e1;
-  /* Pop shadow */
   --radius: 30px;
-  --font-sans: 'Comic Sans MS', 'Chalkboard SE', 'Fredoka One', sans-serif;
-  /* Playful font */
 }
 
 * {
@@ -130,12 +120,12 @@
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: inherit;
+  /* layout.tsx에서 설정한 폰트 상속 */
   background-color: var(--background);
   color: var(--foreground);
   line-height: 1.6;
   transition: all 0.4s ease;
-  /* Smoother transition */
 }
 
 a {

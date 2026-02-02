@@ -1,3 +1,9 @@
+/**
+ * [admin/page.tsx]
+ * 관리자 대시보드 페이지입니다. (관리자 권한 필요)
+ * - 등록된 모든 책을 테이블 형태로 조회, 수정(Edit), 삭제(Delete)할 수 있습니다.
+ * - 차단된 유저 목록을 관리(차단 해제)할 수 있습니다.
+ */
 "use client";
 
 import { useEffect, useState } from "react";

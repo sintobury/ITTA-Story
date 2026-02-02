@@ -1,3 +1,9 @@
+/**
+ * [signup/page.tsx]
+ * 회원가입 페이지입니다.
+ * - 아이디 중복 확인, 비밀번호, 닉네임 입력을 받습니다.
+ * - 가입 완료 시 로그인 페이지로 이동합니다.
+ */
 "use client";
 
 import { useState } from "react";

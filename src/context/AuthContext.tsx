@@ -1,3 +1,8 @@
+/**
+ * [AuthContext.tsx]
+ * 사용자 인증 상태(로그인/로그아웃)와 사용자 권한(User/Admin)을 전역에서 관리하는 컨텍스트 파일입니다.
+ * 앱 어디서든 useAuth() 훅을 통해 현재 로그인한 유저 정보에 접근할 수 있습니다.
+ */
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";

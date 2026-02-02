@@ -1,3 +1,9 @@
+/**
+ * [admin/edit/[id]/page.tsx]
+ * 기존 책 정보를 수정하는 페이지입니다. (관리자 전용)
+ * - URL 파라미터(id)로 책 정보를 불러와 BookForm에 전달합니다.
+ * - 내용을 수정한 뒤 저장할 수 있습니다.
+ */
 "use client";
 
 import { use, useEffect, useState } from "react";
