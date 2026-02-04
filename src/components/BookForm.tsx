@@ -66,7 +66,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
     // 폼 제출 핸들러 (저장/발행)
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // 실제로는 여기서 API를 호출하여 데이터를 서버에 전송해야 함
+        // [클라 확인용] 실제로는 여기서 API를 호출하여 데이터를 서버에 전송해야 함 (로그 출력으로 대체)
         console.log({ title, author, description, coverUrl, pages });
 
         alert(mode === "create" ? "책이 성공적으로 발행되었습니다!" : "책 정보가 수정되었습니다!");
@@ -77,6 +77,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => {
         if (e.target.files && e.target.files[0]) {
             const url = URL.createObjectURL(e.target.files[0]);
+            // [클라 확인용] 브라우저 Blob URL 사용 (서버 업로드 X)
             setter(url);
         }
     };

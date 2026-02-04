@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
 
     const loginAsUser = () => {
+        // [클라 확인용] 일반 유저 로그인 모의 로직 (서버 연동 시 삭제 예정)
         setUser({
             id: "u1",
             name: "Normal User",
@@ -38,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const loginAsAdmin = () => {
+        // [클라 확인용] 관리자 로그인 모의 로직 (서버 연동 시 삭제 예정)
         setUser({
             id: "a1",
             name: "Admin User",

@@ -25,7 +25,7 @@ export default function SignupPage() {
     const handleCheckDuplicate = () => {
         if (!id) return;
 
-        // 중복 확인 목업 로직
+        // [클라 확인용] 중복 확인 목업 로직 (서버 연동 시 API 호출로 대체)
         if (id === "admin" || id === "user") {
             setIdMessage({ text: t.auth.idTaken, type: 'error' });
             setIsIdChecked(false);
@@ -43,7 +43,7 @@ export default function SignupPage() {
             return;
         }
 
-        // 목업 회원가입 로직
+        // [클라 확인용] 목업 회원가입 로직 (서버 연동 시 API 호출로 대체)
         alert(`Welcome, ${nickname}! Please login.`);
         router.push("/login");
     };

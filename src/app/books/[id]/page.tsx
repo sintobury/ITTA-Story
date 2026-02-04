@@ -36,10 +36,10 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
     const [isReading, setIsReading] = useState(false);
     const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-    // 댓글 관리를 위한 로컬 상태
+    // [클라 확인용] 댓글 관리를 위한 로컬 상태 (서버 연동 시 제거/대체)
     const [comments, setComments] = useState<Comment[]>([]);
 
-    // 좋아요 관리를 위한 로컬 상태
+    // [클라 확인용] 좋아요 관리를 위한 로컬 상태 (서버 연동 시 제거/대체)
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
 
@@ -52,10 +52,10 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
     useEffect(() => {
-        // 댓글 초기화
+        // [클라 확인용] 댓글 데이터 초기화 (Mock Data 사용)
         setComments(mockComments.filter((c) => c.bookId === id));
 
-        // 좋아요 상태 초기화
+        // [클라 확인용] 좋아요 상태 초기화 (Mock Data 사용)
         if (rawBook) {
             setLikeCount(rawBook.likes);
             if (user) {

@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // 목업 로그인 로직
+        // [클라 확인용] 목업 로그인 로직 (서버 연동 시 API 호출로 대체)
         if (id === "admin" && password === "admin") {
             loginAsAdmin();
         } else {

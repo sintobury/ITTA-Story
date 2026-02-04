@@ -9,7 +9,7 @@
 import React, { createContext, useContext, useState } from "react";
 
 export interface BlockedUser {
-    userId: string; // Using userName as ID for this prototype since comments don't have stable User IDs in mockData yet
+    userId: string; // mockData의 댓글에 고정된 유저 ID가 없기 때문에, 이 프로토타입에서는 userName을 ID로 사용합니다.
     userName: string;
     reason: string;
     memo?: string;
@@ -26,18 +26,19 @@ interface BlockedUserContextType {
 const BlockedUserContext = createContext<BlockedUserContextType | undefined>(undefined);
 
 export function BlockedUserProvider({ children }: { children: React.ReactNode }) {
+    // [클라 확인용] 차단 유저 목록을 메모리에 임시 저장 (새로고침 시 초기화됨)
     const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
 
     const blockUser = (userName: string, reason: string, memo?: string) => {
-        // Prevent duplicates
+        // 중복 방지
         if (blockedUsers.some(u => u.userName === userName)) return;
 
         const newUser: BlockedUser = {
-            userId: userName, // Ideally this would be a UUID
+            userId: userName, // 실제 구현에서는 UUID를 사용해야 합니다.
             userName,
             reason,
             memo,
-            blockedAt: new Date().toISOString().split('T')[0] // YYYY-MM-DD
+            blockedAt: new Date().toISOString().split('T')[0] // YYYY-MM-DD 형식
         };
 
         setBlockedUsers(prev => [...prev, newUser]);
