@@ -2,6 +2,20 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem 0;
+    animation: fadeIn 0.5s ease-out;
+    /* 페이지 로드 시 페이드인 효과 */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Locked State */
@@ -67,42 +81,382 @@
     margin-top: 1.5rem;
 }
 
+.likeButton {
+    position: relative;
+    transition: transform 0.1s;
+    overflow: visible;
+    /* 이펙트가 버튼 밖으로 나가도록 */
+}
+
+.likeButton:active {
+    transform: scale(0.9);
+}
+
+.likeBurst {
+    animation: heartBounce 0.6s cubic-bezier(0.17, 0.89, 0.43, 1.49);
+}
+
+.likeBurst::before,
+.likeBurst::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Ring Shockwave */
+.likeBurst::before {
+    border: 2px solid #ef4444;
+    /* Red ring */
+    animation: ringExpand 0.6s ease-out forwards;
+}
+
+/* Particle Burst (using multiple box-shadows) */
+.likeBurst::after {
+    width: 10px;
+    height: 10px;
+    background: transparent;
+    box-shadow:
+        0 -30px 0 #ef4444,
+        /* Top */
+        25px -20px 0 #f87171,
+        /* Top Right */
+        30px 10px 0 #fee2e2,
+        /* Right */
+        20px 25px 0 #ef4444,
+        /* Bottom Right */
+        0 30px 0 #f87171,
+        /* Bottom */
+        -20px 25px 0 #fee2e2,
+        /* Bottom Left */
+        -30px 10px 0 #ef4444,
+        /* Left */
+        -25px -20px 0 #f87171;
+    /* Top Left */
+    animation: particlesExpand 0.6s ease-out forwards;
+}
+
+@keyframes heartBounce {
+    0% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform: scale(0.8);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes ringExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 1;
+        border-width: 5px;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+        border-width: 0;
+    }
+}
+
+@keyframes particlesExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+        box-shadow:
+            0 -60px 0 #ef4444,
+            45px -35px 0 #f87171,
+            60px 20px 0 #fee2e2,
+            35px 50px 0 #ef4444,
+            0 60px 0 #f87171,
+            -35px 50px 0 #fee2e2,
+            -60px 20px 0 #ef4444,
+            -45px -35px 0 #f87171;
+    }
+}
+
 /* Reader */
 .readerContainer {
-    max-width: 800px;
+    max-width: 1200px;
+    /* 두 페이지 펼침을 위해 폭 확장 */
     margin: 0 auto;
-    background: var(--card-bg);
     min-height: 80vh;
-    border-radius: 12px;
-    box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding-top: 3rem;
+    /* 상단 버튼 공간 확보 */
 }
 
 .readerHeader {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border);
+    display: none;
+}
+
+.readerControls {
+    display: none;
+}
+
+.bookSpread {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-weight: 500;
+    justify-content: center;
+    gap: 0;
+    margin: 1rem 0 2rem 0;
+    /* 버튼과의 적절한 간격 */
+    perspective: 1500px;
 }
 
 .pageContent {
     flex: 1;
-    padding: 3rem;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
+    perspective: 1000px;
+    /* 3D 효과를 위한 원근감 설정 */
+    overflow: hidden;
+    /* 애니메이션 중 넘침 방지 */
+}
+
+/* Page Animation Wrapper */
+/* Page Animation Wrapper */
+.pageWrapper {
+    width: 450px;
+    height: 560px;
+    /* 높이 축소 (650px -> 560px) */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* 내용과 푸터 분리 */
+    transform-origin: center bottom;
+
+    /* 종이 질감 스타일 */
+    background-color: #fffbf0;
+    padding: 3rem 2rem 1rem 2rem;
+    border: 1px solid #f0e6d2;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    /* 호버 효과를 위한 트랜지션 */
+}
+
+.clickablePage {
+    cursor: pointer;
+}
+
+.clickablePage:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        inset 0 0 20px rgba(0, 0, 0, 0.02),
+        4px 8px 20px rgba(0, 0, 0, 0.15);
+    /* 호버 시 약간 떠오르는 효과 */
+}
+
+.leftPage {
+    border-radius: 12px 4px 4px 12px;
+    box-shadow:
+        inset -15px 0 20px rgba(0, 0, 0, 0.03),
+        -5px 5px 15px rgba(0, 0, 0, 0.1);
+    border-right: none;
+    transform-origin: right center;
+    /* 왼쪽 페이지는 오른쪽이 축 */
+}
+
+.rightPage {
+    border-radius: 4px 12px 12px 4px;
+    box-shadow:
+        inset 15px 0 20px rgba(0, 0, 0, 0.03),
+        5px 5px 15px rgba(0, 0, 0, 0.1);
+    border-left: none;
+    transform-origin: left center;
+    /* 오른쪽 페이지는 왼쪽이 축 */
+}
+
+/* 책등 (Spine) - 심플한 선으로 변경 */
+.spine {
+    width: 2px;
+    height: 540px;
+    background-color: #d1d5db;
+    /* 진한 회색 라인 */
+    box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.pageFooter {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    padding-top: 1rem;
+}
+
+.navButton {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 0 1.5rem;
+    color: var(--primary);
+    z-index: 20;
+}
+
+.navButton:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.navButton:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+    background: #eee;
+}
+
+.closeButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 30;
+    background: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 30px;
+    /* 캡슐형 버튼 */
+    border: 1px solid var(--border);
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+    font-size: 0.95rem;
+    color: var(--foreground);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.closeButton:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.turnNext {
+    animation: flipInRight 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.turnPrev {
+    animation: flipInLeft 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes flipInRight {
+    0% {
+        opacity: 0.5;
+        transform: rotateY(-90deg);
+        /* 닫힌 상태에서 시작 */
+    }
+
+    100% {
+        opacity: 1;
+        transform: rotateY(0);
+        /* 펼쳐짐 */
+    }
+}
+
+@keyframes flipInLeft {
+    0% {
+        opacity: 0.5;
+        transform: rotateY(90deg);
+        /* 닫힌 상태에서 시작 */
+    }
+
+    100% {
+        opacity: 1;
+        transform: rotateY(0);
+        /* 펼쳐짐 */
+    }
+}
+
+.imageContainer {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    /* 최소 높이 확보로 레이아웃 시프트 방지 */
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f3f4f6;
+}
+
+.skeleton {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    z-index: 1;
 }
 
 .pageImage {
+    display: block;
     max-width: 100%;
     max-height: 400px;
-    margin-bottom: 2rem;
-    border-radius: 8px;
+    width: 100%;
+    /* 컨테이너 채우기 */
+    object-fit: contain;
+    /* 비율 유지 */
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.pageImageLoaded {
+    opacity: 1;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 .text {
@@ -111,12 +465,6 @@
     max-width: 600px;
 }
 
-.readerControls {
-    padding: 1.5rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-}
 
 /* Comments */
 .commentsSection {
@@ -225,40 +573,6 @@
     transform: translateY(-1px);
 }
 
-/* Modal (Updated) */
-.modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    animation: fadeIn 0.2s ease;
-}
-
-.modal {
-    background: var(--card-bg);
-    padding: 2rem;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 450px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    transform: scale(1);
-    animation: scaleIn 0.2s ease;
-}
-
-.modal h3 {
-    margin-bottom: 1.5rem;
-    color: var(--foreground);
-    font-size: 1.25rem;
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 0.8rem;
-}
-
 .formGroup {
     margin-bottom: 1.2rem;
 }
@@ -288,33 +602,4 @@
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-}
-
-.modalActions {
-    display: flex;
-    gap: 0.8rem;
-    justify-content: flex-end;
-    margin-top: 2rem;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes scaleIn {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
 }

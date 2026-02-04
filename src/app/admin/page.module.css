@@ -1,13 +1,16 @@
 .container {
     max-width: 1000px;
     margin: 0 auto;
+    padding-top: 3rem;
+    /* 네비바와의 간격 확보 */
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
+    /* 탭과의 간격 축소 */
 }
 
 .section {
@@ -16,6 +19,20 @@
     border-radius: 12px;
     box-shadow: var(--card-shadow);
     margin-top: 2rem;
+    animation: fadeIn 0.4s ease-out;
+    /* 탭 전환 애니메이션 추가 */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .section h2 {
@@ -52,6 +69,14 @@
 .tabs {
     margin-bottom: 2rem;
     border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    /* 양 끝 정렬 */
+    align-items: center;
+    gap: 1rem;
+}
+
+.tabGroup {
     display: flex;
     gap: 1rem;
 }

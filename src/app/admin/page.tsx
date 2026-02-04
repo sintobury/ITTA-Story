@@ -14,6 +14,9 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useBlockedUser } from "@/context/BlockedUserContext";
 import { mockBooks, getLocalizedBook } from "@/lib/mockData";
 import styles from "./page.module.css";
+import Toast from "@/components/Toast";
+import Modal from "@/components/Modal";
+import { useToast } from "@/hooks/useToast";
 
 export default function AdminPage() {
     const { user } = useAuth();
@@ -22,10 +25,32 @@ export default function AdminPage() {
     const { blockedUsers, unblockUser } = useBlockedUser();
 
     const [activeTab, setActiveTab] = useState<'books' | 'users'>('books');
+    const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+    const { toastMessage, isToastExiting, triggerToast } = useToast();
 
     useEffect(() => {
         if (!user || user.role !== 'ADMIN') { router.push('/'); }
     }, [user, router]);
+
+    const handleInitiateDelete = (bookId: string) => {
+        setDeleteTargetId(bookId);
+    };
+
+    const handleConfirmDelete = () => {
+        if (deleteTargetId) {
+            // 삭제할 책 정보 찾기 (메시지용)
+            const bookToDelete = mockBooks.find(b => b.id === deleteTargetId);
+            const title = bookToDelete ? bookToDelete.title : '책';
+
+            // 토스트 메시지 표시
+            triggerToast(`${title}이(가) 삭제되었습니다.`);
+
+            // 상태 초기화
+            setDeleteTargetId(null);
+
+            // 리얼 월드에서는 여기서 API 호출 후 리스트 갱신
+        }
+    };
 
     if (!user || user.role !== 'ADMIN') return null;
 
@@ -33,22 +58,26 @@ export default function AdminPage() {
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1>관리자 페이지</h1>
-                {activeTab === 'books' && (
-                    <Link href="/admin/upload" className="btn btn-primary">+ 새 책 업로드</Link>
-                )}
             </div>
 
             <div className={styles.tabs}>
-                <button onClick={() => setActiveTab('books')} className={activeTab === 'books' ? styles.activeTab : styles.tab}>
-                    책 관리
-                </button>
-                <button onClick={() => setActiveTab('users')} className={activeTab === 'users' ? styles.activeTab : styles.tab}>
-                    유저 관리
-                </button>
+                <div className={styles.tabGroup}>
+                    <button onClick={() => setActiveTab('books')} className={activeTab === 'books' ? styles.activeTab : styles.tab}>
+                        책 관리
+                    </button>
+                    <button onClick={() => setActiveTab('users')} className={activeTab === 'users' ? styles.activeTab : styles.tab}>
+                        유저 관리
+                    </button>
+                </div>
+                {activeTab === 'books' && (
+                    <Link href="/admin/upload" className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.9em' }}>
+                        새 책 업로드
+                    </Link>
+                )}
             </div>
 
             {activeTab === 'books' ? (
-                <section className={styles.section}>
+                <section className={styles.section} key="books">
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -71,7 +100,11 @@ export default function AdminPage() {
                                                 <Link href={`/admin/edit/${book.id}`} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem', textDecoration: 'none' }}>
                                                     수정
                                                 </Link>
-                                                <button className="btn btn-danger" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}>
+                                                <button
+                                                    onClick={() => handleInitiateDelete(book.id)}
+                                                    className="btn btn-danger"
+                                                    style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
+                                                >
                                                     삭제
                                                 </button>
                                             </div>
@@ -83,7 +116,7 @@ export default function AdminPage() {
                     </table>
                 </section>
             ) : (
-                <section className={styles.section}>
+                <section className={styles.section} key="users">
                     <h2>차단된 유저 목록</h2>
                     {blockedUsers.length === 0 ? (
                         <p className={styles.emptyState}>차단된 유저가 없습니다.</p>
@@ -122,6 +155,31 @@ export default function AdminPage() {
                     )}
                 </section>
             )}
+
+            {/* 책 삭제 확인 모달 */}
+            <Modal
+                isOpen={!!deleteTargetId}
+                onClose={() => setDeleteTargetId(null)}
+                title="책 삭제 확인"
+                footer={
+                    <>
+                        <button onClick={() => setDeleteTargetId(null)} className="btn btn-secondary">
+                            취소
+                        </button>
+                        <button onClick={handleConfirmDelete} className="btn btn-danger">
+                            삭제하기
+                        </button>
+                    </>
+                }
+            >
+                <div>
+                    정말로 이 책을 삭제하시겠습니까?<br />
+                    <span style={{ fontSize: '0.9rem', color: 'var(--secondary)' }}>이 작업은 되돌릴 수 없습니다.</span>
+                </div>
+            </Modal>
+
+            {/* 토스트 알림 */}
+            <Toast message={toastMessage} isExiting={isToastExiting} />
         </div>
     );
 }
