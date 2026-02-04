@@ -1,5 +1,6 @@
 import { Language } from "./translations";
 
+// 책 데이터 인터페이스 정의
 export interface Book {
     id: string;
     title: string;
@@ -253,7 +254,7 @@ export const mockComments: Comment[] = [
     },
 ];
 
-// Helper functions to get localized content
+// 다국어 컨텐츠를 가져오는 헬퍼 함수
 export function getLocalizedBook(book: Book, lang: Language) {
     if (lang === 'en') return book;
     const translation = book.translations?.[lang];

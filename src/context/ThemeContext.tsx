@@ -7,8 +7,8 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-// 사용 가능한 테마 목록 정의
-export type Theme = 'default' | 'modern' | 'pastel' | 'green' | 'blue' | 'midnight' | 'classic' | 'fairy';
+// 사용 가능한 테마 목록 정의 (그린 파스텔 단일 테마)
+export type Theme = 'green';
 
 interface ThemeContextType {
     theme: Theme;
@@ -19,7 +19,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 // 테마 제공자: 앱 전체에서 테마 상태를 관리
 export function ThemeProvider({ children }: { children: ReactNode }) {
-    // 기본 테마를 'green' (녹색 파스텔)으로 설정
+    // 기본 테마를 'green' (녹색 파스텔)으로 고정
     const [theme, setTheme] = useState<Theme>('green');
 
     useEffect(() => {

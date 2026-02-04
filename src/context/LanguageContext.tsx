@@ -11,13 +11,13 @@ import { translations, Language } from "@/lib/translations";
 interface LanguageContextType {
     language: Language;
     setLanguage: (lang: Language) => void;
-    t: typeof translations['en']; // Type helper for autocompletion
+    t: typeof translations['en']; // 자동 완성을 위한 타입 헬퍼
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-    const [language, setLanguage] = useState<Language>('ko'); // Default to Korean
+    const [language, setLanguage] = useState<Language>('ko'); // 기본 언어를 한국어로 설정
 
     const value = {
         language,

@@ -25,7 +25,7 @@ export default function SignupPage() {
     const handleCheckDuplicate = () => {
         if (!id) return;
 
-        // Mock duplicate check
+        // 중복 확인 목업 로직
         if (id === "admin" || id === "user") {
             setIdMessage({ text: t.auth.idTaken, type: 'error' });
             setIsIdChecked(false);
@@ -43,7 +43,7 @@ export default function SignupPage() {
             return;
         }
 
-        // Mock Signup Logic
+        // 목업 회원가입 로직
         alert(`Welcome, ${nickname}! Please login.`);
         router.push("/login");
     };

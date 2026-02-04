@@ -30,22 +30,6 @@ export default function Navbar() {
                 </Link>
 
                 <div className={styles.actions}>
-                    {/* 테마 선택 드롭다운 (기본, 모던, 파스텔, 그린, 블루 등) */}
-                    <select
-                        value={theme}
-                        onChange={(e) => setTheme(e.target.value as Theme)}
-                        className={styles.langSelect}
-                        style={{ marginRight: '0.5rem', padding: '0.4rem', borderRadius: '6px' }}
-                    >
-                        <option value="default">Default</option>
-                        <option value="modern">Modern</option>
-                        <option value="pastel">Pastel</option>
-                        <option value="green">Green</option>
-                        <option value="blue">Blue</option>
-                        <option value="midnight">Midnight</option>
-                        <option value="classic">Classic</option>
-                        <option value="fairy">Fairytale</option>
-                    </select>
 
                     {/* 언어 선택 드롭다운 */}
                     <select

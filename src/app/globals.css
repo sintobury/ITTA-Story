@@ -1,117 +1,36 @@
 :root {
-  /* 기본 테마 변수 (Clean & Eye-friendly) */
-  --background: #f8f9fa;
-  --foreground: #333333;
-  --primary: #4a90e2;
-  --primary-hover: #357abd;
-  --secondary: #6c757d;
-  --border: #e9ecef;
+  /* 그린 파스텔 테마 (Green Pastel) - 기본 적용 */
+  --background: #e8f5e9;
+  /* 부드러운 민트 배경 */
+  --foreground: #1b5e20;
+  /* 짙은 숲색 텍스트 */
+  --primary: #43a047;
+  /* 자연스러운 초록 포인트 */
+  --primary-hover: #2e7d32;
+  /* 호버 시 짙은 초록 */
+  --secondary: #4caf50;
+  /* 보조 색상 */
+  --border: #c8e6c9;
+  /* 연한 초록 테두리 */
   --card-bg: #ffffff;
-  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  /* 카드 배경 흰색 */
+  --card-shadow: 4px 4px 0px rgba(67, 160, 71, 0.2);
+  /* 약간의 입체감 그림자 */
   --success: #28a745;
   --danger: #dc3545;
+
   /* 폰트는 layout.tsx에서 Next/Font로 주입되므로 여기서는 상속받도록 설정 */
   --font-sans: inherit;
-  --radius: 6px;
+  --radius: 12px;
+  /* 둥근 모서리 */
 
   /* 레이아웃 변수 */
   --nav-height: 60px;
   --container-max-width: 1200px;
+  --spacing-md: 1rem;
 }
 
-/* Modern Theme (고대비, 선명함) */
-[data-theme='modern'] {
-  --background: #ffffff;
-  --foreground: #000000;
-  --primary: #000000;
-  --primary-hover: #333333;
-  --secondary: #666666;
-  --border: #e0e0e0;
-  --card-bg: #f5f5f5;
-  --card-shadow: none;
-  --radius: 0px;
-}
-
-/* Pastel Theme (부드러움, 몽환적) */
-[data-theme='pastel'] {
-  --background: #fff0f3;
-  --foreground: #594a4e;
-  --primary: #ffb7b2;
-  --primary-hover: #ff9e99;
-  --secondary: #a89f91;
-  --border: #fae1dd;
-  --card-bg: #ffffff;
-  --card-shadow: 0 10px 25px rgba(255, 183, 178, 0.4);
-  --radius: 24px;
-}
-
-/* Green Theme (눈이 편안함, 민트/파스텔 그린) - 사용자 선택 픽! */
-[data-theme='green'] {
-  --background: #e8f5e9;
-  /* 부드러운 민트 배경 */
-  --foreground: #1b5e20;
-  --primary: #43a047;
-  /* 자연스러운 초록 */
-  --primary-hover: #2e7d32;
-  --secondary: #4caf50;
-  --border: #c8e6c9;
-  --card-bg: #ffffff;
-  --card-shadow: 4px 4px 0px rgba(67, 160, 71, 0.2);
-  /* 약간의 입체감 */
-  --radius: 12px;
-}
-
-/* Blue Theme (신뢰감, 전문적) */
-[data-theme='blue'] {
-  --background: #f0f4f8;
-  --foreground: #243b53;
-  --primary: #334e68;
-  --primary-hover: #102a43;
-  --secondary: #627d98;
-  --border: #bcccdc;
-  --card-bg: #ffffff;
-  --card-shadow: 0 4px 6px rgba(16, 42, 67, 0.1);
-  --radius: 4px;
-}
-
-/* Midnight Theme (다크 모드, 네온) */
-[data-theme='midnight'] {
-  --background: #0f0f13;
-  --foreground: #e0e0e0;
-  --primary: #bd93f9;
-  --primary-hover: #ff79c6;
-  --secondary: #6272a4;
-  --border: #44475a;
-  --card-bg: #1e1e24;
-  --card-shadow: 0 0 15px rgba(189, 147, 249, 0.15);
-  --radius: 12px;
-}
-
-/* Classic Theme (종이 질감, 명조체) */
-[data-theme='classic'] {
-  --background: #fdf6e3;
-  --foreground: #3b2f2f;
-  --primary: #8b4513;
-  --primary-hover: #5d4037;
-  --secondary: #8d6e63;
-  --border: #d7ccc8;
-  --card-bg: #fffbf0;
-  --card-shadow: 0 4px 8px rgba(62, 39, 35, 0.1);
-  --radius: 2px;
-}
-
-/* Fairytale Theme (동화, 키즈) */
-[data-theme='fairy'] {
-  --background: #e0f7fa;
-  --foreground: #01579b;
-  --primary: #ffad15;
-  --primary-hover: #ffca28;
-  --secondary: #4fc3f7;
-  --border: #b3e5fc;
-  --card-bg: #ffffff;
-  --card-shadow: 6px 6px 0px #4dd0e1;
-  --radius: 30px;
-}
+/* 사용하지 않는 다른 테마 스타일 제거됨 */
 
 * {
   box-sizing: border-box;
@@ -160,20 +79,7 @@ button {
 .btn-primary {
   background-color: var(--primary);
   color: white;
-}
-
-[data-theme='pastel'] .btn-primary,
-[data-theme='fairy'] .btn-primary {
-  color: #594a4e;
-  font-weight: 700;
-}
-
-[data-theme='fairy'] .btn-primary {
-  color: white;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
-}
-
-[data-theme='green'] .btn-primary {
+  /* Green 테마 기본 스타일: 테두리 추가 */
   border: 2px solid #2e7d32;
 }
 
@@ -189,10 +95,6 @@ button {
 
 .btn-secondary:hover {
   background-color: rgba(0, 0, 0, 0.05);
-}
-
-[data-theme='midnight'] .btn-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .btn-danger {

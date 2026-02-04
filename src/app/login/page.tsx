@@ -22,11 +22,11 @@ export default function LoginPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Mock Login Logic
+        // 목업 로그인 로직
         if (id === "admin" && password === "admin") {
             loginAsAdmin();
         } else {
-            // Treat any other input as a normal user for now
+            // 그 외의 입력은 일반 유저로 처리
             loginAsUser();
         }
         router.push("/");

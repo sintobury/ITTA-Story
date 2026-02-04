@@ -23,7 +23,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Find book
+        // 책 정보 찾기
         const foundBook = mockBooks.find(b => b.id === id);
         if (foundBook) {
             setBook(foundBook);
@@ -34,14 +34,14 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
 
     useEffect(() => {
         if (!user || user.role !== 'ADMIN') {
-            // Let the main admin page handle redirect or just redirect here
-            // But for now, just waiting for user loading
+            // 메인 관리자 페이지에서 리다이렉트 처리
+            // 유저 로딩 대기
         }
     }, [user, router]);
 
 
     if (!user || user.role !== 'ADMIN') {
-        // Wait for auth check usually, but for mock just show nothing or denied
+        // 권한 확인 대기 (목업에서는 빈 화면 처리)
         return null;
     }
 

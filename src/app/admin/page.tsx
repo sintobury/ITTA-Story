@@ -18,7 +18,7 @@ import styles from "./page.module.css";
 export default function AdminPage() {
     const { user } = useAuth();
     const router = useRouter();
-    const { language } = useLanguage(); // Only keep language for content localization
+    const { language } = useLanguage(); // 컨텐츠 다국어 처리를 위해 언어 설정만 가져옴
     const { blockedUsers, unblockUser } = useBlockedUser();
 
     const [activeTab, setActiveTab] = useState<'books' | 'users'>('books');

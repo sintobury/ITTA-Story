@@ -9,52 +9,6 @@
     border-bottom: 1px solid var(--border);
 }
 
-/* Theme: Modern - Sharp, border only */
-:global(html[data-theme='modern']) .navbar {
-    border-bottom: 2px solid black;
-    box-shadow: none;
-    background-color: white;
-}
-
-/* Theme: Pastel - Floating Glassy Bar */
-:global(html[data-theme='pastel']) .navbar {
-    width: 95%;
-    margin: 1rem auto 0;
-    border-radius: 16px;
-    background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid white;
-    box-shadow: 0 8px 32px rgba(255, 183, 178, 0.2);
-    top: 1rem;
-}
-
-/* Theme: Blue - Dark Header */
-:global(html[data-theme='blue']) .navbar {
-    background-color: #243b53;
-    border-bottom: none;
-    color: white;
-}
-
-/* Theme: Midnight - Dark Glass */
-:global(html[data-theme='midnight']) .navbar {
-    background-color: rgba(15, 15, 19, 0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid #333;
-}
-
-/* Theme: Classic - Paper Header */
-:global(html[data-theme='classic']) .navbar {
-    background-color: #fdf6e3;
-    border-bottom: 3px double #d7ccc8;
-    box-shadow: none;
-}
-
-/* Theme: Fairy - Bubbly Header */
-:global(html[data-theme='fairy']) .navbar {
-    border-bottom: 4px dashed #b3e5fc;
-    background-color: #fff;
-}
-
 .navContainer {
     display: flex;
     justify-content: space-between;
@@ -73,24 +27,6 @@
     gap: 0.5rem;
 }
 
-/* Theme: Blue - White logo text */
-:global(html[data-theme='blue']) .logo {
-    color: white;
-}
-
-/* Theme: Classic */
-:global(html[data-theme='classic']) .logo {
-    font-family: 'Merriweather', serif;
-    letter-spacing: -0.5px;
-}
-
-/* Theme: Fairy */
-:global(html[data-theme='fairy']) .logo {
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    color: #ff9800;
-}
-
-
 .actions {
     display: flex;
     align-items: center;
@@ -101,11 +37,6 @@
     font-size: 0.9rem;
     color: var(--secondary);
     font-weight: 500;
-}
-
-/* Theme: Blue - Light text */
-:global(html[data-theme='blue']) .welcome {
-    color: #bcccdc;
 }
 
 .link {
@@ -140,25 +71,4 @@
     color: var(--foreground);
     font-size: 0.9rem;
     cursor: pointer;
-}
-
-/* Theme: Blue - Select tweaks */
-:global(html[data-theme='blue']) .langSelect {
-    background-color: #334e68;
-    color: white;
-    border-color: #486581;
-}
-
-/* Theme: Midnight */
-:global(html[data-theme='midnight']) .langSelect {
-    background-color: #1e1e24;
-    color: #bd93f9;
-    border-color: #444;
-}
-
-/* Theme: Fairy */
-:global(html[data-theme='fairy']) .langSelect {
-    border: 2px solid #b3e5fc;
-    color: #0277bd;
-    font-weight: bold;
 }

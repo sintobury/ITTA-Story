@@ -36,26 +36,26 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
     const [isReading, setIsReading] = useState(false);
     const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-    // Local state for comments
+    // 댓글 관리를 위한 로컬 상태
     const [comments, setComments] = useState<Comment[]>([]);
 
-    // Local state for Likes
+    // 좋아요 관리를 위한 로컬 상태
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
 
-    // States for blocking UI
+    // 차단 UI 관리를 위한 상태
     const [blockTarget, setBlockTarget] = useState<string | null>(null);
     const [blockReason, setBlockReason] = useState("spam");
     const [blockMemo, setBlockMemo] = useState("");
 
-    // States for delete UI
+    // 삭제 UI 관리를 위한 상태
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
     useEffect(() => {
-        // Initialize comments
+        // 댓글 초기화
         setComments(mockComments.filter((c) => c.bookId === id));
 
-        // Initialize likes
+        // 좋아요 상태 초기화
         if (rawBook) {
             setLikeCount(rawBook.likes);
             if (user) {
@@ -110,7 +110,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
         }
     };
 
-    // Filter comments based on blocked status
+    // 차단된 유저의 댓글 필터링
     const visibleComments = comments.filter(c => !isBlocked(c.userName));
 
     if (!user) {
@@ -163,7 +163,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                                 {t.bookDetail.previous}
                             </button>
                         ) : (
-                            <div /> /* Spacer */
+                            <div /> /* 여백 */
                         )}
 
                         {currentPageIndex < pages.length - 1 ? (
@@ -174,7 +174,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                                 {t.bookDetail.next}
                             </button>
                         ) : (
-                            <div /> /* Spacer */
+                            <div /> /* 여백 */
                         )}
                     </div>
                 </div>
@@ -245,7 +245,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                 </div>
             </div>
 
-            {/* Block Modal */}
+            {/* 차단 모달 */}
             {blockTarget && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
@@ -287,7 +287,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                 </div>
             )}
 
-            {/* Delete Modal */}
+            {/* 삭제 모달 */}
             {deleteTargetId && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
