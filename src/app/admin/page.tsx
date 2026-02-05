@@ -16,6 +16,8 @@ import { mockBooks, getLocalizedBook } from "@/lib/mockData";
 import styles from "./page.module.css";
 import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";
+import BookManagement from "@/components/admin/BookManagement";
+import UserManagement from "@/components/admin/UserManagement";
 import { useToast } from "@/hooks/useToast";
 
 export default function AdminPage() {
@@ -77,83 +79,16 @@ export default function AdminPage() {
             </div>
 
             {activeTab === 'books' ? (
-                <section className={styles.section} key="books">
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>표지</th>
-                                <th>제목</th>
-                                <th>저자</th>
-                                <th>작업</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {mockBooks.map(book => {
-                                const localizedBook = getLocalizedBook(book, language);
-                                return (
-                                    <tr key={book.id}>
-                                        <td><img src={localizedBook.coverUrl} alt="" className={styles.thumb} /></td>
-                                        <td>{localizedBook.title}</td>
-                                        <td>{localizedBook.author}</td>
-                                        <td>
-                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                <Link href={`/admin/edit/${book.id}`} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem', textDecoration: 'none' }}>
-                                                    수정
-                                                </Link>
-                                                <button
-                                                    onClick={() => handleInitiateDelete(book.id)}
-                                                    className="btn btn-danger"
-                                                    style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
-                                                >
-                                                    삭제
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </section>
+                <BookManagement
+                    books={mockBooks}
+                    language={language}
+                    onDeleteClick={handleInitiateDelete}
+                />
             ) : (
-                <section className={styles.section} key="users">
-                    <h2>차단된 유저 목록</h2>
-                    {blockedUsers.length === 0 ? (
-                        <p className={styles.emptyState}>차단된 유저가 없습니다.</p>
-                    ) : (
-                        <table className={styles.table}>
-                            <thead>
-                                <tr>
-                                    <th>유저</th>
-                                    <th>사유</th>
-                                    <th>메모</th>
-                                    <th>차단 일시</th>
-                                    <th>작업</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {blockedUsers.map(user => (
-                                    <tr key={user.userName}>
-                                        <td><strong>{user.userName}</strong></td>
-                                        <td>
-                                            {user.reason === 'spam' && '광고/스팸'}
-                                            {user.reason === 'abuse' && '욕설/비방'}
-                                            {user.reason === 'other' && '기타'}
-                                            {!['spam', 'abuse', 'other'].includes(user.reason) && user.reason}
-                                        </td>
-                                        <td>{user.memo || '-'}</td>
-                                        <td>{user.blockedAt}</td>
-                                        <td>
-                                            <button onClick={() => unblockUser(user.userName)} className="btn btn-secondary">
-                                                차단 해제
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </section>
+                <UserManagement
+                    blockedUsers={blockedUsers}
+                    onUnblock={unblockUser}
+                />
             )}
 
             {/* 책 삭제 확인 모달 */}

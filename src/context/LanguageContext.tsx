@@ -8,7 +8,7 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { translations, Language } from "@/lib/translations";
 
-interface LanguageContextType {
+export interface LanguageContextType {
     language: Language;
     setLanguage: (lang: Language) => void;
     t: typeof translations['en']; // 자동 완성을 위한 타입 헬퍼
