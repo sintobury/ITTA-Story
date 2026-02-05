@@ -13,7 +13,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useBlockedUser } from "@/context/BlockedUserContext";
 import { mockBooks, getLocalizedBook } from "@/lib/mockData";
-import styles from "./page.module.css";
 import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";
 import BookManagement from "@/components/admin/BookManagement";
@@ -57,22 +56,34 @@ export default function AdminPage() {
     if (!user || user.role !== 'ADMIN') return null;
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1>관리자 페이지</h1>
+        <div className="max-w-[1000px] mx-auto pt-12 px-4">
+            <div className="flex justify-between items-center mb-2">
+                <h1 className="text-2xl font-bold">관리자 페이지</h1>
             </div>
 
-            <div className={styles.tabs}>
-                <div className={styles.tabGroup}>
-                    <button onClick={() => setActiveTab('books')} className={activeTab === 'books' ? styles.activeTab : styles.tab}>
+            <div className="mb-8 border-b border-[var(--border)] flex justify-between items-center gap-4">
+                <div className="flex gap-4">
+                    <button
+                        onClick={() => setActiveTab('books')}
+                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base ${activeTab === 'books'
+                            ? 'border-[var(--primary)] text-[var(--primary)] font-bold'
+                            : 'border-transparent text-[var(--secondary)] font-normal'
+                            }`}
+                    >
                         책 관리
                     </button>
-                    <button onClick={() => setActiveTab('users')} className={activeTab === 'users' ? styles.activeTab : styles.tab}>
+                    <button
+                        onClick={() => setActiveTab('users')}
+                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base ${activeTab === 'users'
+                            ? 'border-[var(--primary)] text-[var(--primary)] font-bold'
+                            : 'border-transparent text-[var(--secondary)] font-normal'
+                            }`}
+                    >
                         유저 관리
                     </button>
                 </div>
                 {activeTab === 'books' && (
-                    <Link href="/admin/upload" className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.9em' }}>
+                    <Link href="/admin/upload" className="btn btn-primary text-sm px-3 py-1.5">
                         새 책 업로드
                     </Link>
                 )}
@@ -109,7 +120,7 @@ export default function AdminPage() {
             >
                 <div>
                     정말로 이 책을 삭제하시겠습니까?<br />
-                    <span style={{ fontSize: '0.9rem', color: 'var(--secondary)' }}>이 작업은 되돌릴 수 없습니다.</span>
+                    <span className="text-sm text-[var(--secondary)]">이 작업은 되돌릴 수 없습니다.</span>
                 </div>
             </Modal>
 

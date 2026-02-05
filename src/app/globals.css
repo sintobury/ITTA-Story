@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   /* 그린 파스텔 테마 (Green Pastel) - 기본 적용 */
   --background: #e8f5e9;
@@ -57,47 +61,24 @@ button {
   font-family: inherit;
 }
 
-/* Utilities */
-.container {
-  max-width: var(--container-max-width);
-  margin: 0 auto;
-  padding: 0 var(--spacing-md);
-}
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-[var(--radius)] font-medium transition-all duration-200 border text-[0.95rem] cursor-pointer;
+  }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius);
-  font-weight: 500;
-  transition: all 0.2s;
-  border: none;
-  font-size: 0.95rem;
-}
+  .btn-primary {
+    @apply bg-[var(--primary)] text-white border-2 border-[#2e7d32] hover:bg-[var(--primary-hover)];
+  }
 
-.btn-primary {
-  background-color: var(--primary);
-  color: white;
-  /* Green 테마 기본 스타일: 테두리 추가 */
-  border: 2px solid #2e7d32;
-}
+  .btn-secondary {
+    @apply bg-transparent border border-[var(--secondary)] text-[var(--secondary)] hover:bg-black/5;
+  }
 
-.btn-primary:hover {
-  background-color: var(--primary-hover);
-}
+  .btn-danger {
+    @apply bg-[var(--danger)] text-white border-none hover:brightness-90;
+  }
 
-.btn-secondary {
-  background-color: transparent;
-  border: 1px solid var(--secondary);
-  color: var(--secondary);
-}
-
-.btn-secondary:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.btn-danger {
-  background-color: var(--danger);
-  color: white;
+  .container {
+    @apply max-w-[var(--container-max-width)] mx-auto px-[var(--spacing-md)];
+  }
 }

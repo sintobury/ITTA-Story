@@ -9,7 +9,6 @@
 
 import { useState } from "react";
 import { Book, Page } from "@/lib/mockData";
-import styles from "./BookForm.module.css";
 import { useRouter } from "next/navigation";
 
 interface BookFormProps {
@@ -83,52 +82,55 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
     };
 
     return (
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8 max-w-[800px] mx-auto py-8 pb-24">
             {/* 헤더: 제목만 표시 */}
-            <div className={styles.header}>
-                <h2>{mode === "create" ? "새 책 업로드" : "책 수정"}</h2>
+            <div className="mb-4 pb-4 border-b border-[var(--border)]">
+                <h2 className="text-[1.8rem] text-[var(--foreground)] m-0">{mode === "create" ? "새 책 업로드" : "책 수정"}</h2>
             </div>
 
             {/* 섹션 1: 책 기본 정보 입력 */}
-            <section className={styles.section}>
-                <h3>1. 책 정보</h3>
+            <section className="bg-[var(--card-bg)] p-8 rounded-xl shadow-[var(--card-shadow)]">
+                <h3 className="mb-6 pb-2 border-b border-[var(--border)] text-[var(--primary)] text-lg font-bold">1. 책 정보</h3>
 
-                <div className={styles.formGroup}>
-                    <label>제목</label>
+                <div className="mb-6">
+                    <label className="block mb-2 font-medium text-[var(--secondary)]">제목</label>
                     <input
                         type="text"
                         value={title}
                         onChange={e => setTitle(e.target.value)}
                         placeholder="예: 어린 왕자"
                         required
+                        className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-base transition-colors focus:outline-none focus:border-[var(--primary)]"
                     />
                 </div>
 
-                <div className={styles.formGroup}>
-                    <label>저자</label>
+                <div className="mb-6">
+                    <label className="block mb-2 font-medium text-[var(--secondary)]">저자</label>
                     <input
                         type="text"
                         value={author}
                         onChange={e => setAuthor(e.target.value)}
                         placeholder="예: 앙투안 드 생텍쥐페리"
                         required
+                        className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-base transition-colors focus:outline-none focus:border-[var(--primary)]"
                     />
                 </div>
 
-                <div className={styles.formGroup}>
-                    <label>설명</label>
+                <div className="mb-6">
+                    <label className="block mb-2 font-medium text-[var(--secondary)]">설명</label>
                     <textarea
                         value={description}
                         onChange={e => setDescription(e.target.value)}
                         rows={4}
                         required
+                        className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-base transition-colors focus:outline-none focus:border-[var(--primary)]"
                     />
                 </div>
 
                 {/* 표지 이미지 업로드 UI */}
-                <div className={styles.formGroup}>
-                    <label>표지 이미지</label>
-                    <div className={styles.imageUpload}>
+                <div className="mb-6">
+                    <label className="block mb-2 font-medium text-[var(--secondary)]">표지 이미지</label>
+                    <div className="border-2 dashed border-[var(--border)] p-10 rounded-xl text-center transition-all bg-[var(--background)] flex flex-col items-center justify-center gap-4 hover:border-[var(--primary)] hover:bg-[#3498db08] group">
                         {!coverUrl ? (
                             <>
                                 <input
@@ -136,17 +138,17 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                     accept="image/*"
                                     onChange={(e) => handleImageUpload(e, setCoverUrl)}
                                     id="cover-upload"
-                                    className={styles.hiddenInput}
+                                    className="hidden"
                                 />
-                                <label htmlFor="cover-upload" className={styles.uploadLabel}>
+                                <label htmlFor="cover-upload" className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-[var(--border)] rounded-lg cursor-pointer font-medium text-[var(--foreground)] shadow-sm transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] hover:-translate-y-px hover:shadow-md">
                                     🖼️ 이미지 선택
                                 </label>
-                                <span style={{ fontSize: '0.9rem', color: 'var(--secondary)' }}>또는 파일을 여기로 드래그하세요</span>
+                                <span className="text-sm text-[var(--secondary)]">또는 파일을 여기로 드래그하세요</span>
                             </>
                         ) : (
-                            <div className={styles.preview}>
-                                <img src={coverUrl} alt="Cover preview" />
-                                <button type="button" onClick={() => setCoverUrl("")} className={styles.removeImageBtn}>
+                            <div className="mt-2 w-full flex flex-col items-center gap-4">
+                                <img src={coverUrl} alt="Cover preview" className="max-w-full max-h-[400px] rounded-lg shadow-md object-contain" />
+                                <button type="button" onClick={() => setCoverUrl("")} className="px-4 py-2 bg-[#fee2e2] text-[#dc2626] border-0 rounded-md text-sm font-semibold cursor-pointer transition-all flex items-center gap-1.5 hover:bg-[#fecaca] hover:-translate-y-px">
                                     🗑️ 이미지 삭제
                                 </button>
                             </div>
@@ -156,34 +158,35 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
             </section>
 
             {/* 섹션 2: 페이지 내용 입력 (동적으로 추가/삭제 가능) */}
-            <section className={styles.section}>
-                <h3>2. 페이지 내용</h3>
+            <section className="bg-[var(--card-bg)] p-8 rounded-xl shadow-[var(--card-shadow)]">
+                <h3 className="mb-6 pb-2 border-b border-[var(--border)] text-[var(--primary)] text-lg font-bold">2. 페이지 내용</h3>
 
                 {pages.map((page, index) => (
-                    <div key={index} className={styles.pageCard}>
-                        <div className={styles.pageHeader}>
-                            <h4>페이지 {index + 1}</h4>
+                    <div key={index} className="bg-[var(--background)] p-6 rounded-lg border border-[var(--border)] mb-8 relative">
+                        <div className="flex justify-between items-center mb-5 pb-3 border-b border-dashed border-[var(--border)]">
+                            <h4 className="text-[1.1rem] text-[var(--foreground)] font-semibold">페이지 {index + 1}</h4>
                             {pages.length > 1 && (
-                                <button type="button" onClick={() => removePage(index)} className={styles.removeBtn}>
+                                <button type="button" onClick={() => removePage(index)} className="bg-[#ffebee] text-[#c62828] border-0 px-3 py-1.5 rounded-md cursor-pointer text-sm font-semibold transition-all flex items-center gap-1.5 hover:bg-[#FFCDD2]">
                                     페이지 삭제
                                 </button>
                             )}
                         </div>
 
-                        <div className={styles.formGroup}>
-                            <label>텍스트 내용</label>
+                        <div className="mb-6">
+                            <label className="block mb-2 font-medium text-[var(--secondary)]">텍스트 내용</label>
                             <textarea
                                 value={page.content}
                                 onChange={(e) => handlePageChange(index, "content", e.target.value)}
                                 rows={6}
                                 placeholder="이 페이지의 내용을 입력하세요..."
                                 required
+                                className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-base transition-colors focus:outline-none focus:border-[var(--primary)]"
                             />
                         </div>
 
-                        <div className={styles.formGroup}>
-                            <label>삽화 (선택사항)</label>
-                            <div className={styles.imageUpload}>
+                        <div className="mb-6">
+                            <label className="block mb-2 font-medium text-[var(--secondary)]">삽화 (선택사항)</label>
+                            <div className="border-2 dashed border-[var(--border)] p-10 rounded-xl text-center transition-all bg-[var(--background)] flex flex-col items-center justify-center gap-4 hover:border-[var(--primary)] hover:bg-[#3498db08]">
                                 {!page.imageUrl ? (
                                     <>
                                         <input
@@ -191,19 +194,19 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                             accept="image/*"
                                             onChange={(e) => handleImageUpload(e, (url) => handlePageChange(index, "imageUrl", url))}
                                             id={`page-upload-${index}`}
-                                            className={styles.hiddenInput}
+                                            className="hidden"
                                         />
-                                        <label htmlFor={`page-upload-${index}`} className={styles.uploadLabel}>
+                                        <label htmlFor={`page-upload-${index}`} className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-[var(--border)] rounded-lg cursor-pointer font-medium text-[var(--foreground)] shadow-sm transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] hover:-translate-y-px hover:shadow-md">
                                             🖼️ 이미지 선택
                                         </label>
                                     </>
                                 ) : (
-                                    <div className={styles.preview}>
-                                        <img src={page.imageUrl} alt="Page preview" />
+                                    <div className="mt-2 w-full flex flex-col items-center gap-4">
+                                        <img src={page.imageUrl} alt="Page preview" className="max-w-full max-h-[400px] rounded-lg shadow-md object-contain" />
                                         <button
                                             type="button"
                                             onClick={() => handlePageChange(index, "imageUrl", "")}
-                                            className={styles.removeImageBtn}
+                                            className="px-4 py-2 bg-[#fee2e2] text-[#dc2626] border-0 rounded-md text-sm font-semibold cursor-pointer transition-all flex items-center gap-1.5 hover:bg-[#fecaca] hover:-translate-y-px"
                                         >
                                             🗑️ 이미지 삭제
                                         </button>
@@ -214,17 +217,17 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                     </div>
                 ))}
 
-                <button type="button" onClick={addPage} className={styles.addPageBtn}>
+                <button type="button" onClick={addPage} className="flex items-center justify-center w-full p-6 bg-[var(--background)] border-2 dashed border-[var(--border)] rounded-xl text-[var(--secondary)] font-semibold text-[1.1rem] cursor-pointer transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] hover:bg-[#3498db08]">
                     + 페이지 추가
                 </button>
             </section>
 
             {/* 하단 우측 고정 액션 버튼 (취소 / 저장) */}
-            <div className={styles.floatingActions}>
-                <button type="button" onClick={() => router.back()} className={styles.cancelBtn}>
+            <div className="fixed bottom-8 right-8 flex gap-4 z-[1000] p-4 bg-white/80 backdrop-blur-md rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-black/5 dark:bg-[#1e1e1e]/80 dark:border-white/10">
+                <button type="button" onClick={() => router.back()} className="px-6 py-3 bg-[var(--card-bg)] border border-[var(--border)] rounded-full cursor-pointer font-semibold text-[var(--secondary)] transition-all shadow-sm hover:bg-[var(--card-bg)] hover:text-[var(--foreground)] hover:-translate-y-0.5 hover:shadow-md">
                     취소
                 </button>
-                <button type="submit" className={styles.submitBtn}>
+                <button type="submit" className="px-8 py-3 bg-[var(--primary)] text-white border-0 rounded-full text-base font-semibold cursor-pointer shadow-[0_4px_12px_rgba(52,152,219,0.4)] transition-all hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(52,152,219,0.5)]">
                     {mode === "create" ? "책 발행하기" : "변경사항 저장"}
                 </button>
             </div>

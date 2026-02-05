@@ -10,7 +10,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
-import styles from "@/app/login/page.module.css"; // Reuse login styles
 
 export default function SignupPage() {
     const [id, setId] = useState("");
@@ -49,14 +48,14 @@ export default function SignupPage() {
     };
 
     return (
-        <div className={styles.container}>
-            <div className={styles.formCard}>
-                <h1 className={styles.title}>{t.auth.signupTitle}</h1>
+        <div className="flex justify-center pt-20 pb-8 min-h-[80vh]">
+            <div className="bg-[var(--card-bg)] p-10 rounded-xl shadow-[var(--card-shadow)] w-full max-w-[400px]">
+                <h1 className="text-center mb-8 text-[var(--primary)] text-3xl font-bold">{t.auth.signupTitle}</h1>
 
                 <form onSubmit={handleSubmit}>
-                    <div className={styles.formGroup}>
-                        <label className={styles.label}>{t.auth.id}</label>
-                        <div className={styles.inputGroup}>
+                    <div className="mb-6">
+                        <label className="block mb-2 font-medium text-[var(--foreground)]">{t.auth.id}</label>
+                        <div className="flex gap-2">
                             <input
                                 type="text"
                                 value={id}
@@ -66,56 +65,56 @@ export default function SignupPage() {
                                     setIdMessage(null);
                                 }}
                                 placeholder={t.auth.idPlaceholder}
-                                className={styles.input}
+                                className="w-full p-3 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] text-base focus:outline-none focus:border-[var(--primary)] transition-colors"
                                 required
                             />
                             <button
                                 type="button"
                                 onClick={handleCheckDuplicate}
-                                className={styles.checkBtn}
+                                className="px-4 bg-[var(--secondary)] text-white border-none rounded-md cursor-pointer whitespace-nowrap text-sm hover:brightness-90 transition-all font-medium"
                             >
                                 {t.auth.checkDuplicate}
                             </button>
                         </div>
                         {idMessage && (
-                            <p className={idMessage.type === 'success' ? styles.successMsg : styles.errorMsg}>
+                            <p className={`text-sm mt-1.5 ${idMessage.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
                                 {idMessage.text}
                             </p>
                         )}
                     </div>
 
-                    <div className={styles.formGroup}>
-                        <label className={styles.label}>{t.auth.password}</label>
+                    <div className="mb-6">
+                        <label className="block mb-2 font-medium text-[var(--foreground)]">{t.auth.password}</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder={t.auth.pwPlaceholder}
-                            className={styles.input}
+                            className="w-full p-3 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] text-base focus:outline-none focus:border-[var(--primary)] transition-colors"
                             required
                         />
                     </div>
 
-                    <div className={styles.formGroup}>
-                        <label className={styles.label}>{t.auth.nickname}</label>
+                    <div className="mb-6">
+                        <label className="block mb-2 font-medium text-[var(--foreground)]">{t.auth.nickname}</label>
                         <input
                             type="text"
                             value={nickname}
                             onChange={(e) => setNickname(e.target.value)}
                             placeholder={t.auth.nickPlaceholder}
-                            className={styles.input}
+                            className="w-full p-3 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] text-base focus:outline-none focus:border-[var(--primary)] transition-colors"
                             required
                         />
                     </div>
 
-                    <button type="submit" className={styles.submitBtn}>
+                    <button type="submit" className="w-full p-3 bg-[var(--primary)] text-white border-none rounded-md text-base font-semibold cursor-pointer mt-4 hover:brightness-90 transition-all shadow-md hover:shadow-lg">
                         {t.auth.signupBtn}
                     </button>
                 </form>
 
-                <div className={styles.footer}>
+                <div className="mt-6 text-center text-sm text-[var(--secondary)]">
                     {t.auth.hasAccount}
-                    <Link href="/login" className={styles.link}>
+                    <Link href="/login" className="text-[var(--primary)] no-underline font-medium ml-2 hover:underline">
                         {t.auth.loginBtn}
                     </Link>
                 </div>

@@ -5,20 +5,18 @@
  */
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import BookForm from "@/components/BookForm";
-import styles from "./page.module.css";
 
 export default function UploadPage() {
     const { user } = useAuth();
 
     if (!user || user.role !== 'ADMIN') {
-        return <div className={styles.container}>Access Denied</div>;
+        return <div className="max-w-[800px] mx-auto pb-16">Access Denied</div>;
     }
 
     return (
-        <div className={styles.container}>
+        <div className="max-w-[800px] mx-auto pb-16">
             <BookForm mode="create" />
         </div>
     );

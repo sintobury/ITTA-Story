@@ -22,7 +22,6 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useBlockedUser } from "@/context/BlockedUserContext";
-import styles from "./page.module.css";
 import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";
 import { useToast } from "@/hooks/useToast";
@@ -131,14 +130,14 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
 
     if (!user) {
         return (
-            <div className={styles.container}>
-                <div className={styles.lockedState}>
-                    <img src={book.coverUrl} alt={book.title} className={styles.lockedCover} />
-                    <h1>{book.title}</h1>
-                    <p className={styles.author}>by {book.author}</p>
-                    <p className={styles.description}>{book.description}</p>
+            <div className="max-w-[800px] mx-auto py-8 animate-fadeIn">
+                <div className="text-center p-12 bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)]">
+                    <img src={book.coverUrl} alt={book.title} className="w-[200px] h-[300px] object-cover rounded-lg mb-6 shadow-lg inline-block" />
+                    <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
+                    <p className="text-[var(--secondary)] text-lg mb-6">by {book.author}</p>
+                    <p className="mb-6">{book.description}</p>
 
-                    <div className={styles.lockMessage}>
+                    <div className="mt-8 p-4 bg-[#fff3cd] text-[#856404] rounded-md inline-block">
                         <p>🔒 {t.bookDetail.locked}</p>
                     </div>
                 </div>
@@ -147,21 +146,24 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
     }
 
     return (
-        <div className={styles.container}>
+        <div className="max-w-[800px] mx-auto py-8 animate-fadeIn">
             {isReading ? (
-                <div className={styles.readerContainer}>
-                    <button onClick={() => setIsReading(false)} className={styles.closeButton}>
+                <div className="max-w-[1200px] mx-auto min-h-[80vh] flex flex-col items-center justify-center relative pt-12">
+                    <button
+                        onClick={() => setIsReading(false)}
+                        className="absolute top-0 right-0 z-30 bg-white py-2.5 px-5 rounded-full border border-[var(--border)] font-medium cursor-pointer shadow-sm transition-all text-sm text-[var(--foreground)] flex items-center gap-2 hover:bg-[#f8f9fa] hover:-translate-y-0.5 hover:shadow-md hover:text-[var(--primary)] hover:border-[var(--primary)]"
+                    >
                         ← 책 덮기
                     </button>
 
-                    <div className={styles.bookSpread}>
+                    <div className="flex items-center justify-center gap-0 my-4 mb-8 perspective-[1500px]">
                         {/* 왼쪽 이동 버튼 */}
                         <button
                             onClick={() => {
                                 setDirection('prev');
                                 setCurrentPageIndex(p => Math.max(0, p - 2));
                             }}
-                            className={styles.navButton}
+                            className="bg-white/80 border border-[var(--border)] rounded-full w-[50px] h-[50px] flex items-center justify-center text-2xl cursor-pointer transition-all shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:bg-[#eee]"
                             disabled={currentPageIndex === 0}
                         >
                             ‹
@@ -170,10 +172,10 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                         {/* 왼쪽 페이지 (짝수) */}
                         <div
                             className={`
-                                ${styles.pageWrapper} 
-                                ${styles.leftPage} 
-                                ${direction === 'prev' ? styles.turnPrev : ''} 
-                                ${currentPageIndex > 0 ? styles.clickablePage : ''}
+                                w-[450px] h-[560px] flex flex-col justify-between origin-center-bottom bg-[#fffbf0] p-12 pb-4 border border-[#f0e6d2] relative transition-transform shadow-md duration-200
+                                rounded-l-xl rounded-r-sm shadow-[inset_-15px_0_20px_rgba(0,0,0,0.03),_-5px_5px_15px_rgba(0,0,0,0.1)] border-r-0 origin-right
+                                ${direction === 'prev' ? 'animate-flipInLeft' : ''} 
+                                ${currentPageIndex > 0 ? 'cursor-pointer hover:-translate-y-[2px] hover:shadow-[inset_0_0_20px_rgba(0,0,0,0.02),_4px_8px_20px_rgba(0,0,0,0.15)]' : ''}
                             `}
                             onClick={() => {
                                 if (currentPageIndex > 0) {
@@ -182,33 +184,33 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                                 }
                             }}
                         >
-                            <div className={styles.pageContent}>
+                            <div className="flex-1 p-8 flex flex-col items-center justify-center text-center perspective-[1000px] overflow-hidden">
                                 {pages[currentPageIndex] ? (
                                     <>
                                         {pages[currentPageIndex].imageUrl && (
                                             <PageImage src={pages[currentPageIndex].imageUrl!} alt="Page illustration" />
                                         )}
-                                        <p className={styles.text}>{pages[currentPageIndex].content}</p>
+                                        <p className="text-xl leading-[1.8] max-w-[600px]">{pages[currentPageIndex].content}</p>
                                     </>
                                 ) : (
-                                    <div className={styles.emptyMessage} style={{ flex: 1 }} />
+                                    <div className="flex-1" />
                                 )}
                             </div>
-                            <div className={styles.pageFooter}>
+                            <div className="w-full flex justify-center text-sm text-[var(--secondary)] pt-4">
                                 - {currentPageIndex + 1} -
                             </div>
                         </div>
 
                         {/* 책등 */}
-                        <div className={styles.spine}></div>
+                        <div className="w-[2px] h-[540px] bg-[#d1d5db] shadow-inner z-10"></div>
 
                         {/* 오른쪽 페이지 (홀수) */}
                         <div
                             className={`
-                                ${styles.pageWrapper} 
-                                ${styles.rightPage} 
-                                ${direction === 'next' ? styles.turnNext : ''}
-                                ${currentPageIndex < pages.length - 2 ? styles.clickablePage : ''}
+                                w-[450px] h-[560px] flex flex-col justify-between origin-center-bottom bg-[#fffbf0] p-12 pb-4 border border-[#f0e6d2] relative transition-transform shadow-md duration-200
+                                rounded-r-xl rounded-l-sm shadow-[inset_15px_0_20px_rgba(0,0,0,0.03),_5px_5px_15px_rgba(0,0,0,0.1)] border-l-0 origin-left
+                                ${direction === 'next' ? 'animate-flipInRight' : ''}
+                                ${currentPageIndex < pages.length - 2 ? 'cursor-pointer hover:-translate-y-[2px] hover:shadow-[inset_0_0_20px_rgba(0,0,0,0.02),_4px_8px_20px_rgba(0,0,0,0.15)]' : ''}
                             `}
                             onClick={() => {
                                 // 현재 오른쪽 페이지(Index+1)가 있거나, 페이지를 넘길 수 있는 경우
@@ -218,21 +220,21 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                                 }
                             }}
                         >
-                            <div className={styles.pageContent}>
+                            <div className="flex-1 p-8 flex flex-col items-center justify-center text-center perspective-[1000px] overflow-hidden">
                                 {pages[currentPageIndex + 1] ? (
                                     <>
                                         {pages[currentPageIndex + 1].imageUrl && (
                                             <PageImage src={pages[currentPageIndex + 1].imageUrl!} alt="Page illustration" />
                                         )}
-                                        <p className={styles.text}>{pages[currentPageIndex + 1].content}</p>
+                                        <p className="text-xl leading-[1.8] max-w-[600px]">{pages[currentPageIndex + 1].content}</p>
                                     </>
                                 ) : (
-                                    <div className={styles.emptyMessage} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--secondary)' }}>
+                                    <div className="flex items-center justify-center h-full text-[var(--secondary)] italic">
                                         (마지막 페이지입니다)
                                     </div>
                                 )}
                             </div>
-                            <div className={styles.pageFooter}>
+                            <div className="w-full flex justify-center text-sm text-[var(--secondary)] pt-4">
                                 - {currentPageIndex + 2 <= pages.length ? currentPageIndex + 2 : ''} -
                             </div>
                         </div>
@@ -243,7 +245,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                                 setDirection('next');
                                 setCurrentPageIndex(p => Math.min(pages.length - (pages.length % 2 === 0 ? 2 : 1), p + 2));
                             }}
-                            className={styles.navButton}
+                            className="bg-white/80 border border-[var(--border)] rounded-full w-[50px] h-[50px] flex items-center justify-center text-2xl cursor-pointer transition-all shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:bg-[#eee]"
                             disabled={currentPageIndex >= pages.length - 2}
                         >
                             ›
@@ -251,20 +253,20 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                     </div>
                 </div>
             ) : (
-                <div className={styles.bookHero}>
-                    <img src={book.coverUrl} alt={book.title} className={styles.heroCover} />
-                    <div className={styles.heroInfo}>
-                        <h1>{book.title}</h1>
-                        <p className={styles.author}>by {book.author}</p>
-                        <p className={styles.description}>{book.description}</p>
+                <div className="flex gap-8 mb-12 bg-[var(--card-bg)] p-8 rounded-xl shadow-[var(--card-shadow)] max-[600px]:flex-col max-[600px]:items-center max-[600px]:text-center">
+                    <img src={book.coverUrl} alt={book.title} className="w-[200px] h-[300px] object-cover rounded-lg flex-shrink-0" />
+                    <div className="flex-1">
+                        <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
+                        <p className="text-[var(--secondary)] text-lg mb-6">by {book.author}</p>
+                        <p className="mb-6">{book.description}</p>
 
-                        <div className={styles.heroActions}>
+                        <div className="flex gap-4 mt-6">
                             <button onClick={() => setIsReading(true)} className="btn btn-primary">
                                 📖 {t.bookDetail.readNow}
                             </button>
                             <button
                                 onClick={handleToggleLike}
-                                className={`btn ${isLiked ? 'btn-danger' : 'btn-secondary'} ${styles.likeButton} ${isLikedAnimating ? styles.likeBurst : ''}`}
+                                className={`btn ${isLiked ? 'btn-danger' : 'btn-secondary'} relative transition-transform active:scale-90 overflow-visible ${isLikedAnimating ? 'animate-heartBounce before:content-[\'\'] before:absolute before:top-1/2 before:left-1/2 before:w-full before:h-full before:rounded-full before:z-[-1] before:border-2 before:border-red-400 before:animate-ringExpand after:content-[\'\'] after:absolute after:top-1/2 after:left-1/2 after:w-full after:h-full after:rounded-full after:z-[-1] after:animate-particlesExpand' : ''}`}
                                 title={isLiked ? "Unlike" : "Like"}
                             >
                                 {isLiked ? `❤️ ${t.bookDetail.like}` : `🤍 ${t.bookDetail.like}`} ({likeCount})
@@ -274,30 +276,30 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                 </div>
             )}
 
-            <div className={styles.commentsSection}>
-                <h3>{t.bookDetail.comments} ({visibleComments.length})</h3>
-                <div className={styles.commentList}>
+            <div className="mt-12">
+                <h3 className="mb-6 text-xl font-bold">{t.bookDetail.comments} ({visibleComments.length})</h3>
+                <div className="flex flex-col gap-4 mb-8">
                     {visibleComments.length > 0 ? (
                         visibleComments.map(comment => {
                             const localizedComment = getLocalizedComment(comment, language);
                             return (
-                                <div key={comment.id} className={styles.comment}>
-                                    <div className={styles.commentHeader}>
+                                <div key={comment.id} className="bg-[var(--card-bg)] p-4 rounded-lg border border-[var(--border)]">
+                                    <div className="flex justify-between mb-2 text-sm">
                                         <strong>{localizedComment.userName}</strong>
-                                        <span className={styles.date}>{localizedComment.createdAt}</span>
+                                        <span className="text-[var(--secondary)]">{localizedComment.createdAt}</span>
                                     </div>
                                     <p>{localizedComment.content}</p>
                                     {user.role === 'ADMIN' && (
-                                        <div className={styles.adminActions}>
+                                        <div className="flex gap-3 mt-3 justify-end">
                                             <button
                                                 onClick={() => initiateDeleteComment(comment.id)}
-                                                className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                                                className="px-3 py-1.5 rounded-md border-none text-sm font-semibold cursor-pointer transition-all flex items-center gap-1.5 bg-[#fee2e2] text-[#dc2626] hover:bg-[#fecaca] hover:-translate-y-px"
                                             >
                                                 🗑️ 삭제
                                             </button>
                                             <button
                                                 onClick={() => handleInitiateBlock(comment.userName)}
-                                                className={`${styles.actionBtn} ${styles.blockBtn}`}
+                                                className="px-3 py-1.5 rounded-md border-none text-sm font-semibold cursor-pointer transition-all flex items-center gap-1.5 bg-[#ffedd5] text-[#ea580c] hover:bg-[#fed7aa] hover:-translate-y-px"
                                             >
                                                 🚫 차단
                                             </button>
@@ -307,13 +309,17 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                             );
                         })
                     ) : (
-                        <p className={styles.noComments}>{t.bookDetail.noComments}</p>
+                        <p className="text-[var(--secondary)] italic">{t.bookDetail.noComments}</p>
                     )}
                 </div>
 
-                <div className={styles.addComment}>
-                    <textarea placeholder={t.bookDetail.placeholder} className={styles.textarea} rows={3} />
-                    <button className="btn btn-primary">{t.bookDetail.postComment}</button>
+                <div className="flex flex-col gap-4">
+                    <textarea
+                        placeholder={t.bookDetail.placeholder}
+                        className="w-full p-4 border border-[var(--border)] rounded-lg font-inherit resize-y focus:outline-none focus:border-[var(--primary)] focus:shadow-[0_0_0_2px_rgba(52,152,219,0.1)] transition-colors"
+                        rows={3}
+                    />
+                    <button className="btn btn-primary self-start">{t.bookDetail.postComment}</button>
                 </div>
             </div>
 
@@ -323,7 +329,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                 onClose={() => setBlockTarget(null)}
                 title={
                     <span>
-                        유저 차단 <span style={{ color: 'var(--primary)', fontSize: '0.9em' }}>({blockTarget})</span>
+                        유저 차단 <span className="text-[var(--primary)] text-sm">({blockTarget})</span>
                     </span>
                 }
                 footer={
@@ -338,12 +344,12 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                 }
             >
                 <div>
-                    <div className={styles.formGroup}>
-                        <label className={styles.inputLabel}>차단 사유</label>
+                    <div className="mb-5">
+                        <label className="block mb-2 font-medium text-[var(--secondary)] text-sm">차단 사유</label>
                         <select
                             value={blockReason}
                             onChange={e => setBlockReason(e.target.value)}
-                            className={styles.selectInput}
+                            className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-[0.95rem] transition-colors focus:outline-none focus:border-[var(--primary)] focus:shadow-[0_0_0_2px_rgba(52,152,219,0.1)]"
                         >
                             <option value="spam">광고/스팸</option>
                             <option value="abuse">욕설/비방</option>
@@ -351,13 +357,13 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                         </select>
                     </div>
 
-                    <div className={styles.formGroup}>
-                        <label className={styles.inputLabel}>메모 (선택사항)</label>
+                    <div className="mb-5">
+                        <label className="block mb-2 font-medium text-[var(--secondary)] text-sm">메모 (선택사항)</label>
                         <textarea
                             value={blockMemo}
                             onChange={e => setBlockMemo(e.target.value)}
                             rows={3}
-                            className={styles.textAreaInput}
+                            className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-[0.95rem] transition-colors focus:outline-none focus:border-[var(--primary)] focus:shadow-[0_0_0_2px_rgba(52,152,219,0.1)]"
                             placeholder="관리자용 메모를 입력하세요"
                         />
                     </div>
@@ -382,7 +388,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
             >
                 <div>
                     정말로 이 댓글을 삭제하시겠습니까?<br />
-                    <span style={{ fontSize: '0.9rem', color: 'var(--secondary)' }}>이 작업은 되돌릴 수 없습니다.</span>
+                    <span className="text-sm text-[var(--secondary)]">이 작업은 되돌릴 수 없습니다.</span>
                 </div>
             </Modal>
 
@@ -396,12 +402,12 @@ function PageImage({ src, alt }: { src: string; alt: string }) {
     const [isLoading, setIsLoading] = useState(true);
 
     return (
-        <div className={styles.imageContainer}>
-            {isLoading && <div className={styles.skeleton} />}
+        <div className={`relative w-full min-h-[200px] mb-8 rounded-lg overflow-hidden ${isLoading ? 'bg-[#f3f4f6]' : 'bg-transparent'}`}>
+            {isLoading && <div className="absolute top-0 left-0 w-full h-full bg-gray-200 animate-pulse z-10" />}
             <img
                 src={src}
                 alt={alt}
-                className={`${styles.pageImage} ${!isLoading ? styles.pageImageLoaded : ''}`}
+                className={`block max-w-full max-h-[400px] w-full object-contain rounded-lg transition-opacity duration-700 ${!isLoading ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setIsLoading(false)}
             />
         </div>

@@ -12,31 +12,30 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTheme, Theme } from "@/context/ThemeContext";
-import styles from "./Navbar.module.css";
 import { Language } from "@/lib/translations";
 
 export default function Navbar() {
     // 커스텀 훅을 사용하여 전역 상태(로그인, 언어, 테마)를 가져옴
     const { user, logout } = useAuth();
     const { language, setLanguage, t } = useLanguage();
-    const { theme, setTheme } = useTheme();
+    // Theme context is available if needed for future toggles
+    // const { theme, setTheme } = useTheme();
 
     return (
-        <nav className={styles.navbar}>
-            <div className={`container ${styles.navContainer}`}>
+        <nav className="bg-[var(--card-bg)] shadow-sm sticky top-0 z-[100] w-full transition-all duration-300 border-b border-[var(--border)]">
+            <div className="max-w-[1200px] mx-auto px-4 py-3 flex justify-between items-center w-full">
                 {/* 로고: 클릭 시 메인 페이지로 이동 */}
-                <Link href="/" className={styles.logo}>
+                <Link href="/" className="text-2xl font-extrabold text-[var(--primary)] no-underline flex items-center gap-2">
                     📚 E-Library
                 </Link>
 
-                <div className={styles.actions}>
+                <div className="flex items-center gap-4">
 
                     {/* 언어 선택 드롭다운 */}
                     <select
                         value={language}
                         onChange={(e) => setLanguage(e.target.value as Language)}
-                        className={styles.langSelect}
-                        style={{ marginRight: '1rem', padding: '0.4rem', borderRadius: '6px' }}
+                        className="p-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] text-sm cursor-pointer mr-4"
                     >
                         <option value="ko">한국어</option>
                         <option value="en">English</option>
@@ -47,7 +46,7 @@ export default function Navbar() {
                     {/* 로그인 상태에 따른 UI 분기 처리 */}
                     {user ? (
                         <>
-                            <span className={styles.welcome}>
+                            <span className="text-sm text-[var(--secondary)] font-medium">
                                 Hello, <strong>{user.name}</strong> ({user.role})
                             </span>
                             {/* 관리자(ADMIN)일 경우에만 관리자 페이지 링크 표시 */}
@@ -62,11 +61,11 @@ export default function Navbar() {
                         </>
                     ) : (
                         // 비로그인 상태일 때 로그인/회원가입 버튼 표시
-                        <div className={styles.authButtons}>
-                            <Link href="/login" className="btn btn-primary" style={{ textDecoration: 'none' }}>
+                        <div className="flex gap-2 items-center">
+                            <Link href="/login" className="btn btn-primary no-underline">
                                 {t.nav.login}
                             </Link>
-                            <Link href="/signup" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+                            <Link href="/signup" className="btn btn-secondary no-underline">
                                 {t.nav.signup}
                             </Link>
                         </div>

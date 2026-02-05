@@ -11,7 +11,6 @@ import { notFound, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import BookForm from "@/components/BookForm";
 import { mockBooks, mockPages, Book, Page } from "@/lib/mockData";
-import styles from "@/app/admin/upload/page.module.css";
 
 export default function EditBookPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -46,7 +45,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
     }
 
     if (loading) {
-        return <div className={styles.container}>Loading...</div>;
+        return <div className="max-w-[800px] mx-auto pb-16">Loading...</div>;
     }
 
     if (!book) {
@@ -54,7 +53,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
     }
 
     return (
-        <div className={styles.container}>
+        <div className="max-w-[800px] mx-auto pb-16">
             <BookForm
                 initialBook={book}
                 initialPages={pages}
