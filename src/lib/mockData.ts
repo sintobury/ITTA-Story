@@ -46,7 +46,7 @@ export const mockUserLikes: Record<string, string[]> = {
     "u2": ["2"],
 };
 
-export const mockBooks: Book[] = [
+const originalBooks: Book[] = [
     {
         id: "1",
         title: "The Little Prince",
@@ -168,6 +168,34 @@ export const mockBooks: Book[] = [
         }
     }
 ];
+
+// 50개 이상의 더미 데이터를 생성하여 페이지네이션 테스트
+const generateMoreBooks = (): Book[] => {
+    const moreBooks: Book[] = [];
+    const colors = ['2c3e50', '8e44ad', '27ae60', 'c0392b', 'd35400', '8B4513', '16a085', '2980b9'];
+
+    for (let i = 7; i <= 56; i++) {
+        const color = colors[i % colors.length];
+        moreBooks.push({
+            id: i.toString(),
+            title: `Book Title ${i}`,
+            author: `Author Number ${i}`,
+            description: `This is a generated description for book number ${i}. It serves as a placeholder to test the layout and pagination features.`,
+            coverUrl: `https://placehold.co/400x600/${color}/FFFFFF?text=Book+${i}`,
+            likes: Math.floor(Math.random() * 200),
+            translations: {
+                ko: {
+                    title: `책 제목 ${i}`,
+                    author: `작가 번호 ${i}`,
+                    description: `이것은 책 번호 ${i}에 대한 생성된 설명입니다. 레이아웃과 페이지네이션 기능을 테스트하기 위한 용도입니다.`
+                }
+            }
+        });
+    }
+    return moreBooks;
+};
+
+export const mockBooks: Book[] = [...originalBooks, ...generateMoreBooks()];
 
 export const mockPages: Record<string, Page[]> = {
     "1": [
