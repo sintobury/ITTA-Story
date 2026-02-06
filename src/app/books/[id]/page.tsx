@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, use, useEffect } from "react";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import {
     mockBooks,
     mockPages,
@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/useToast";
 export default function BookDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const { user } = useAuth();
+    const router = useRouter(); // 로그인 페이지 이동을 위해 추가
     const { t, language } = useLanguage();
     const { isBlocked, blockUser } = useBlockedUser();
 
@@ -108,7 +109,11 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
     };
 
     const handleToggleLike = () => {
-        if (!user) return;
+        // 게스트: 토스트 메시지 출력
+        if (!user) {
+            triggerToast("로그인 후 좋아요를 누를 수 있습니다.");
+            return;
+        }
 
         if (isLiked) {
             // 좋아요 취소: 애니메이션 없이 상태만 변경 (혹은 진행중인 애니메이션 중단)
@@ -128,22 +133,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
     // 차단된 유저의 댓글 필터링
     const visibleComments = comments.filter(c => !isBlocked(c.userName));
 
-    if (!user) {
-        return (
-            <div className="max-w-[800px] mx-auto py-8 animate-fadeIn">
-                <div className="text-center p-12 bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)]">
-                    <img src={book.coverUrl} alt={book.title} className="w-[200px] h-[300px] object-cover rounded-lg mb-6 shadow-lg inline-block" />
-                    <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
-                    <p className="text-[var(--secondary)] text-lg mb-6">by {book.author}</p>
-                    <p className="mb-6">{book.description}</p>
-
-                    <div className="mt-8 p-4 bg-[#fff3cd] text-[#856404] rounded-md inline-block">
-                        <p>🔒 {t.bookDetail.locked}</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    // [제거됨] 로그인 차단 로직 (게스트 읽기 허용)
 
     return (
         <div className="max-w-[800px] mx-auto py-8 animate-fadeIn">
@@ -267,7 +257,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                             <button
                                 onClick={handleToggleLike}
                                 className={`btn ${isLiked ? 'btn-danger' : 'btn-secondary'} relative transition-transform active:scale-90 overflow-visible ${isLikedAnimating ? 'animate-heartBounce before:content-[\'\'] before:absolute before:top-1/2 before:left-1/2 before:w-full before:h-full before:rounded-full before:z-[-1] before:border-2 before:border-red-400 before:animate-ringExpand after:content-[\'\'] after:absolute after:top-1/2 after:left-1/2 after:w-full after:h-full after:rounded-full after:z-[-1] after:animate-particlesExpand' : ''}`}
-                                title={isLiked ? "Unlike" : "Like"}
+                                title={user ? (isLiked ? "Unlike" : "Like") : "Login to Like"}
                             >
                                 {isLiked ? `❤️ ${t.bookDetail.like}` : `🤍 ${t.bookDetail.like}`} ({likeCount})
                             </button>
@@ -289,7 +279,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                                         <span className="text-[var(--secondary)]">{localizedComment.createdAt}</span>
                                     </div>
                                     <p>{localizedComment.content}</p>
-                                    {user.role === 'ADMIN' && (
+                                    {user?.role === 'ADMIN' && (
                                         <div className="flex gap-3 mt-3 justify-end">
                                             <button
                                                 onClick={() => initiateDeleteComment(comment.id)}
@@ -313,14 +303,23 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                     )}
                 </div>
 
-                <div className="flex flex-col gap-4">
-                    <textarea
-                        placeholder={t.bookDetail.placeholder}
-                        className="w-full p-4 border border-[var(--border)] rounded-lg font-inherit resize-y focus:outline-none focus:border-[var(--primary)] focus:shadow-[0_0_0_2px_rgba(52,152,219,0.1)] transition-colors"
-                        rows={3}
-                    />
-                    <button className="btn btn-primary self-start">{t.bookDetail.postComment}</button>
-                </div>
+                {user ? (
+                    <div className="flex flex-col gap-4">
+                        <textarea
+                            placeholder={t.bookDetail.placeholder}
+                            className="w-full p-4 border border-[var(--border)] rounded-lg font-inherit resize-y focus:outline-none focus:border-[var(--primary)] focus:shadow-[0_0_0_2px_rgba(52,152,219,0.1)] transition-colors"
+                            rows={3}
+                        />
+                        <button className="btn btn-primary self-start">{t.bookDetail.postComment}</button>
+                    </div>
+                ) : (
+                    <div className="p-6 bg-[var(--background)] border border-[var(--border)] rounded-lg text-center">
+                        <p className="text-[var(--secondary)] mb-4">로그인하고 댓글을 남겨보세요! ✍️</p>
+                        <button onClick={() => router.push('/login')} className="btn btn-secondary">
+                            로그인하러 가기
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* 차단 모달 */}
