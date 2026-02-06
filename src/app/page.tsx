@@ -29,14 +29,19 @@ function HomeContent() {
   const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
 
   // 검색 입력을 위한 로컬 상태 (Controlled Input)
-  const [keyword, setKeyword] = useState(searchQuery);
-  const [filterType, setFilterType] = useState(searchType);
+  const [keyword, setKeyword] = useState("");
+  const [filterType, setFilterType] = useState("title");
+  const [mounted, setMounted] = useState(false);
 
-  // 로컬 상태와 URL 파라미터 동기화
+  // 로컬 상태와 URL 파라미터 동기화 (마운트 후 실행하여 Hydration Mismatch 방지)
   useEffect(() => {
     setKeyword(searchQuery);
     setFilterType(searchType);
+    setMounted(true);
   }, [searchQuery, searchType]);
+
+  // 서버 사이드 렌더링 시(또는 마운트 전)에는 기본 상태(전체 목록, 최신순)를 유지해야 함
+  // 클라이언트 마운트 후에만 URL 파라미터에 따른 필터/정렬을 적용
 
   const handleSearch = () => {
     router.push(`/?page=1&q=${encodeURIComponent(keyword)}&type=${filterType}&sort=${sortOrder}`);
@@ -59,6 +64,9 @@ function HomeContent() {
 
   // 1. 필터링
   const filteredBooks = mockBooks.filter((book) => {
+    // 마운트 전에는 필터링 하지 않음 (서버와 일치시키기 위해)
+    if (!mounted) return true;
+
     const query = searchQuery.toLowerCase();
     const localized = getLocalizedBook(book, language);
     if (!query) return true;
@@ -72,6 +80,11 @@ function HomeContent() {
 
   // 2. 정렬
   const sortedBooks = [...filteredBooks].sort((a, b) => {
+    // 마운트 전에는 기본 정렬(최신순)을 따름 (서버와 일치시키기 위해)
+    if (!mounted) {
+      return parseInt(b.id) - parseInt(a.id);
+    }
+
     if (sortOrder === "popular") {
       return b.likes - a.likes; // 좋아요 내림차순
     }
