@@ -2,8 +2,8 @@
  * [page.tsx] (Home)
  * 사이트의 메인 홈 페이지입니다.
  * - 등록된 책을 페이지네이션하여 보여줍니다. (페이지당 8개)
- * - 2열 그리드 레이아웃과 가로형 카드 스타일을 적용했습니다.
- * - URL Query Parameter(?page=)를 사용하여 페이지 상태를 관리합니다.
+ * - [검색] 제목/작가 기준 검색 기능을 제공합니다.
+ * - [정렬] 최신순/과거순/인기순 정렬 기능을 제공합니다.
  */
 "use client";
 
@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { mockBooks, getLocalizedBook } from "@/lib/mockData";
 import { useLanguage } from "@/context/LanguageContext";
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -20,39 +20,141 @@ function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // URL에서 page 파라미터 가져오기 (기본값 1)
+  // URL 쿼리 파라미터
   const pageParam = searchParams.get("page");
+  const searchQuery = searchParams.get("q") || "";
+  const searchType = searchParams.get("type") || "title"; // 제목 | 작가
+  const sortOrder = searchParams.get("sort") || "newest"; // 최신순 | 과거순 | 인기순
+
   const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
 
-  // 전체 책 데이터 (Mock Data)
-  const allBooks = mockBooks;
-  const totalPages = Math.ceil(allBooks.length / ITEMS_PER_PAGE);
+  // 검색 입력을 위한 로컬 상태 (Controlled Input)
+  const [keyword, setKeyword] = useState(searchQuery);
+  const [filterType, setFilterType] = useState(searchType);
 
-  // 현재 페이지 유효성 검사 및 리다이렉트 처리 (필요시)
-  // 여기서는 렌더링 시 범위 보정만 수행
+  // 로컬 상태와 URL 파라미터 동기화
+  useEffect(() => {
+    setKeyword(searchQuery);
+    setFilterType(searchType);
+  }, [searchQuery, searchType]);
+
+  const handleSearch = () => {
+    router.push(`/?page=1&q=${encodeURIComponent(keyword)}&type=${filterType}&sort=${sortOrder}`);
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newSort = e.target.value;
+    router.push(`/?page=1&q=${encodeURIComponent(searchQuery)}&type=${searchType}&sort=${newSort}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    router.push(`/?page=${page}&q=${encodeURIComponent(searchQuery)}&type=${searchType}&sort=${sortOrder}`);
+  };
+
+  // 1. 필터링
+  const filteredBooks = mockBooks.filter((book) => {
+    const query = searchQuery.toLowerCase();
+    const localized = getLocalizedBook(book, language);
+    if (!query) return true;
+
+    if (searchType === "author") {
+      return localized.author.toLowerCase().includes(query);
+    }
+    // 기본값: 제목
+    return localized.title.toLowerCase().includes(query);
+  });
+
+  // 2. 정렬
+  const sortedBooks = [...filteredBooks].sort((a, b) => {
+    if (sortOrder === "popular") {
+      return b.likes - a.likes; // 좋아요 내림차순
+    }
+    if (sortOrder === "oldest") {
+      return parseInt(a.id) - parseInt(b.id); // ID 오름차순 (과거순)
+    }
+    // 기본값: 최신순
+    return parseInt(b.id) - parseInt(a.id); // ID 내림차순 (최신순)
+  });
+
+  const totalPages = Math.max(1, Math.ceil(sortedBooks.length / ITEMS_PER_PAGE));
   const safePage = Math.max(1, Math.min(currentPage, totalPages));
 
-  // 현재 페이지에 표시할 책 데이터 슬라이싱
-  const currentBooks = allBooks.slice(
+  // 3. 페이지네이션
+  const currentBooks = sortedBooks.slice(
     (safePage - 1) * ITEMS_PER_PAGE,
     safePage * ITEMS_PER_PAGE
   );
 
-  const handlePageChange = (page: number) => {
-    if (page < 1 || page > totalPages) return;
-    router.push(`/?page=${page}`);
-  };
-
   return (
     <div className="py-4 transition-all duration-300">
       {/* 헤더 섹션 */}
-      <header className="text-center mb-12 transition-all duration-300 group">
+      <header className="text-center mb-8 transition-all duration-300 group">
         <h1 className="text-[2.5rem] mb-2 text-[var(--foreground)] transition-colors">{t.home.welcome}</h1>
         <p className="text-[var(--secondary)]">{t.home.subtitle}</p>
       </header>
 
-      {/* 책 리스트 그리드 섹션 (2열, 반응형) */}
-      <div key={currentPage} className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 animate-fadeIn">
+      {/* 검색 및 정렬 컨트롤 바 */}
+      <div className="flex flex-col md:flex-row gap-4 mb-10 max-w-[1000px] mx-auto">
+        {/* 검색 그룹 (통합 검색 바) */}
+        <div className="flex-1 flex items-center bg-[var(--card-bg)] p-1.5 rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] focus-within:ring-2 ring-[var(--primary)] ring-opacity-30 transition-all">
+          <div className="flex items-center border-r border-[var(--border)] pr-4 mr-4">
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="bg-transparent pl-4 pr-2 py-3 font-semibold text-[var(--foreground)] outline-none cursor-pointer hover:text-[var(--primary)] text-sm transition-colors min-w-[60px]"
+            >
+              <option value="title">제목</option>
+              <option value="author">작가</option>
+            </select>
+          </div>
+          <input
+            type="text"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="찾고 싶은 책을 입력하세요..."
+            className="flex-1 bg-transparent px-4 py-3 outline-none text-[var(--foreground)] text-base placeholder-[var(--secondary)]"
+          />
+          <button
+            onClick={handleSearch}
+            className="w-12 h-11 rounded-xl flex items-center justify-center text-[var(--secondary)] hover:text-[var(--primary)] hover:bg-[var(--background)] transition-all active:scale-95"
+          >
+            🔍
+          </button>
+        </div>
+
+        {/* 정렬 그룹 (독립된 정렬 드롭다운) */}
+        <div className="md:w-48 bg-[var(--card-bg)] p-1.5 rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] flex items-center relative">
+          <span className="absolute left-4 text-gray-400 pointer-events-none">⇅</span>
+          <select
+            value={sortOrder}
+            onChange={handleSortChange}
+            className="w-full h-full bg-transparent pl-10 pr-4 py-3 font-medium text-[var(--foreground)] outline-none cursor-pointer text-sm appearance-none"
+          >
+            <option value="newest">최신순</option>
+            <option value="oldest">과거순</option>
+            <option value="popular">인기순</option>
+          </select>
+          <div className="absolute right-4 text-gray-400 pointer-events-none text-xs">▼</div>
+        </div>
+      </div>
+
+      {/* 검색 결과 없음 메시지 */}
+      {sortedBooks.length === 0 && (
+        <div className="text-center py-20 text-[var(--secondary)]">
+          <h2 className="text-xl font-medium mb-2">검색 결과가 없습니다. 😢</h2>
+          <p>다른 검색어로 다시 시도해보세요.</p>
+        </div>
+      )}
+
+      {/* 책 리스트 그리드 섹션 */}
+      <div key={`${safePage}-${sortOrder}-${searchQuery}`} className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 animate-fadeIn">
         {currentBooks.map((book) => {
           const localizedBook = getLocalizedBook(book, language);
 
@@ -154,25 +256,37 @@ function HomeContent() {
   );
 }
 
-// Skeleton UI Component
+// 스켈레톤 UI 컴포넌트
 function HomeSkeleton() {
   return (
     <div className="py-4">
-      {/* Header Skeleton */}
+      {/* 헤더 스켈레톤 */}
       <div className="text-center mb-12">
         <div className="h-10 w-64 bg-gray-200 rounded-lg mx-auto mb-2 animate-pulse" />
         <div className="h-6 w-48 bg-gray-200 rounded-lg mx-auto animate-pulse" />
       </div>
 
-      {/* Grid Skeleton */}
+      {/* 검색 바 스켈레톤 */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-[var(--card-bg)] p-4 rounded-xl shadow-[var(--card-shadow)] border border-[var(--border)] animate-pulse">
+        <div className="flex gap-2 w-full md:w-auto">
+          <div className="w-16 h-10 bg-gray-200 rounded-lg" />
+          <div className="flex-1 md:w-64 h-10 bg-gray-200 rounded-lg" />
+          <div className="w-10 h-10 bg-gray-200 rounded-lg" />
+        </div>
+        <div className="w-full md:w-auto flex justify-end">
+          <div className="w-24 h-10 bg-gray-200 rounded-lg" />
+        </div>
+      </div>
+
+      {/* 그리드 스켈레톤 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
           <div key={i} className="bg-[var(--card-bg)] rounded-xl overflow-hidden shadow-sm flex flex-row h-[280px] border border-[var(--border)]">
-            {/* Image Skeleton */}
+            {/* 이미지 스켈레톤 */}
             <div className="w-2/3 h-full bg-gray-200 animate-pulse relative">
               <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-[shimmer_1.5s_infinite]" style={{ backgroundSize: '200% 100%' }} />
             </div>
-            {/* Content Skeleton */}
+            {/* 콘텐츠 스켈레톤 */}
             <div className="w-1/3 p-6 flex flex-col justify-center border-l border-[var(--border)]">
               <div className="h-8 w-full bg-gray-200 rounded mb-3 animate-pulse" />
               <div className="h-8 w-2/3 bg-gray-200 rounded mb-3 animate-pulse" />
@@ -185,7 +299,7 @@ function HomeSkeleton() {
   );
 }
 
-// Suspense Boundary for useSearchParams use client component
+// useSearchParams를 사용하는 클라이언트 컴포넌트를 위한 Suspense 경계
 export default function Home() {
   return (
     <Suspense fallback={<HomeSkeleton />}>

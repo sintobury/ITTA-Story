@@ -40,13 +40,13 @@ const config: Config = {
                     "50%": { transform: "scale(1.1)" }, // 1.2 -> 1.1
                 },
                 ringExpand: {
-                    "0%": { transform: "translate(-50%, -50%) scale(0.5)", opacity: "0.5", borderWidth: "3px" }, // opacity 1 -> 0.5, border 5px -> 3px
-                    "100%": { transform: "translate(-50%, -50%) scale(1.5)", opacity: "0", borderWidth: "0" }, // scale 2 -> 1.5
+                    "0%": { transform: "translate(-50%, -50%) scale(0.5)", opacity: "0.5", borderWidth: "3px" }, // 투명도 1 -> 0.5, 테두리 5px -> 3px
+                    "100%": { transform: "translate(-50%, -50%) scale(1.5)", opacity: "0", borderWidth: "0" }, // 크기 2배 -> 1.5배
                 },
                 particlesExpand: {
-                    "0%": { transform: "translate(-50%, -50%) scale(0.5)", opacity: "0.8" }, // opacity 1 -> 0.8
+                    "0%": { transform: "translate(-50%, -50%) scale(0.5)", opacity: "0.8" }, // 투명도 1 -> 0.8
                     "100%": {
-                        transform: "translate(-50%, -50%) scale(1.2)", // scale 1.5 -> 1.2
+                        transform: "translate(-50%, -50%) scale(1.2)", // 크기 1.5배 -> 1.2배
                         opacity: "0",
                         // 거리 절반으로 축소, 색상 더 연하게 (red-400/500 -> red-200/300)
                         boxShadow: `0 -30px 0 #fca5a5, 25px -18px 0 #fee2e2, 30px 10px 0 #fecaca, 18px 25px 0 #fca5a5, 0 30px 0 #fee2e2, -18px 25px 0 #fecaca, -30px 10px 0 #fca5a5, -25px -18px 0 #fee2e2`,
