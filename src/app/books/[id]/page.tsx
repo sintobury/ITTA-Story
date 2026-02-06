@@ -4,6 +4,7 @@
  * - 책의 상세 정보(표지, 설명)를 보여줍니다.
  * - 로그인한 유저는 책 내용을 페이지별로 읽을 수 있습니다(페이지네이션).
  * - 좋아요 기능과 댓글 작성/삭제 기능을 제공합니다.
+ * - [보안] 읽기 모드 시 텍스트 선택 및 우클릭이 방지됩니다.
  */
 "use client";
 
@@ -29,7 +30,7 @@ import { useToast } from "@/hooks/useToast";
 export default function BookDetail({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const { user } = useAuth();
-    const router = useRouter(); // 로그인 페이지 이동을 위해 추가
+    const router = useRouter();
     const { t, language } = useLanguage();
     const { isBlocked, blockUser } = useBlockedUser();
 
@@ -40,10 +41,10 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
     const [currentPageIndex, setCurrentPageIndex] = useState(0);
     const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
 
-    // [클라 확인용] 댓글 관리를 위한 로컬 상태 (서버 연동 시 제거/대체)
+    // [클라 확인용] 댓글 관리를 위한 로컬 상태
     const [comments, setComments] = useState<Comment[]>([]);
 
-    // [클라 확인용] 좋아요 관리를 위한 로컬 상태 (서버 연동 시 제거/대체)
+    // [클라 확인용] 좋아요 관리를 위한 로컬 상태
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
     const [isLikedAnimating, setIsLikedAnimating] = useState(false);
@@ -60,10 +61,8 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
     const { toastMessage, isToastExiting, triggerToast } = useToast();
 
     useEffect(() => {
-        // [클라 확인용] 댓글 데이터 초기화 (Mock Data 사용)
         setComments(mockComments.filter((c) => c.bookId === id));
 
-        // [클라 확인용] 좋아요 상태 초기화 (Mock Data 사용)
         if (rawBook) {
             setLikeCount(rawBook.likes);
             if (user) {
@@ -109,19 +108,16 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
     };
 
     const handleToggleLike = () => {
-        // 게스트: 토스트 메시지 출력
         if (!user) {
             triggerToast("로그인 후 좋아요를 누를 수 있습니다.");
             return;
         }
 
         if (isLiked) {
-            // 좋아요 취소: 애니메이션 없이 상태만 변경 (혹은 진행중인 애니메이션 중단)
             setIsLikedAnimating(false);
             setLikeCount(prev => prev - 1);
             setIsLiked(false);
         } else {
-            // 좋아요: 애니메이션 트리거
             setIsLikedAnimating(true);
             setTimeout(() => setIsLikedAnimating(false), 600);
 
@@ -130,15 +126,19 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
         }
     };
 
-    // 차단된 유저의 댓글 필터링
     const visibleComments = comments.filter(c => !isBlocked(c.userName));
-
-    // [제거됨] 로그인 차단 로직 (게스트 읽기 허용)
 
     return (
         <div className="max-w-[800px] mx-auto py-8 animate-fadeIn">
             {isReading ? (
-                <div className="max-w-[1200px] mx-auto min-h-[80vh] flex flex-col items-center justify-center relative pt-12">
+                // 읽기 모드: 드래그 방지(select-none) 및 우클릭 방지(onContextMenu) 적용
+                <div
+                    className="max-w-[1200px] mx-auto min-h-[80vh] flex flex-col items-center justify-center relative pt-12 select-none"
+                    onContextMenu={(e) => {
+                        e.preventDefault();
+                        triggerToast("저작권 보호를 위해 우클릭이 제한됩니다.");
+                    }}
+                >
                     <button
                         onClick={() => setIsReading(false)}
                         className="absolute top-0 right-0 z-30 bg-white py-2.5 px-5 rounded-full border border-[var(--border)] font-medium cursor-pointer shadow-sm transition-all text-sm text-[var(--foreground)] flex items-center gap-2 hover:bg-[#f8f9fa] hover:-translate-y-0.5 hover:shadow-md hover:text-[var(--primary)] hover:border-[var(--primary)]"
@@ -203,7 +203,6 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                                 ${currentPageIndex < pages.length - 2 ? 'cursor-pointer hover:-translate-y-[2px] hover:shadow-[inset_0_0_20px_rgba(0,0,0,0.02),_4px_8px_20px_rgba(0,0,0,0.15)]' : ''}
                             `}
                             onClick={() => {
-                                // 현재 오른쪽 페이지(Index+1)가 있거나, 페이지를 넘길 수 있는 경우
                                 if (currentPageIndex < pages.length - (pages.length % 2 === 0 ? 2 : 1)) {
                                     setDirection('next');
                                     setCurrentPageIndex(p => Math.min(pages.length - (pages.length % 2 === 0 ? 2 : 1), p + 2));
@@ -240,6 +239,11 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                         >
                             ›
                         </button>
+                    </div>
+
+                    {/* 저작권 보호 문구 */}
+                    <div className="text-[var(--secondary)] text-sm mt-4 opacity-70">
+                        🚫 본 동화의 저작권은 사이트 운영자와 작가에게 있으며, 무단 복제 및 배포를 금합니다.
                     </div>
                 </div>
             ) : (
