@@ -12,6 +12,8 @@ import Link from "next/link";
 import { mockBooks, getLocalizedBook } from "@/lib/mockData";
 import { useLanguage } from "@/context/LanguageContext";
 import { Suspense, useState, useEffect } from "react";
+import { Button } from "@/components/common/Button";
+import { Select } from "@/components/common/Select";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -47,10 +49,6 @@ function HomeContent() {
     router.push(`/?page=1&q=${encodeURIComponent(keyword)}&type=${filterType}&sort=${sortOrder}`);
   };
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSort = e.target.value;
-    router.push(`/?page=1&q=${encodeURIComponent(searchQuery)}&type=${searchType}&sort=${newSort}`);
-  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -115,16 +113,19 @@ function HomeContent() {
       {/* 검색 및 정렬 컨트롤 바 */}
       <div className="flex flex-col md:flex-row gap-4 mb-10 max-w-[1000px] mx-auto">
         {/* 검색 그룹 (통합 검색 바) */}
-        <div className="flex-1 flex items-center bg-[var(--card-bg)] p-1.5 rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] focus-within:ring-2 ring-[var(--primary)] ring-opacity-30 transition-all">
-          <div className="flex items-center border-r border-[var(--border)] pr-4 mr-4">
-            <select
+        <div className="flex-1 flex items-center bg-[var(--card-bg)] rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] focus-within:ring-2 ring-[var(--primary)] ring-opacity-30 transition-all">
+          <div className="flex items-center border-r border-[var(--border)] mr-4 h-full">
+            <Select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="bg-transparent pl-4 pr-2 py-3 font-semibold text-[var(--foreground)] outline-none cursor-pointer hover:text-[var(--primary)] text-sm transition-colors min-w-[60px]"
-            >
-              <option value="title">제목</option>
-              <option value="author">작가</option>
-            </select>
+              onChange={(val) => setFilterType(val)}
+              variant="ghost"
+              options={[
+                { label: '제목', value: 'title' },
+                { label: '작가', value: 'author' }
+              ]}
+              width="w-full"
+              className="min-w-[70px] !pl-6 !py-3 rounded-l-2xl"
+            />
           </div>
           <input
             type="text"
@@ -134,27 +135,33 @@ function HomeContent() {
             placeholder="찾고 싶은 책을 입력하세요..."
             className="flex-1 bg-transparent px-4 py-3 outline-none text-[var(--foreground)] text-base placeholder-[var(--secondary)]"
           />
-          <button
+          <Button
             onClick={handleSearch}
-            className="w-12 h-11 rounded-xl flex items-center justify-center text-[var(--secondary)] hover:text-[var(--primary)] hover:bg-[var(--background)] transition-all active:scale-95"
+            variant="ghost"
+            className="w-12 h-11 mr-1 rounded-xl hover:bg-[var(--background)] active:scale-95 text-[var(--secondary)] hover:text-[var(--primary)]"
           >
             🔍
-          </button>
+          </Button>
         </div>
 
         {/* 정렬 그룹 (독립된 정렬 드롭다운) */}
-        <div className="md:w-48 bg-[var(--card-bg)] p-1.5 rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] flex items-center relative">
-          <span className="absolute left-4 text-gray-400 pointer-events-none">⇅</span>
-          <select
+        <div className="md:w-48 bg-[var(--card-bg)] rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] flex items-center">
+          <Select
             value={sortOrder}
-            onChange={handleSortChange}
-            className="w-full h-full bg-transparent pl-10 pr-4 py-3 font-medium text-[var(--foreground)] outline-none cursor-pointer text-sm appearance-none"
-          >
-            <option value="newest">최신순</option>
-            <option value="oldest">과거순</option>
-            <option value="popular">인기순</option>
-          </select>
-          <div className="absolute right-4 text-gray-400 pointer-events-none text-xs">▼</div>
+            onChange={(val) => {
+              // Directly trigger sort change
+              router.push(`/?page=1&q=${encodeURIComponent(searchQuery)}&type=${searchType}&sort=${val}`);
+            }}
+            variant="ghost"
+            options={[
+              { label: '최신순', value: 'newest' },
+              { label: '과거순', value: 'oldest' },
+              { label: '인기순', value: 'popular' }
+            ]}
+            icon={<span>⇅</span>}
+            width="w-full"
+            className="!py-3 w-full rounded-2xl"
+          />
         </div>
       </div>
 
@@ -209,60 +216,62 @@ function HomeContent() {
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-2 mt-8 pb-8 flex-wrap">
           {/* First Page */}
-          <button
+          <Button
             onClick={() => handlePageChange(1)}
             disabled={safePage === 1}
-            className="w-10 h-10 rounded-full flex items-center justify-center border border-[var(--border)] bg-[var(--card-bg)] text-[var(--foreground)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary)] hover:text-white hover:border-transparent transition-all"
+            variant="secondary"
+            className="w-10 h-10 rounded-full !p-0 border-[var(--border)] hover:border-transparent"
             aria-label="First Page"
           >
             &lt;&lt;
-          </button>
+          </Button>
 
           {/* Prev Page */}
-          <button
+          <Button
             onClick={() => handlePageChange(safePage - 1)}
             disabled={safePage === 1}
-            className="w-10 h-10 rounded-full flex items-center justify-center border border-[var(--border)] bg-[var(--card-bg)] text-[var(--foreground)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary)] hover:text-white hover:border-transparent transition-all"
+            variant="secondary"
+            className="w-10 h-10 rounded-full !p-0 border-[var(--border)] hover:border-transparent"
             aria-label="Previous Page"
           >
             &lt;
-          </button>
+          </Button>
 
           {/* Page Numbers (Windowed: Current +/- 2) */}
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(page => page >= safePage - 2 && page <= safePage + 2)
             .map((page) => (
-              <button
+              <Button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-medium transition-all ${safePage === page
-                  ? "bg-[var(--primary)] text-white shadow-md scale-110 border-transparent"
-                  : "bg-[var(--card-bg)] border border-[var(--border)] text-[var(--secondary)] hover:bg-[var(--background)]"
-                  }`}
+                variant={safePage === page ? 'primary' : 'secondary'}
+                className={`w-10 h-10 rounded-full !p-0 transition-all ${safePage === page ? 'scale-110 shadow-md' : 'border-[var(--border)] hover:bg-[var(--background)]'}`}
               >
                 {page}
-              </button>
+              </Button>
             ))}
 
           {/* Next Page */}
-          <button
+          <Button
             onClick={() => handlePageChange(safePage + 1)}
             disabled={safePage === totalPages}
-            className="w-10 h-10 rounded-full flex items-center justify-center border border-[var(--border)] bg-[var(--card-bg)] text-[var(--foreground)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary)] hover:text-white hover:border-transparent transition-all"
+            variant="secondary"
+            className="w-10 h-10 rounded-full !p-0 border-[var(--border)] hover:border-transparent"
             aria-label="Next Page"
           >
             &gt;
-          </button>
+          </Button>
 
           {/* Last Page */}
-          <button
+          <Button
             onClick={() => handlePageChange(totalPages)}
             disabled={safePage === totalPages}
-            className="w-10 h-10 rounded-full flex items-center justify-center border border-[var(--border)] bg-[var(--card-bg)] text-[var(--foreground)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--primary)] hover:text-white hover:border-transparent transition-all"
+            variant="secondary"
+            className="w-10 h-10 rounded-full !p-0 border-[var(--border)] hover:border-transparent"
             aria-label="Last Page"
           >
             &gt;&gt;
-          </button>
+          </Button>
         </div>
       )}
     </div>

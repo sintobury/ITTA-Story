@@ -13,13 +13,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTheme, Theme } from "@/context/ThemeContext";
 import { Language } from "@/lib/translations";
+import { Select } from "@/components/common/Select";
 
 export default function Navbar() {
     // 커스텀 훅을 사용하여 전역 상태(로그인, 언어, 테마)를 가져옴
     const { user, logout } = useAuth();
     const { language, setLanguage, t } = useLanguage();
-    // Theme context is available if needed for future toggles
-    // const { theme, setTheme } = useTheme();
 
     return (
         <nav className="bg-[var(--card-bg)] shadow-sm sticky top-0 z-[100] w-full transition-all duration-300 border-b border-[var(--border)]">
@@ -32,16 +31,19 @@ export default function Navbar() {
                 <div className="flex items-center gap-4">
 
                     {/* 언어 선택 드롭다운 */}
-                    <select
+                    <Select
                         value={language}
-                        onChange={(e) => setLanguage(e.target.value as Language)}
-                        className="p-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] text-sm cursor-pointer mr-4"
-                    >
-                        <option value="ko">한국어</option>
-                        <option value="en">English</option>
-                        <option value="ja">日本語</option>
-                        <option value="zh">中文</option>
-                    </select>
+                        onChange={(val) => setLanguage(val as Language)}
+                        options={[
+                            { label: "한국어", value: "ko" },
+                            { label: "English", value: "en" },
+                            { label: "日本語", value: "ja" },
+                            { label: "中文", value: "zh" },
+                        ]}
+                        variant="default"
+                        size="sm"
+                        className="w-28 mr-4"
+                    />
 
                     {/* 로그인 상태에 따른 UI 분기 처리 */}
                     {user ? (

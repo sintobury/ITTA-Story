@@ -182,7 +182,7 @@ const generateMoreBooks = (): Book[] => {
             author: `Author Number ${i}`,
             description: `This is a generated description for book number ${i}. It serves as a placeholder to test the layout and pagination features.`,
             coverUrl: `https://placehold.co/400x600/${color}/FFFFFF?text=Book+${i}`,
-            likes: Math.floor(Math.random() * 200),
+            likes: (i * 17) % 200, // Deterministic random-like value
             translations: {
                 ko: {
                     title: `책 제목 ${i}`,
