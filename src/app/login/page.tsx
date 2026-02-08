@@ -8,7 +8,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -66,12 +65,6 @@ export default function LoginPage() {
                     </button>
                 </form>
 
-                <div className="mt-6 text-center text-sm text-[var(--secondary)]">
-                    {t.auth.noAccount}
-                    <Link href="/signup" className="text-[var(--primary)] no-underline font-medium ml-2 hover:underline">
-                        {t.auth.signupBtn}
-                    </Link>
-                </div>
             </div>
         </div>
     );

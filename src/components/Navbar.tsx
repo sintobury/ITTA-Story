@@ -67,9 +67,6 @@ export default function Navbar() {
                             <Link href="/login" className="btn btn-primary no-underline">
                                 {t.nav.login}
                             </Link>
-                            <Link href="/signup" className="btn btn-secondary no-underline">
-                                {t.nav.signup}
-                            </Link>
                         </div>
                     )}
                 </div>

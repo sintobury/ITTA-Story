@@ -17,6 +17,7 @@ import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";
 import BookManagement from "@/components/admin/BookManagement";
 import UserManagement from "@/components/admin/UserManagement";
+import UserCreation from "@/components/admin/UserCreation";
 import { useToast } from "@/hooks/useToast";
 
 export default function AdminPage() {
@@ -25,7 +26,7 @@ export default function AdminPage() {
     const { language } = useLanguage(); // 컨텐츠 다국어 처리를 위해 언어 설정만 가져옴
     const { blockedUsers, unblockUser } = useBlockedUser();
 
-    const [activeTab, setActiveTab] = useState<'books' | 'users'>('books');
+    const [activeTab, setActiveTab] = useState<'books' | 'users' | 'create-user'>('books');
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
     const { toastMessage, isToastExiting, triggerToast } = useToast();
 
@@ -81,6 +82,15 @@ export default function AdminPage() {
                     >
                         유저 관리
                     </button>
+                    <button
+                        onClick={() => setActiveTab('create-user')}
+                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base ${activeTab === 'create-user'
+                            ? 'border-[var(--primary)] text-[var(--primary)] font-bold'
+                            : 'border-transparent text-[var(--secondary)] font-normal'
+                            }`}
+                    >
+                        회원 생성
+                    </button>
                 </div>
                 {activeTab === 'books' && (
                     <Link href="/admin/upload" className="btn btn-primary text-sm px-3 py-1.5">
@@ -95,11 +105,13 @@ export default function AdminPage() {
                     language={language}
                     onDeleteClick={handleInitiateDelete}
                 />
-            ) : (
+            ) : activeTab === 'users' ? (
                 <UserManagement
                     blockedUsers={blockedUsers}
                     onUnblock={unblockUser}
                 />
+            ) : (
+                <UserCreation />
             )}
 
             {/* 책 삭제 확인 모달 */}

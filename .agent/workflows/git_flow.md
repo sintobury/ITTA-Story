@@ -1,29 +1,56 @@
 ---
-description: Git Feature Branch Workflow
+description: Git Feature Branch Workflow (Korean & Strict Cleanup)
 ---
 
-When the user requests changes that require a new feature or significant refactor, follow this workflow:
+Follow this strict workflow for all code changes.
 
-1.  **Create Branch**: 
+1.  **Create Branch**:
     ```powershell
+    // turbo
     git checkout -b feature/[name]
     ```
-2.  **Implement Changes**: Perform coding tasks.
-3.  **Commit**: 
+
+2.  **Implement Changes**: Perform necessary code edits.
+
+3.  **Commit (Korean Required)**:
+    -   **Rule**: Commit messages **MUST** be in Korean.
+    -   Format: `[Type]: [Description] (Korean)`
     ```powershell
+    // turbo
     git add .
-    git commit -m "[Type]: [Description] (Korean)"
+    git commit -m "타입: 설명 (예: 리팩토링: 버튼 컴포넌트 분리)"
     ```
-4.  **Push Feature Branch**: 
+
+4.  **Push Feature Branch**:
     ```powershell
+    // turbo
     git push origin feature/[name]
     ```
-5.  **Merge to Master**:
+
+5.  **Merge into Master**:
     ```powershell
+    // turbo
     git checkout master
+    // turbo
     git merge feature/[name]
     ```
+
 6.  **Push Master**:
     ```powershell
+    // turbo
     git push origin master
+    ```
+
+7.  **Delete Feature Branch (Mandatory)**:
+    -   Clean up the local branch after successful merge.
+    ```powershell
+    // turbo
+    git branch -d feature/[name]
+    ```
+
+8.  **Delete Remote Feature Branch (Optional/Recommended)**:
+    -   To keep the repository clean, remove the branch from GitHub as well.
+    ```powershell
+    // turbo
+    git push origin --delete feature/[name]
     ```
