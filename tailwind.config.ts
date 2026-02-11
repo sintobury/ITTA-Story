@@ -24,10 +24,10 @@ const config: Config = {
                 },
                 fadeOut: {
                     "0%": { opacity: "1", transform: "translateY(0)" },
-                    "100%": { opacity: "0", transform: "translateY(-20px)" }, // 위로 떠오르며 사라짐
+                    "100%": { opacity: "0", transform: "translateY(-20px)" },
                 },
                 fadeIn: {
-                    "0%": { opacity: "0", transform: "translateY(10px)" }, // 원래 CSS와 동일하게 복구
+                    "0%": { opacity: "0", transform: "translateY(10px)" },
                     "100%": { opacity: "1", transform: "translateY(0)" },
                 },
                 scaleIn: {
@@ -36,19 +36,18 @@ const config: Config = {
                 },
                 heartBounce: {
                     "0%, 100%": { transform: "scale(1)" },
-                    "30%": { transform: "scale(0.9)" }, // 0.8 -> 0.9
-                    "50%": { transform: "scale(1.1)" }, // 1.2 -> 1.1
+                    "30%": { transform: "scale(0.9)" },
+                    "50%": { transform: "scale(1.1)" },
                 },
                 ringExpand: {
-                    "0%": { transform: "translate(-50%, -50%) scale(0.5)", opacity: "0.5", borderWidth: "3px" }, // 투명도 1 -> 0.5, 테두리 5px -> 3px
-                    "100%": { transform: "translate(-50%, -50%) scale(1.5)", opacity: "0", borderWidth: "0" }, // 크기 2배 -> 1.5배
+                    "0%": { transform: "translate(-50%, -50%) scale(0.5)", opacity: "0.5", borderWidth: "3px" },
+                    "100%": { transform: "translate(-50%, -50%) scale(1.5)", opacity: "0", borderWidth: "0" },
                 },
                 particlesExpand: {
-                    "0%": { transform: "translate(-50%, -50%) scale(0.5)", opacity: "0.8" }, // 투명도 1 -> 0.8
+                    "0%": { transform: "translate(-50%, -50%) scale(0.5)", opacity: "0.8" },
                     "100%": {
-                        transform: "translate(-50%, -50%) scale(1.2)", // 크기 1.5배 -> 1.2배
+                        transform: "translate(-50%, -50%) scale(1.2)",
                         opacity: "0",
-                        // 거리 절반으로 축소, 색상 더 연하게 (red-400/500 -> red-200/300)
                         boxShadow: `0 -30px 0 #fca5a5, 25px -18px 0 #fee2e2, 30px 10px 0 #fecaca, 18px 25px 0 #fca5a5, 0 30px 0 #fee2e2, -18px 25px 0 #fecaca, -30px 10px 0 #fca5a5, -25px -18px 0 #fee2e2`,
                     },
                 },
@@ -79,6 +78,8 @@ const config: Config = {
             },
         },
     },
-    plugins: [],
+    plugins: [
+        require('@tailwindcss/typography'),
+    ],
 };
 export default config;

@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { Book, Page } from "@/lib/mockData";
 import { useRouter } from "next/navigation";
+import RichTextEditor from "@/components/common/RichTextEditor";
 
 interface BookFormProps {
     initialBook?: Book;     // 수정 시 초기 책 데이터
@@ -174,13 +175,10 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
 
                         <div className="mb-6">
                             <label className="block mb-2 font-medium text-[var(--secondary)]">텍스트 내용</label>
-                            <textarea
+                            <RichTextEditor
                                 value={page.content}
-                                onChange={(e) => handlePageChange(index, "content", e.target.value)}
-                                rows={6}
-                                placeholder="이 페이지의 내용을 입력하세요..."
-                                required
-                                className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-base transition-colors focus:outline-none focus:border-[var(--primary)]"
+                                onChange={(val) => handlePageChange(index, "content", val)}
+                                placeholder="이 페이지의 내용을 입력하세요... (스타일 적용 가능)"
                             />
                         </div>
 

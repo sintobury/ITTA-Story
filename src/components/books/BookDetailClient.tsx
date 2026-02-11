@@ -188,7 +188,22 @@ export default function BookDetailClient({ id }: { id: string }) {
                                         {pages[currentPageIndex].imageUrl && (
                                             <PageImage src={pages[currentPageIndex].imageUrl!} alt="Page illustration" />
                                         )}
-                                        <p className="text-xl leading-[1.8] max-w-[600px]">{pages[currentPageIndex].content}</p>
+                                        {/* HTML 태그 렌더링 (dangerouslySetInnerHTML) */}
+                                        <div
+                                            className="text-xl leading-[1.8] max-w-[600px] w-full ql-editor-content"
+                                            dangerouslySetInnerHTML={{ __html: pages[currentPageIndex].content }}
+                                        />
+                                        <style jsx>{`
+                                            /* Quill 에디터 스타일 복원 (기본 스타일 리셋 방지) */
+                                            .ql-editor-content :global(p) { margin-bottom: 1em; }
+                                            .ql-editor-content :global(h1), .ql-editor-content :global(h2), .ql-editor-content :global(h3) { margin-bottom: 0.5em; font-weight: bold; }
+                                            .ql-editor-content :global(strong) { font-weight: bold; }
+                                            .ql-editor-content :global(em) { font-style: italic; }
+                                            .ql-editor-content :global(u) { text-decoration: underline; }
+                                            .ql-editor-content :global(s) { text-decoration: line-through; }
+                                            .ql-editor-content :global(ul), .ql-editor-content :global(ol) { margin-left: 1.5em; margin-bottom: 1em; }
+                                            .ql-editor-content :global(li) { list-style: inherit; }
+                                        `}</style>
                                     </>
                                 ) : (
                                     <div className="flex-1" />
@@ -223,7 +238,11 @@ export default function BookDetailClient({ id }: { id: string }) {
                                         {pages[currentPageIndex + 1].imageUrl && (
                                             <PageImage src={pages[currentPageIndex + 1].imageUrl!} alt="Page illustration" />
                                         )}
-                                        <p className="text-xl leading-[1.8] max-w-[600px]">{pages[currentPageIndex + 1].content}</p>
+                                        {/* HTML 태그 렌더링 (dangerouslySetInnerHTML) */}
+                                        <div
+                                            className="text-xl leading-[1.8] max-w-[600px] w-full ql-editor-content"
+                                            dangerouslySetInnerHTML={{ __html: pages[currentPageIndex + 1].content }}
+                                        />
                                     </>
                                 ) : (
                                     <div className="flex items-center justify-center h-full text-[var(--secondary)] italic">
