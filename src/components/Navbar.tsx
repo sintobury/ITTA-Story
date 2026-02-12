@@ -49,7 +49,7 @@ export default function Navbar() {
                     {user ? (
                         <>
                             <span className="text-sm text-[var(--secondary)] font-medium">
-                                Hello, <strong>{user.name}</strong> ({user.role})
+                                {t.nav.hello}, <strong>{user.name}</strong> ({user.role})
                             </span>
                             {/* 관리자(ADMIN)일 경우에만 관리자 페이지 링크 표시 */}
                             {user.role === "ADMIN" && (

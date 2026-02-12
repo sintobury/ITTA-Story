@@ -40,7 +40,7 @@ export default function BookInfo({
                     <button
                         onClick={onLikeClick}
                         className={`btn ${isLiked ? 'btn-danger' : 'btn-secondary'} relative transition-transform active:scale-90 overflow-visible ${isLikedAnimating ? 'animate-heartBounce before:content-[\'\'] before:absolute before:top-1/2 before:left-1/2 before:w-full before:h-full before:rounded-full before:z-[-1] before:border-2 before:border-red-400 before:animate-ringExpand after:content-[\'\'] after:absolute after:top-1/2 after:left-1/2 after:w-full after:h-full after:rounded-full after:z-[-1] after:animate-particlesExpand' : ''}`}
-                        title={user ? (isLiked ? "Unlike" : "Like") : "Login to Like"}
+                        title={user ? (isLiked ? t.bookDetail.likeTooltip.unlike : t.bookDetail.likeTooltip.like) : t.bookDetail.likeTooltip.loginRequired}
                     >
                         {isLiked ? `❤️ ${t.bookDetail.like}` : `🤍 ${t.bookDetail.like}`} ({likeCount})
                     </button>

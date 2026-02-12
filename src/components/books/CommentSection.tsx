@@ -65,9 +65,9 @@ export default function CommentSection({ comments, user, onDelete, onBlock }: Co
                 </div>
             ) : (
                 <div className="p-6 bg-[var(--background)] border border-[var(--border)] rounded-lg text-center">
-                    <p className="text-[var(--secondary)] mb-4">로그인하고 댓글을 남겨보세요! ✍️</p>
+                    <p className="text-[var(--secondary)] mb-4">{t.bookDetail.loginToComment}</p>
                     <button onClick={() => router.push('/login')} className="btn btn-secondary">
-                        로그인하러 가기
+                        {t.bookDetail.goToLogin}
                     </button>
                 </div>
             )}

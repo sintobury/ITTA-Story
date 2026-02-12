@@ -120,8 +120,8 @@ function HomeContent() {
               onChange={(val) => setFilterType(val)}
               variant="ghost"
               options={[
-                { label: '제목', value: 'title' },
-                { label: '작가', value: 'author' }
+                { label: t.home.filter.title, value: 'title' },
+                { label: t.home.filter.author, value: 'author' }
               ]}
               width="w-full"
               className="min-w-[70px] !pl-6 !py-3 rounded-l-2xl"
@@ -132,7 +132,7 @@ function HomeContent() {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="찾고 싶은 책을 입력하세요..."
+            placeholder={t.home.searchPlaceholder}
             className="flex-1 bg-transparent px-4 py-3 outline-none text-[var(--foreground)] text-base placeholder-[var(--secondary)]"
           />
           <Button
@@ -154,9 +154,9 @@ function HomeContent() {
             }}
             variant="ghost"
             options={[
-              { label: '최신순', value: 'newest' },
-              { label: '과거순', value: 'oldest' },
-              { label: '인기순', value: 'popular' }
+              { label: t.home.sort.newest, value: 'newest' },
+              { label: t.home.sort.oldest, value: 'oldest' },
+              { label: t.home.sort.popular, value: 'popular' }
             ]}
             icon={<span>⇅</span>}
             width="w-full"
@@ -168,8 +168,8 @@ function HomeContent() {
       {/* 검색 결과 없음 메시지 */}
       {sortedBooks.length === 0 && (
         <div className="text-center py-20 text-[var(--secondary)]">
-          <h2 className="text-xl font-medium mb-2">검색 결과가 없습니다. 😢</h2>
-          <p>다른 검색어로 다시 시도해보세요.</p>
+          <h2 className="text-xl font-medium mb-2">{t.home.noResults}</h2>
+          <p>{t.home.tryAgain}</p>
         </div>
       )}
 

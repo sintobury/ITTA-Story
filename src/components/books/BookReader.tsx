@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Page } from "@/lib/mockData";
 import { useToast } from "@/hooks/useToast";
+import { useLanguage } from "@/context/LanguageContext";
 
 // PageImage 컴포넌트
 function PageImage({ src, alt }: { src: string; alt: string }) {
@@ -28,6 +29,7 @@ interface BookReaderProps {
 
 export default function BookReader({ pages, onClose }: BookReaderProps) {
     const { triggerToast } = useToast();
+    const { t } = useLanguage();
     const [currentPageIndex, setCurrentPageIndex] = useState(0);
     const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
 
@@ -37,7 +39,7 @@ export default function BookReader({ pages, onClose }: BookReaderProps) {
             className="w-fit mx-auto min-h-[80vh] flex flex-col items-center relative select-none"
             onContextMenu={(e) => {
                 e.preventDefault();
-                triggerToast("저작권 보호를 위해 우클릭이 제한됩니다.");
+                triggerToast(t.bookDetail.rightClickWarning);
             }}
         >
             <div className="w-full flex justify-end mb-3">
@@ -45,7 +47,7 @@ export default function BookReader({ pages, onClose }: BookReaderProps) {
                     onClick={onClose}
                     className="bg-white py-2.5 px-5 rounded-full border border-[var(--border)] font-medium cursor-pointer shadow-sm transition-all text-sm text-[var(--foreground)] flex items-center gap-2 hover:bg-[#f8f9fa] hover:-translate-y-0.5 hover:shadow-md hover:text-[var(--primary)] hover:border-[var(--primary)]"
                 >
-                    ← 책 덮기
+                    ← {t.bookDetail.closeBook}
                 </button>
                 {/* Space holder for alignment: width of arrow button + margin */}
                 <div className="w-[50px] mx-6" aria-hidden="true" />
