@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { notFound, useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
 import {
     mockBooks,
     mockPages,
@@ -9,8 +9,7 @@ import {
     Comment,
     mockUserLikes,
     getLocalizedBook,
-    getLocalizedPage,
-    getLocalizedComment
+    getLocalizedPage
 } from "@/lib/mockData";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -19,35 +18,20 @@ import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";
 import { useToast } from "@/hooks/useToast";
 
-// PageImage 컴포넌트 (내부 사용)
-function PageImage({ src, alt }: { src: string; alt: string }) {
-    const [isLoading, setIsLoading] = useState(true);
-
-    return (
-        <div className={`relative w-full min-h-[200px] mb-8 rounded-lg overflow-hidden ${isLoading ? 'bg-[#f3f4f6]' : 'bg-transparent'}`}>
-            {isLoading && <div className="absolute top-0 left-0 w-full h-full bg-gray-200 animate-pulse z-10" />}
-            <img
-                src={src}
-                alt={alt}
-                className={`block max-w-full max-h-[400px] w-full object-contain rounded-lg transition-opacity duration-700 ${!isLoading ? 'opacity-100' : 'opacity-0'}`}
-                onLoad={() => setIsLoading(false)}
-            />
-        </div>
-    );
-}
+import BookReader from "./BookReader";
+import BookInfo from "./BookInfo";
+import CommentSection from "./CommentSection";
+import CopyrightWarning from "./CopyrightWarning";
 
 export default function BookDetailClient({ id }: { id: string }) {
     const { user } = useAuth();
-    const router = useRouter();
-    const { t, language } = useLanguage();
+    const { language } = useLanguage();
     const { isBlocked, blockUser } = useBlockedUser();
 
     const rawBook = mockBooks.find((b) => b.id === id);
     const book = rawBook ? getLocalizedBook(rawBook, language) : null;
 
     const [isReading, setIsReading] = useState(false);
-    const [currentPageIndex, setCurrentPageIndex] = useState(0);
-    const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
 
     // [클라 확인용] 댓글 관리를 위한 로컬 상태
     const [comments, setComments] = useState<Comment[]>([]);
@@ -137,220 +121,32 @@ export default function BookDetailClient({ id }: { id: string }) {
     const visibleComments = comments.filter(c => !isBlocked(c.userName));
 
     return (
-        <div className="max-w-[800px] mx-auto py-8 animate-fadeIn">
+        <div className="w-full py-3 animate-fadeIn flex flex-col items-center">
             {isReading ? (
-                // 읽기 모드: 드래그 방지(select-none) 및 우클릭 방지(onContextMenu) 적용
-                <div
-                    className="max-w-[1200px] mx-auto min-h-[80vh] flex flex-col items-center justify-center relative pt-12 select-none"
-                    onContextMenu={(e) => {
-                        e.preventDefault();
-                        triggerToast("저작권 보호를 위해 우클릭이 제한됩니다.");
-                    }}
-                >
-                    <button
-                        onClick={() => setIsReading(false)}
-                        className="absolute top-0 right-0 z-30 bg-white py-2.5 px-5 rounded-full border border-[var(--border)] font-medium cursor-pointer shadow-sm transition-all text-sm text-[var(--foreground)] flex items-center gap-2 hover:bg-[#f8f9fa] hover:-translate-y-0.5 hover:shadow-md hover:text-[var(--primary)] hover:border-[var(--primary)]"
-                    >
-                        ← 책 덮기
-                    </button>
-
-                    <div className="flex items-center justify-center gap-0 my-4 mb-8 perspective-[1500px]">
-                        {/* 왼쪽 이동 버튼 */}
-                        <button
-                            onClick={() => {
-                                setDirection('prev');
-                                setCurrentPageIndex(p => Math.max(0, p - 2));
-                            }}
-                            className="bg-white/80 border border-[var(--border)] rounded-full w-[50px] h-[50px] flex items-center justify-center text-2xl cursor-pointer transition-all shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:bg-[#eee]"
-                            disabled={currentPageIndex === 0}
-                        >
-                            ‹
-                        </button>
-
-                        {/* 왼쪽 페이지 (짝수) */}
-                        <div
-                            className={`
-                                w-[450px] h-[560px] flex flex-col justify-between origin-center-bottom bg-[#fffbf0] p-12 pb-4 border border-[#f0e6d2] relative transition-transform shadow-md duration-200
-                                rounded-l-xl rounded-r-sm shadow-[inset_-15px_0_20px_rgba(0,0,0,0.03),_-5px_5px_15px_rgba(0,0,0,0.1)] border-r-0 origin-right
-                                ${direction === 'prev' ? 'animate-flipInLeft' : ''} 
-                                ${currentPageIndex > 0 ? 'cursor-pointer hover:-translate-y-[2px] hover:shadow-[inset_0_0_20px_rgba(0,0,0,0.02),_4px_8px_20px_rgba(0,0,0,0.15)]' : ''}
-                            `}
-                            onClick={() => {
-                                if (currentPageIndex > 0) {
-                                    setDirection('prev');
-                                    setCurrentPageIndex(p => Math.max(0, p - 2));
-                                }
-                            }}
-                        >
-                            <div className="flex-1 p-8 flex flex-col items-center justify-center text-center perspective-[1000px] overflow-hidden">
-                                {pages[currentPageIndex] ? (
-                                    <>
-                                        {pages[currentPageIndex].imageUrl && (
-                                            <PageImage src={pages[currentPageIndex].imageUrl!} alt="Page illustration" />
-                                        )}
-                                        {/* HTML 태그 렌더링 (dangerouslySetInnerHTML) */}
-                                        <div
-                                            className="text-xl leading-[1.8] max-w-[600px] w-full ql-editor-content"
-                                            dangerouslySetInnerHTML={{ __html: pages[currentPageIndex].content }}
-                                        />
-                                        <style jsx>{`
-                                            /* Quill 에디터 스타일 복원 (기본 스타일 리셋 방지) */
-                                            .ql-editor-content :global(p) { margin-bottom: 1em; }
-                                            .ql-editor-content :global(h1), .ql-editor-content :global(h2), .ql-editor-content :global(h3) { margin-bottom: 0.5em; font-weight: bold; }
-                                            .ql-editor-content :global(strong) { font-weight: bold; }
-                                            .ql-editor-content :global(em) { font-style: italic; }
-                                            .ql-editor-content :global(u) { text-decoration: underline; }
-                                            .ql-editor-content :global(s) { text-decoration: line-through; }
-                                            .ql-editor-content :global(ul), .ql-editor-content :global(ol) { margin-left: 1.5em; margin-bottom: 1em; }
-                                            .ql-editor-content :global(li) { list-style: inherit; }
-                                        `}</style>
-                                    </>
-                                ) : (
-                                    <div className="flex-1" />
-                                )}
-                            </div>
-                            <div className="w-full flex justify-center text-sm text-[var(--secondary)] pt-4">
-                                - {currentPageIndex + 1} -
-                            </div>
-                        </div>
-
-                        {/* 책등 */}
-                        <div className="w-[2px] h-[540px] bg-[#d1d5db] shadow-inner z-10"></div>
-
-                        {/* 오른쪽 페이지 (홀수) */}
-                        <div
-                            className={`
-                                w-[450px] h-[560px] flex flex-col justify-between origin-center-bottom bg-[#fffbf0] p-12 pb-4 border border-[#f0e6d2] relative transition-transform shadow-md duration-200
-                                rounded-r-xl rounded-l-sm shadow-[inset_15px_0_20px_rgba(0,0,0,0.03),_5px_5px_15px_rgba(0,0,0,0.1)] border-l-0 origin-left
-                                ${direction === 'next' ? 'animate-flipInRight' : ''}
-                                ${currentPageIndex < pages.length - 2 ? 'cursor-pointer hover:-translate-y-[2px] hover:shadow-[inset_0_0_20px_rgba(0,0,0,0.02),_4px_8px_20px_rgba(0,0,0,0.15)]' : ''}
-                            `}
-                            onClick={() => {
-                                if (currentPageIndex < pages.length - (pages.length % 2 === 0 ? 2 : 1)) {
-                                    setDirection('next');
-                                    setCurrentPageIndex(p => Math.min(pages.length - (pages.length % 2 === 0 ? 2 : 1), p + 2));
-                                }
-                            }}
-                        >
-                            <div className="flex-1 p-8 flex flex-col items-center justify-center text-center perspective-[1000px] overflow-hidden">
-                                {pages[currentPageIndex + 1] ? (
-                                    <>
-                                        {pages[currentPageIndex + 1].imageUrl && (
-                                            <PageImage src={pages[currentPageIndex + 1].imageUrl!} alt="Page illustration" />
-                                        )}
-                                        {/* HTML 태그 렌더링 (dangerouslySetInnerHTML) */}
-                                        <div
-                                            className="text-xl leading-[1.8] max-w-[600px] w-full ql-editor-content"
-                                            dangerouslySetInnerHTML={{ __html: pages[currentPageIndex + 1].content }}
-                                        />
-                                    </>
-                                ) : (
-                                    <div className="flex items-center justify-center h-full text-[var(--secondary)] italic">
-                                        (마지막 페이지입니다)
-                                    </div>
-                                )}
-                            </div>
-                            <div className="w-full flex justify-center text-sm text-[var(--secondary)] pt-4">
-                                - {currentPageIndex + 2 <= pages.length ? currentPageIndex + 2 : ''} -
-                            </div>
-                        </div>
-
-                        {/* 오른쪽 이동 버튼 */}
-                        <button
-                            onClick={() => {
-                                setDirection('next');
-                                setCurrentPageIndex(p => Math.min(pages.length - (pages.length % 2 === 0 ? 2 : 1), p + 2));
-                            }}
-                            className="bg-white/80 border border-[var(--border)] rounded-full w-[50px] h-[50px] flex items-center justify-center text-2xl cursor-pointer transition-all shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:bg-[#eee]"
-                            disabled={currentPageIndex >= pages.length - 2}
-                        >
-                            ›
-                        </button>
-                    </div>
-
-                    {/* 저작권 보호 문구 */}
-                    <div className="text-[var(--secondary)] text-sm mt-4 opacity-70">
-                        🚫 본 동화의 저작권은 사이트 운영자와 작가에게 있으며, 무단 복제 및 배포를 금합니다.
-                    </div>
-                </div>
+                <BookReader pages={pages} onClose={() => setIsReading(false)} />
             ) : (
-                <div className="flex gap-8 mb-12 bg-[var(--card-bg)] p-8 rounded-xl shadow-[var(--card-shadow)] max-[600px]:flex-col max-[600px]:items-center max-[600px]:text-center">
-                    <img src={book.coverUrl} alt={book.title} className="w-[200px] h-[300px] object-cover rounded-lg flex-shrink-0" />
-                    <div className="flex-1">
-                        <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
-                        <p className="text-[var(--secondary)] text-lg mb-6">by {book.author}</p>
-                        <p className="mb-6">{book.description}</p>
-
-                        <div className="flex gap-4 mt-6">
-                            <button onClick={() => setIsReading(true)} className="btn btn-primary">
-                                📖 {t.bookDetail.readNow}
-                            </button>
-                            <button
-                                onClick={handleToggleLike}
-                                className={`btn ${isLiked ? 'btn-danger' : 'btn-secondary'} relative transition-transform active:scale-90 overflow-visible ${isLikedAnimating ? 'animate-heartBounce before:content-[\'\'] before:absolute before:top-1/2 before:left-1/2 before:w-full before:h-full before:rounded-full before:z-[-1] before:border-2 before:border-red-400 before:animate-ringExpand after:content-[\'\'] after:absolute after:top-1/2 after:left-1/2 after:w-full after:h-full after:rounded-full after:z-[-1] after:animate-particlesExpand' : ''}`}
-                                title={user ? (isLiked ? "Unlike" : "Like") : "Login to Like"}
-                            >
-                                {isLiked ? `❤️ ${t.bookDetail.like}` : `🤍 ${t.bookDetail.like}`} ({likeCount})
-                            </button>
-                        </div>
-                    </div>
+                <div className="max-w-[800px] w-full">
+                    <BookInfo
+                        book={book}
+                        isLiked={isLiked}
+                        likeCount={likeCount}
+                        isLikedAnimating={isLikedAnimating}
+                        user={user}
+                        onReadClick={() => setIsReading(true)}
+                        onLikeClick={handleToggleLike}
+                    />
                 </div>
             )}
 
-            <div className="mt-12">
-                <h3 className="mb-6 text-xl font-bold">{t.bookDetail.comments} ({visibleComments.length})</h3>
-                <div className="flex flex-col gap-4 mb-8">
-                    {visibleComments.length > 0 ? (
-                        visibleComments.map(comment => {
-                            const localizedComment = getLocalizedComment(comment, language);
-                            return (
-                                <div key={comment.id} className="bg-[var(--card-bg)] p-4 rounded-lg border border-[var(--border)]">
-                                    <div className="flex justify-between mb-2 text-sm">
-                                        <strong>{localizedComment.userName}</strong>
-                                        <span className="text-[var(--secondary)]">{localizedComment.createdAt}</span>
-                                    </div>
-                                    <p>{localizedComment.content}</p>
-                                    {user?.role === 'ADMIN' && (
-                                        <div className="flex gap-3 mt-3 justify-end">
-                                            <button
-                                                onClick={() => initiateDeleteComment(comment.id)}
-                                                className="px-3 py-1.5 rounded-md border-none text-sm font-semibold cursor-pointer transition-all flex items-center gap-1.5 bg-[#fee2e2] text-[#dc2626] hover:bg-[#fecaca] hover:-translate-y-px"
-                                            >
-                                                🗑️ 삭제
-                                            </button>
-                                            <button
-                                                onClick={() => handleInitiateBlock(comment.userName)}
-                                                className="px-3 py-1.5 rounded-md border-none text-sm font-semibold cursor-pointer transition-all flex items-center gap-1.5 bg-[#ffedd5] text-[#ea580c] hover:bg-[#fed7aa] hover:-translate-y-px"
-                                            >
-                                                🚫 차단
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <p className="text-[var(--secondary)] italic">{t.bookDetail.noComments}</p>
-                    )}
-                </div>
+            <div className="max-w-[800px] w-full flex flex-col">
+                <CopyrightWarning />
 
-                {user ? (
-                    <div className="flex flex-col gap-4">
-                        <textarea
-                            placeholder={t.bookDetail.placeholder}
-                            className="w-full p-4 border border-[var(--border)] rounded-lg font-inherit resize-y focus:outline-none focus:border-[var(--primary)] focus:shadow-[0_0_0_2px_rgba(52,152,219,0.1)] transition-colors"
-                            rows={3}
-                        />
-                        <button className="btn btn-primary self-start">{t.bookDetail.postComment}</button>
-                    </div>
-                ) : (
-                    <div className="p-6 bg-[var(--background)] border border-[var(--border)] rounded-lg text-center">
-                        <p className="text-[var(--secondary)] mb-4">로그인하고 댓글을 남겨보세요! ✍️</p>
-                        <button onClick={() => router.push('/login')} className="btn btn-secondary">
-                            로그인하러 가기
-                        </button>
-                    </div>
-                )}
+                <CommentSection
+                    comments={visibleComments}
+                    user={user}
+                    onDelete={initiateDeleteComment}
+                    onBlock={handleInitiateBlock}
+                />
             </div>
 
             {/* 차단 모달 */}
