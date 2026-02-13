@@ -37,8 +37,6 @@ export default function Navbar() {
                         options={[
                             { label: "한국어", value: "ko" },
                             { label: "English", value: "en" },
-                            { label: "日本語", value: "ja" },
-                            { label: "中文", value: "zh" },
                         ]}
                         variant="default"
                         size="sm"

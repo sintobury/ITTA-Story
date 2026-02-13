@@ -17,7 +17,7 @@ export default function CommentSection({ comments, user, onDelete, onBlock }: Co
     const router = useRouter();
 
     return (
-        <div className="mt-12">
+        <div>
             <h3 className="mb-6 text-xl font-bold">{t.bookDetail.comments} ({comments.length})</h3>
             <div className="flex flex-col gap-4 mb-8">
                 {comments.length > 0 ? (
