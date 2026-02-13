@@ -123,7 +123,11 @@ export default function BookDetailClient({ id }: { id: string }) {
     return (
         <div className="w-full py-3 animate-fadeIn flex flex-col items-center">
             {isReading ? (
-                <BookReader pages={pages} onClose={() => setIsReading(false)} />
+                <BookReader
+                    pages={pages}
+                    onClose={() => setIsReading(false)}
+                    onTriggerToast={triggerToast}
+                />
             ) : (
                 <div className="max-w-[800px] w-full">
                     <BookInfo

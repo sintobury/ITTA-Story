@@ -59,16 +59,6 @@ const originalBooks: Book[] = [
                 title: "어린 왕자",
                 author: "앙투안 드 생텍쥐페리",
                 description: "사막에 불시착한 조종사가 어린 왕자를 만나 겪는 신비로운 이야기. 사랑과 우정, 그리고 상실에 대한 깊은 통찰을 담고 있습니다.",
-            },
-            ja: {
-                title: "星の王子さま",
-                author: "アントワーヌ・ド・サン＝テグジュペリ",
-                description: "砂漠に不時着した飛行士が、小さな王子と出会う物語。孤独、友情、愛、そして喪失についてのテーマを扱っています。",
-            },
-            zh: {
-                title: "小王子",
-                author: "安托万·德·圣埃克苏佩里",
-                description: "一位年轻的王子造访太空中的各个星球，包括地球，探讨了孤独、友谊、爱与失去的主题。",
             }
         }
     },
@@ -84,16 +74,6 @@ const originalBooks: Book[] = [
                 title: "1984",
                 author: "조지 오웰",
                 description: "미래의 전체주의 사회를 그린 디스토피아 소설. 감시와 통제, 진실의 왜곡을 경고합니다.",
-            },
-            ja: {
-                title: "1984年",
-                author: "ジョージ・オーウェル",
-                description: "全体主義的ディストピアを描いたSF小説。監視社会と真実の統制についての警告。",
-            },
-            zh: {
-                title: "1984",
-                author: "乔治·奥威尔",
-                description: "一部反乌托邦社会科幻小说，关于未来的警世寓言。",
             }
         }
     },
@@ -109,16 +89,6 @@ const originalBooks: Book[] = [
                 title: "위대한 개츠비",
                 author: "F. 스콧 피츠제럴드",
                 description: "1920년대 재즈 시대를 배경으로 한 꿈과 사랑, 그리고 비극적인 욕망의 이야기.",
-            },
-            ja: {
-                title: "グレート・ギャツビー",
-                author: "F・スコット・フィッツジェラルド",
-                description: "1920年代のジャズ・エイジを舞台に、夢と愛、そして悲劇的な欲望を描いた小説。",
-            },
-            zh: {
-                title: "了不起的盖茨比",
-                author: "F·斯科特·菲茨杰拉德",
-                description: "一部1925年的小说，背景设定在纽约长岛的爵士时代。",
             }
         }
     },
@@ -204,27 +174,21 @@ export const mockPages: Record<string, Page[]> = {
             content: "Once when I was six years old I saw a magnificent picture in a book, called True Stories from Nature, about the primeval forest. It was a picture of a boa constrictor in the act of swallowing an animal.",
             imageUrl: "https://placehold.co/600x400/2c3e50/FFFFFF?text=Boa+Constrictor",
             translations: {
-                ko: { content: "내가 여섯 살 적에, 나는 '자연의 체험'이라는 제목의 책에서 원시림에 관한 훌륭한 그림 하나를 보았다. 그것은 맹수를 집어삼키고 있는 보아 구렁이의 그림이었다." },
-                ja: { content: "私が6歳のとき、『自然の体験』という本で、原始林に関する素晴らしい絵を見た。それは獣を飲み込んでいるボア・コンストリクターの絵だった。" },
-                zh: { content: "当我还只有六岁的时候，在一本描写原始森林的名叫《大自然的故事》的书中，看到了一幅精彩的插画。画的是一条蟒蛇正在吞食一只野兽。" }
+                ko: { content: "내가 여섯 살 적에, 나는 '자연의 체험'이라는 제목의 책에서 원시림에 관한 훌륭한 그림 하나를 보았다. 그것은 맹수를 집어삼키고 있는 보아 구렁이의 그림이었다." }
             }
         },
         {
             pageNumber: 2,
             content: "I showed my masterpiece to the grown-ups, and asked them whether the drawing frightened them.",
             translations: {
-                ko: { content: "나는 내 걸작을 어른들에게 보여주며 내 그림이 무섭지 않냐고 물었다." },
-                ja: { content: "私は傑作を大人たちに見せて、怖くないかと尋ねた。" },
-                zh: { content: "我把我的杰作拿给大人看，问他们我的画是不是叫他们害怕。" }
+                ko: { content: "나는 내 걸작을 어른들에게 보여주며 내 그림이 무섭지 않냐고 물었다." }
             }
         },
         {
             pageNumber: 3,
             content: "But they answered: 'Frighten? Why should any one be frightened by a hat?'",
             translations: {
-                ko: { content: "하지만 그들은 대답했다. '무섭다고? 모자가 왜 무섭니?'" },
-                ja: { content: "しかし、彼らは答えた。「怖い？なぜ帽子が怖いの？」" },
-                zh: { content: "他们回答我说：“帽子有什么可怕的？”" }
+                ko: { content: "하지만 그들은 대답했다. '무섭다고? 모자가 왜 무섭니?'" }
             }
         }
     ],
@@ -253,9 +217,7 @@ export const mockComments: Comment[] = [
         content: "This book changed my life!",
         createdAt: "2023-10-01",
         translations: {
-            ko: { content: "이 책은 내 인생을 바꿨어요!" },
-            ja: { content: "この本は私の人生を変えました！" },
-            zh: { content: "这本书改变了我的人生！" }
+            ko: { content: "이 책은 내 인생을 바꿨어요!" }
         }
     },
     {
@@ -265,9 +227,7 @@ export const mockComments: Comment[] = [
         content: "The illustrations are beautiful.",
         createdAt: "2023-10-02",
         translations: {
-            ko: { content: "삽화가 정말 아름답네요." },
-            ja: { content: "イラストがとても美しいです。" },
-            zh: { content: "插图很美。" }
+            ko: { content: "삽화가 정말 아름답네요." }
         }
     },
     {

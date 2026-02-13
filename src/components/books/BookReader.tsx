@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Page } from "@/lib/mockData";
-import { useToast } from "@/hooks/useToast";
 import { useLanguage } from "@/context/LanguageContext";
 
 // PageImage 컴포넌트
@@ -25,21 +24,46 @@ function PageImage({ src, alt }: { src: string; alt: string }) {
 interface BookReaderProps {
     pages: Page[];
     onClose: () => void;
+    onTriggerToast: (message: string) => void;
 }
 
-export default function BookReader({ pages, onClose }: BookReaderProps) {
-    const { triggerToast } = useToast();
+export default function BookReader({ pages, onClose, onTriggerToast }: BookReaderProps) {
     const { t } = useLanguage();
     const [currentPageIndex, setCurrentPageIndex] = useState(0);
     const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    const warnMessage = t.bookDetail.copyrightWarning;
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const handleSelectStart = (e: Event) => {
+            e.preventDefault();
+            // 드래그/선택 시에는 토스트를 띄우지 않고 조용히 막음
+        };
+
+        // TypeScript defines 'selectstart' as a valid event on GlobalEventHandlers, but sometimes misses it on elements.
+        // We attach it manually here.
+        container.addEventListener('selectstart', handleSelectStart);
+        return () => {
+            container.removeEventListener('selectstart', handleSelectStart);
+        };
+    }, []);
 
     return (
         // 읽기 모드: 드래그 방지(select-none) 및 우클릭 방지(onContextMenu) 적용
         <div
+            ref={containerRef}
             className="w-fit mx-auto min-h-[80vh] flex flex-col items-center relative select-none"
             onContextMenu={(e) => {
                 e.preventDefault();
-                triggerToast(t.bookDetail.rightClickWarning);
+                onTriggerToast(t.bookDetail.rightClickWarning);
+            }}
+            onDragStart={(e) => {
+                e.preventDefault();
+                // 드래그 시에는 토스트를 띄우지 않고 조용히 막음
             }}
         >
             <div className="w-full flex justify-end mb-3">
