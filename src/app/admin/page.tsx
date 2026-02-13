@@ -57,7 +57,7 @@ export default function AdminPage() {
     if (!user || user.role !== 'ADMIN') return null;
 
     return (
-        <div className="max-w-[1000px] mx-auto pt-12 px-4">
+        <div className="w-full pb-16">
             <div className="flex justify-between items-center mb-2">
                 <h1 className="text-2xl font-bold">관리자 페이지</h1>
             </div>

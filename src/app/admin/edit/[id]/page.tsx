@@ -53,7 +53,7 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
     }
 
     return (
-        <div className="max-w-[800px] mx-auto pb-16">
+        <div className="w-full pb-16">
             <BookForm
                 initialBook={book}
                 initialPages={pages}

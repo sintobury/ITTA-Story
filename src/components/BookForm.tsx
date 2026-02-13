@@ -1,234 +1,499 @@
 /**
  * [BookForm.tsx]
  * 책을 새로 등록하거나(Create), 기존 책 정보를 수정(Edit)할 때 공통으로 사용하는 입력 폼 컴포넌트입니다.
- * - 책 기본 정보(제목, 저자, 설명, 표지) 입력
- * - 페이지별 내용(텍스트, 삽화) 동적 추가/삭제
- * - 이미지 업로드 미리보기 기능 포함
+ * - [Refactor] CSS Break-out 적용: 부모 컨테이너(max-w-1200px)를 무시하고 전체 너비 사용 (w-[99vw] + negative margins)
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Book, Page } from "@/lib/mockData";
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/common/RichTextEditor";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/Toast";
 
 interface BookFormProps {
-    initialBook?: Book;     // 수정 시 초기 책 데이터
-    initialPages?: Page[];  // 수정 시 초기 페이지 데이터
-    mode: "create" | "edit"; // 생성 모드인지 수정 모드인지 구분
+    initialBook?: Book;
+    initialPages?: Page[];
+    mode: "create" | "edit";
 }
+
+const DEFAULT_LANGUAGES = [
+    { code: 'ko', label: '한국어 (Korean)' },
+    { code: 'en', label: '영어 (English)' },
+    { code: 'ja', label: '일본어 (Japanese)' },
+    { code: 'zh', label: '중국어 (Chinese)' },
+];
 
 export default function BookForm({ initialBook, initialPages, mode }: BookFormProps) {
     const router = useRouter();
+    const { toastMessage, isToastExiting, triggerToast } = useToast();
 
-    // 헬퍼 함수: 객체에서 특정 필드 값을 안전하게 가져옴
     const getInitialValue = (obj: any, field: string) => {
         if (!obj) return "";
-        // 수정 모드일 때 번역된 데이터가 아닌 원본 데이터를 가져옴
         return obj[field] || "";
     };
 
-    // --- 상태 관리 (State Management) ---
-    // 책 기본 정보 상태
+    // --- State ---
     const [title, setTitle] = useState(initialBook ? getInitialValue(initialBook, 'title') : "");
     const [author, setAuthor] = useState(initialBook ? getInitialValue(initialBook, 'author') : "");
     const [description, setDescription] = useState(initialBook ? getInitialValue(initialBook, 'description') : "");
     const [coverUrl, setCoverUrl] = useState(initialBook?.coverUrl || "");
 
-    // 페이지 리스트 상태 (내용 + 이미지 URL)
-    const [pages, setPages] = useState<{ content: string; imageUrl: string }[]>(
+    const [availableLanguages, setAvailableLanguages] = useState<string[]>(
+        initialBook?.availableLanguages || ['ko', 'en', 'ja', 'zh']
+    );
+    const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
+        initialBook?.availableLanguages || ['ko']
+    );
+    const [customLangInput, setCustomLangInput] = useState("");
+
+    const [pages, setPages] = useState<{ contentByLang: Record<string, string>; imageUrl: string }[]>(
         initialPages
             ? initialPages.map(p => ({
-                content: getInitialValue(p, 'content'),
+                contentByLang: p.contentByLang || (p.translations ?
+                    Object.keys(p.translations).reduce((acc, lang) => ({ ...acc, [lang]: p.translations![lang].content || "" }), { en: p.content })
+                    : { en: p.content }),
                 imageUrl: p.imageUrl || ""
             }))
-            : [{ content: "", imageUrl: "" }] // 기본적으로 1개의 빈 페이지 생성
+            : [{ contentByLang: { ko: "" }, imageUrl: "" }]
     );
 
-    // 페이지 내용 변경 핸들러
-    const handlePageChange = (index: number, field: "content" | "imageUrl", value: string) => {
+    const [activeTabs, setActiveTabs] = useState<Record<number, string>>({});
+
+    useEffect(() => {
+        const initialTabs: Record<number, string> = {};
+        pages.forEach((_, idx) => {
+            if (!activeTabs[idx] && selectedLanguages.length > 0) {
+                initialTabs[idx] = selectedLanguages[0];
+            }
+        });
+        if (Object.keys(initialTabs).length > 0) {
+            setActiveTabs(prev => ({ ...prev, ...initialTabs }));
+        }
+    }, [pages.length, selectedLanguages]);
+
+
+    // --- Handlers ---
+    const toggleLanguage = (langCode: string) => {
+        setSelectedLanguages(prev => {
+            if (prev.includes(langCode)) {
+                if (prev.length === 1) {
+                    triggerToast("최소 한 개의 언어는 선택해야 합니다.");
+                    return prev;
+                }
+                return prev.filter(c => c !== langCode);
+            } else {
+                return [...prev, langCode];
+            }
+        });
+    };
+
+    const addCustomLanguage = () => {
+        if (!customLangInput.trim()) return;
+        const newLang = customLangInput.trim().toLowerCase();
+        if (availableLanguages.includes(newLang)) {
+            triggerToast("이미 존재하는 언어입니다.");
+            return;
+        }
+        setAvailableLanguages(prev => [...prev, newLang]);
+        setSelectedLanguages(prev => [...prev, newLang]);
+        setCustomLangInput("");
+    };
+
+    const removeCustomLanguage = (langCode: string) => {
+        setAvailableLanguages(prev => prev.filter(l => l !== langCode));
+        setSelectedLanguages(prev => prev.filter(l => l !== langCode));
+    };
+
+    const handleContentChange = (index: number, lang: string, value: string) => {
         const newPages = [...pages];
-        newPages[index] = { ...newPages[index], [field]: value };
+        newPages[index] = {
+            ...newPages[index],
+            contentByLang: {
+                ...newPages[index].contentByLang,
+                [lang]: value
+            }
+        };
         setPages(newPages);
     };
 
-    // 새 페이지 추가
+    const handleImageChange = (index: number, url: string) => {
+        const newPages = [...pages];
+        newPages[index] = { ...newPages[index], imageUrl: url };
+        setPages(newPages);
+    };
+
     const addPage = () => {
-        setPages([...pages, { content: "", imageUrl: "" }]);
+        setPages([...pages, { contentByLang: {}, imageUrl: "" }]);
     };
 
-    // 페이지 삭제
     const removePage = (index: number) => {
-        const newPages = pages.filter((_, i) => i !== index);
-        setPages(newPages);
+        setPages(pages.filter((_, i) => i !== index));
     };
 
-    // 폼 제출 핸들러 (저장/발행)
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // [클라 확인용] 실제로는 여기서 API를 호출하여 데이터를 서버에 전송해야 함 (로그 출력으로 대체)
-        console.log({ title, author, description, coverUrl, pages });
-
-        alert(mode === "create" ? "책이 성공적으로 발행되었습니다!" : "책 정보가 수정되었습니다!");
-        router.push("/admin"); // 저장 후 관리자 페이지로 이동
+    const handleTabChange = (index: number, lang: string) => {
+        setActiveTabs(prev => ({ ...prev, [index]: lang }));
     };
 
-    // 이미지 업로드 핸들러 (브라우저에서 미리보기 URL 생성)
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => {
         if (e.target.files && e.target.files[0]) {
             const url = URL.createObjectURL(e.target.files[0]);
-            // [클라 확인용] 브라우저 Blob URL 사용 (서버 업로드 X)
             setter(url);
         }
     };
 
+    // --- Validation ---
+    // Helper: HTML 태그 제거 후 텍스트만 추출
+    const stripHtml = (html: string) => {
+        const tmp = document.createElement("DIV");
+        tmp.innerHTML = html;
+        return (tmp.textContent || tmp.innerText || "").trim();
+    };
+
+    const validateForm = (): boolean => {
+        if (!title.trim() || !author.trim() || !description.trim()) {
+            triggerToast("책 기본 정보를 모두 입력해주세요.");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return false;
+        }
+
+        for (let i = 0; i < pages.length; i++) {
+            const page = pages[i];
+
+            // 모든 언어의 내용이 비어있는지 확인 (이미지만 있는 페이지 허용 여부 고려 -> 현재는 텍스트 필수)
+            const contentValues = selectedLanguages.map(lang => (page.contentByLang[lang] || ""));
+            const isAllEmpty = contentValues.every(val => stripHtml(val) === "");
+
+            // 만약 모든 언어가 비어있다면 pass (아직 작성 안한 페이지로 간주? 아니면 필수? -> 기획상 페이지 내용은 필수여야 함)
+            // *수정*: 페이지가 추가되었으면 내용은 무조건 있어야 함. 단, 작성을 아예 안한 초기 상태 페이지라면? 
+            // 현재 로직: "모두 비어있으면" -> continue (체크 안함). 
+            // 하지만 사용자가 페이지를 추가했다면 작성을 의도한 것이므로, 체크를 하는 게 맞음.
+            // 다만 '내용이 없는 페이지'를 허용할 것인가? -> 책의 페이지는 내용이 있어야 함.
+
+            // 기존 로직 유지하되, stripHtml 적용
+            if (isAllEmpty) {
+                // 모두 비어있더라도, 페이지가 존재하면 작성을 유도해야 함. (단, 첫 페이지가 아예 비어있는 경우 등 처리가 필요)
+                // 여기서는 "모두 비어있으면" 에러로 처리하지 않고 continue했던 기존 로직이 '작성 중인 페이지만 검사'하는 의도였는지 불분명.
+                // 보통은 빈 페이지 업로드를 막아야 하므로, isAllEmpty 체크를 제거하거나, '이미지가 있으면 통과' 등의 로직이 필요.
+                // 사용자 요청: "텍스트 안적고 클릭만 했는데 업로드 됨" -> 빈 텍스트 감지 실패.
+                // 따라서 "하나라도 비어있으면" 안되는 게 아니라, "선택된 언어에 대한 내용은 필수"여야 함.
+            }
+
+            // 선택된 언어 중 내용이 없는 것이 있는지 확인
+            const missingLangs = selectedLanguages.filter(lang => {
+                const val = page.contentByLang[lang] || "";
+                return stripHtml(val) === "";
+            });
+
+            if (missingLangs.length > 0) {
+                const missingLangCode = missingLangs[0];
+                const defaultLabel = DEFAULT_LANGUAGES.find(l => l.code === missingLangCode)?.label.split(' ')[0];
+                const missingLangLabel = defaultLabel || missingLangCode;
+
+                triggerToast(`${i + 1}페이지의 [${missingLangLabel}] 내용을 입력해주세요.`);
+                const element = document.getElementById(`page-${i}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    handleTabChange(i, missingLangs[0]);
+                }
+                return false;
+            }
+        }
+        return true;
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+
+        console.log({ title, author, description, coverUrl, availableLanguages: selectedLanguages, pages });
+        alert(mode === "create" ? "책이 성공적으로 발행되었습니다!" : "책 정보가 수정되었습니다!");
+        router.push("/admin");
+    };
+
+    // [CSS Break-out]
+    // 부모 컨테이너(.container, max-w-1200px)를 벗어나 전체 화면 너비(99vw)를 사용하기 위한 스타일
+    // ml-[calc(-50vw+50%)] -> 화면 중앙 기준 왼쪽 끝으로 이동
+    const breakOutStyle = {
+        width: "99vw",
+        marginLeft: "calc(-50vw + 50%)",
+        marginRight: "calc(-50vw + 50%)",
+    };
+
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8 max-w-[800px] mx-auto py-8 pb-24">
-            {/* 헤더: 제목만 표시 */}
-            <div className="mb-4 pb-4 border-b border-[var(--border)]">
-                <h2 className="text-[1.8rem] text-[var(--foreground)] m-0">{mode === "create" ? "새 책 업로드" : "책 수정"}</h2>
-            </div>
+        <form
+            onSubmit={handleSubmit}
+            className="flex flex-col lg:flex-row gap-5 mx-auto py-5 pb-32 px-2 relative"
+            style={breakOutStyle}
+        >
 
-            {/* 섹션 1: 책 기본 정보 입력 */}
-            <section className="bg-[var(--card-bg)] p-8 rounded-xl shadow-[var(--card-shadow)]">
-                <h3 className="mb-6 pb-2 border-b border-[var(--border)] text-[var(--primary)] text-lg font-bold">1. 책 정보</h3>
-
-                <div className="mb-6">
-                    <label className="block mb-2 font-medium text-[var(--secondary)]">제목</label>
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        placeholder="예: 어린 왕자"
-                        required
-                        className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-base transition-colors focus:outline-none focus:border-[var(--primary)]"
-                    />
-                </div>
-
-                <div className="mb-6">
-                    <label className="block mb-2 font-medium text-[var(--secondary)]">저자</label>
-                    <input
-                        type="text"
-                        value={author}
-                        onChange={e => setAuthor(e.target.value)}
-                        placeholder="예: 앙투안 드 생텍쥐페리"
-                        required
-                        className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-base transition-colors focus:outline-none focus:border-[var(--primary)]"
-                    />
-                </div>
-
-                <div className="mb-6">
-                    <label className="block mb-2 font-medium text-[var(--secondary)]">설명</label>
-                    <textarea
-                        value={description}
-                        onChange={e => setDescription(e.target.value)}
-                        rows={4}
-                        required
-                        className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-base transition-colors focus:outline-none focus:border-[var(--primary)]"
-                    />
-                </div>
-
-                {/* 표지 이미지 업로드 UI */}
-                <div className="mb-6">
-                    <label className="block mb-2 font-medium text-[var(--secondary)]">표지 이미지</label>
-                    <div className="border-2 dashed border-[var(--border)] p-10 rounded-xl text-center transition-all bg-[var(--background)] flex flex-col items-center justify-center gap-4 hover:border-[var(--primary)] hover:bg-[#3498db08] group">
-                        {!coverUrl ? (
-                            <>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => handleImageUpload(e, setCoverUrl)}
-                                    id="cover-upload"
-                                    className="hidden"
-                                />
-                                <label htmlFor="cover-upload" className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-[var(--border)] rounded-lg cursor-pointer font-medium text-[var(--foreground)] shadow-sm transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] hover:-translate-y-px hover:shadow-md">
-                                    🖼️ 이미지 선택
-                                </label>
-                                <span className="text-sm text-[var(--secondary)]">또는 파일을 여기로 드래그하세요</span>
-                            </>
-                        ) : (
-                            <div className="mt-2 w-full flex flex-col items-center gap-4">
-                                <img src={coverUrl} alt="Cover preview" className="max-w-full max-h-[400px] rounded-lg shadow-md object-contain" />
-                                <button type="button" onClick={() => setCoverUrl("")} className="px-4 py-2 bg-[#fee2e2] text-[#dc2626] border-0 rounded-md text-sm font-semibold cursor-pointer transition-all flex items-center gap-1.5 hover:bg-[#fecaca] hover:-translate-y-px">
-                                    🗑️ 이미지 삭제
-                                </button>
+            {/* 왼쪽 메인 컨텐츠 영역 (책 정보 + 페이지 에디터) */}
+            <div className="flex-1 flex flex-col gap-5 min-w-0 pl-4"> {/* pl-4 추가로 좌측 여백 확보 */}
+                {/* 1. 책 정보 섹션 (Compact Style) */}
+                <section className="bg-[var(--card-bg)] p-5 rounded-xl shadow-[var(--card-shadow)] border border-[var(--border)] transition-all hover:shadow-md">
+                    <div className="flex gap-5 max-md:flex-col">
+                        {/* 표지 이미지 (작게) */}
+                        {/* 표지 이미지 (작게) - Flex Column으로 높이 동기화 */}
+                        <div className="w-[140px] flex-shrink-0 max-md:w-full flex flex-col">
+                            {/* 오른쪽 헤더(28px + mb-2)와 높이를 맞추기 위한 Spacer + Label */}
+                            <div className="flex-none h-[36px] flex items-end pb-1"> {/* 1.75rem(h3) + 0.5rem(mb-2) approx 36px? Or just match structure */}
+                                <label className="block font-medium text-[var(--secondary)] text-xs">표지</label>
                             </div>
-                        )}
-                    </div>
-                </div>
-            </section>
 
-            {/* 섹션 2: 페이지 내용 입력 (동적으로 추가/삭제 가능) */}
-            <section className="bg-[var(--card-bg)] p-8 rounded-xl shadow-[var(--card-shadow)]">
-                <h3 className="mb-6 pb-2 border-b border-[var(--border)] text-[var(--primary)] text-lg font-bold">2. 페이지 내용</h3>
-
-                {pages.map((page, index) => (
-                    <div key={index} className="bg-[var(--background)] p-6 rounded-lg border border-[var(--border)] mb-8 relative">
-                        <div className="flex justify-between items-center mb-5 pb-3 border-b border-dashed border-[var(--border)]">
-                            <h4 className="text-[1.1rem] text-[var(--foreground)] font-semibold">페이지 {index + 1}</h4>
-                            {pages.length > 1 && (
-                                <button type="button" onClick={() => removePage(index)} className="bg-[#ffebee] text-[#c62828] border-0 px-3 py-1.5 rounded-md cursor-pointer text-sm font-semibold transition-all flex items-center gap-1.5 hover:bg-[#FFCDD2]">
-                                    페이지 삭제
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="mb-6">
-                            <label className="block mb-2 font-medium text-[var(--secondary)]">텍스트 내용</label>
-                            <RichTextEditor
-                                value={page.content}
-                                onChange={(val) => handlePageChange(index, "content", val)}
-                                placeholder="이 페이지의 내용을 입력하세요... (스타일 적용 가능)"
-                            />
-                        </div>
-
-                        <div className="mb-6">
-                            <label className="block mb-2 font-medium text-[var(--secondary)]">삽화 (선택사항)</label>
-                            <div className="border-2 dashed border-[var(--border)] p-10 rounded-xl text-center transition-all bg-[var(--background)] flex flex-col items-center justify-center gap-4 hover:border-[var(--primary)] hover:bg-[#3498db08]">
-                                {!page.imageUrl ? (
+                            <div className="flex-1 w-full border border-dashed border-[var(--border)] rounded-lg bg-[var(--background)] flex flex-col items-center justify-center relative overflow-hidden group hover:border-[var(--primary)] transition-all cursor-pointer shadow-sm min-h-[200px]">
+                                {!coverUrl ? (
                                     <>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => handleImageUpload(e, (url) => handlePageChange(index, "imageUrl", url))}
-                                            id={`page-upload-${index}`}
-                                            className="hidden"
-                                        />
-                                        <label htmlFor={`page-upload-${index}`} className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-[var(--border)] rounded-lg cursor-pointer font-medium text-[var(--foreground)] shadow-sm transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] hover:-translate-y-px hover:shadow-md">
-                                            🖼️ 이미지 선택
+                                        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setCoverUrl)} id="cover-upload" className="hidden" />
+                                        <label htmlFor="cover-upload" className="absolute inset-0 flex flex-col items-center justify-center text-[var(--secondary)] cursor-pointer group-hover:text-[var(--primary)] transition-colors">
+                                            <span className="text-2xl opacity-50">📷</span>
                                         </label>
                                     </>
                                 ) : (
-                                    <div className="mt-2 w-full flex flex-col items-center gap-4">
-                                        <img src={page.imageUrl} alt="Page preview" className="max-w-full max-h-[400px] rounded-lg shadow-md object-contain" />
-                                        <button
-                                            type="button"
-                                            onClick={() => handlePageChange(index, "imageUrl", "")}
-                                            className="px-4 py-2 bg-[#fee2e2] text-[#dc2626] border-0 rounded-md text-sm font-semibold cursor-pointer transition-all flex items-center gap-1.5 hover:bg-[#fecaca] hover:-translate-y-px"
-                                        >
-                                            🗑️ 이미지 삭제
+                                    <div className="relative w-full h-full group/preview">
+                                        <img src={coverUrl} alt="Cover preview" className="w-full h-full object-cover" />
+                                        <button type="button" onClick={(e) => { e.preventDefault(); setCoverUrl(""); }} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity shadow-sm">
+                                            ✕
                                         </button>
                                     </div>
                                 )}
                             </div>
                         </div>
+
+                        {/* 텍스트 정보 (Flex Layout for Dynamic Height) */}
+                        <div className="flex-1 flex flex-col gap-4 min-w-0">
+                            <div className="flex-none">
+                                <h3 className="text-[var(--primary)] text-lg font-bold flex items-center gap-2 mb-2">
+                                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--primary)] text-white text-xs">1</span>
+                                    책 기본 정보
+                                </h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-none">
+                                <div>
+                                    <label className="block mb-1 font-medium text-[var(--foreground)] text-sm">제목 <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={title}
+                                        onChange={e => setTitle(e.target.value)}
+                                        placeholder="책 제목"
+                                        className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:border-[var(--primary)] outline-none transition-all shadow-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block mb-1 font-medium text-[var(--foreground)] text-sm">저자 <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={author}
+                                        onChange={e => setAuthor(e.target.value)}
+                                        placeholder="저자명"
+                                        className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:border-[var(--primary)] outline-none transition-all shadow-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex-1 flex flex-col min-h-[100px]">
+                                <label className="block mb-1 font-medium text-[var(--foreground)] text-sm">설명 <span className="text-red-500">*</span></label>
+                                <textarea
+                                    value={description}
+                                    onChange={e => setDescription(e.target.value)}
+                                    placeholder="책 설명"
+                                    className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:border-[var(--primary)] outline-none transition-all resize-none shadow-sm flex-1 h-full min-h-[80px]"
+                                />
+                            </div>
+                        </div>
                     </div>
-                ))}
+                </section>
 
-                <button type="button" onClick={addPage} className="flex items-center justify-center w-full p-6 bg-[var(--background)] border-2 dashed border-[var(--border)] rounded-xl text-[var(--secondary)] font-semibold text-[1.1rem] cursor-pointer transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] hover:bg-[#3498db08]">
-                    + 페이지 추가
-                </button>
-            </section>
+                {/* 2. 페이지 내용 섹션 */}
+                <section className="bg-[var(--card-bg)] p-5 rounded-xl shadow-[var(--card-shadow)] border border-[var(--border)] transition-all hover:shadow-md flex-1 flex flex-col">
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-[var(--border)]">
+                        <h3 className="text-[var(--primary)] text-lg font-bold flex items-center gap-2">
+                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--primary)] text-white text-xs">2</span>
+                            페이지 내용 편집
+                        </h3>
+                        <span className="text-xs px-2 py-1 bg-[var(--background)] border border-[var(--border)] rounded text-[var(--secondary)] font-medium">
+                            Total: {pages.length}
+                        </span>
+                    </div>
 
-            {/* 하단 우측 고정 액션 버튼 (취소 / 저장) */}
-            <div className="fixed bottom-8 right-8 flex gap-4 z-[1000] p-4 bg-white/80 backdrop-blur-md rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-black/5 dark:bg-[#1e1e1e]/80 dark:border-white/10">
-                <button type="button" onClick={() => router.back()} className="px-6 py-3 bg-[var(--card-bg)] border border-[var(--border)] rounded-full cursor-pointer font-semibold text-[var(--secondary)] transition-all shadow-sm hover:bg-[var(--card-bg)] hover:text-[var(--foreground)] hover:-translate-y-0.5 hover:shadow-md">
-                    취소
-                </button>
-                <button type="submit" className="px-8 py-3 bg-[var(--primary)] text-white border-0 rounded-full text-base font-semibold cursor-pointer shadow-[0_4px_12px_rgba(52,152,219,0.4)] transition-all hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(52,152,219,0.5)]">
-                    {mode === "create" ? "책 발행하기" : "변경사항 저장"}
-                </button>
+                    <div className="space-y-8">
+                        {pages.map((page, index) => {
+                            const currentTab = activeTabs[index] || selectedLanguages[0] || 'ko';
+
+                            return (
+                                <div id={`page-${index}`} key={index} className="relative group/page scroll-mt-28">
+                                    {index > 0 && <div className="border-t border-dashed border-[var(--border)] my-8" />}
+
+                                    <div className="flex justify-between items-center mb-2 px-1">
+                                        <h4 className="text-base font-bold text-[var(--foreground)] flex items-center gap-2">
+                                            <span className="text-[var(--primary)]">#{index + 1}</span>
+                                            페이지
+                                        </h4>
+                                        {pages.length > 1 && (
+                                            <button type="button" onClick={() => removePage(index)} className="text-[#e74c3c] text-xs hover:bg-red-50 px-2 py-1 rounded transition-colors font-medium opacity-0 group-hover/page:opacity-100 border border-transparent hover:border-red-200">
+                                                삭제
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="bg-[var(--background)] rounded-lg border border-[var(--border)] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                        <div className="flex flex-col md:flex-row h-[550px] max-md:h-auto">
+                                            {/* 왼쪽: 이미지 (30%) */}
+                                            <div className="w-full md:w-[30%] border-r border-[var(--border)] bg-gray-50/50 dark:bg-black/20 p-4 flex flex-col relative">
+                                                <div className="flex-1 border border-dashed border-[var(--border)] rounded-lg flex flex-col items-center justify-center relative overflow-hidden bg-white dark:bg-[#1e1e1e] hover:border-[var(--primary)] transition-all group/image cursor-pointer shadow-inner">
+                                                    {!page.imageUrl ? (
+                                                        <>
+                                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, (url) => handleImageChange(index, url))} id={`page-img-${index}`} className="hidden" />
+                                                            <label htmlFor={`page-img-${index}`} className="absolute inset-0 cursor-pointer flex flex-col items-center justify-center text-[var(--secondary)] group-hover/image:text-[var(--primary)] transition-colors">
+                                                                <span className="text-3xl mb-2 opacity-40 group-hover/image:opacity-80 transition-opacity">📷</span>
+                                                                <span className="text-xs">이미지 업로드</span>
+                                                            </label>
+                                                        </>
+                                                    ) : (
+                                                        <div className="relative w-full h-full group/preview">
+                                                            <img src={page.imageUrl} alt={`Page ${index + 1}`} className="w-full h-full object-contain p-2" />
+                                                            <button type="button" onClick={() => handleImageChange(index, "")} className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity shadow-md">
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* 오른쪽: 텍스트 에디터 (70%) */}
+                                            <div className="w-full md:w-[70%] flex flex-col bg-white dark:bg-[#121212]">
+                                                <div className="flex border-b border-[var(--border)] bg-[var(--background)] px-2 pt-1 gap-1 overflow-x-auto overflow-y-hidden scroller-hide select-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                                    {selectedLanguages.map(lang => (
+                                                        <button
+                                                            key={lang}
+                                                            type="button"
+                                                            onClick={() => handleTabChange(index, lang)}
+                                                            className={`min-w-[70px] px-3 py-2 text-xs font-bold rounded-t-lg transition-all whitespace-nowrap relative top-[1px] ${currentTab === lang
+                                                                ? 'border border-[var(--border)] border-b-white dark:border-b-[#121212] bg-white dark:bg-[#121212] text-[var(--primary)] shadow-[0_-1px_3px_rgba(0,0,0,0.02)] z-10'
+                                                                : 'border border-transparent text-[var(--secondary)] hover:text-[var(--foreground)] hover:bg-[var(--card-bg)]'
+                                                                }`}
+                                                        >
+                                                            <div className="flex items-center justify-center gap-1.5">
+                                                                <span>{DEFAULT_LANGUAGES.find(l => l.code === lang)?.label.split(' ')[0] || lang.toUpperCase()}</span>
+                                                                {page.contentByLang[lang] && page.contentByLang[lang] !== "<p><br></p>" && <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-sm block" />}
+                                                            </div>
+                                                        </button>
+                                                    ))}
+                                                </div>
+
+                                                {/* Editor Wrapper with Padding and Full Height */}
+                                                <div className="flex-1 flex flex-col relative p-1 bg-white dark:bg-[#121212] overflow-hidden">
+                                                    <div className="flex-1 h-full transition-all">
+                                                        <RichTextEditor
+                                                            key={currentTab}
+                                                            value={page.contentByLang[currentTab] || ""}
+                                                            onChange={(val) => handleContentChange(index, currentTab, val)}
+                                                            placeholder={`${DEFAULT_LANGUAGES.find(l => l.code === currentTab)?.label || currentTab} 내용 입력`}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={addPage}
+                        className="w-full mt-8 py-4 border border-dashed border-[var(--border)] rounded-xl text-[var(--secondary)] font-bold text-sm hover:border-[var(--primary)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all flex items-center justify-center gap-2 group active:scale-[0.99]"
+                    >
+                        <span className="w-5 h-5 rounded-full bg-[var(--border)] text-white flex items-center justify-center group-hover:bg-[var(--primary)] transition-colors text-sm">+</span>
+                        페이지 추가
+                    </button>
+                </section>
             </div>
+
+            {/* 오른쪽 사이드바 (Sticky) - Compact */}
+            <div className="w-full lg:w-[220px] lg:flex-shrink-0 pr-4"> {/* pr-4 추가로 우측 여백 확보 */}
+                <div className="sticky top-20 flex flex-col gap-4">
+                    <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+                        <h2 className="text-lg font-bold text-[var(--foreground)] mb-4 pb-2 border-b border-[var(--border)]">
+                            {mode === "create" ? "업로드" : "수정"}
+                        </h2>
+
+                        <div className="flex flex-col gap-2 mb-4">
+                            <button
+                                type="submit"
+                                className="w-full py-2.5 rounded-lg bg-[var(--primary)] text-white font-bold shadow-md hover:brightness-110 hover:-translate-y-0.5 transition-all active:translate-y-0 text-sm"
+                            >
+                                {mode === "create" ? "✨ 발행하기" : "💾 저장하기"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => router.back()}
+                                className="w-full py-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--secondary)] font-medium hover:bg-[var(--border)] hover:text-[var(--foreground)] transition-colors text-sm"
+                            >
+                                취소
+                            </button>
+                        </div>
+
+                        <div className="pt-2">
+                            <h4 className="font-bold text-[var(--foreground)] mb-2 text-xs uppercase tracking-wide opacity-80">Languages</h4>
+                            <div className="flex flex-col gap-1.5 mb-3">
+                                {availableLanguages.map(lang => (
+                                    <label key={lang} className={`flex items-center justify-between p-2 rounded border cursor-pointer transition-all select-none ${selectedLanguages.includes(lang) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]'}`}>
+                                        <div className="flex items-center gap-2">
+                                            <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${selectedLanguages.includes(lang) ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300 dark:bg-black dark:border-gray-600'}`}>
+                                                {selectedLanguages.includes(lang) && <span className="text-white text-[10px]">✓</span>}
+                                            </div>
+                                            <span className={`text-xs font-medium ${selectedLanguages.includes(lang) ? 'text-blue-700 dark:text-blue-300' : 'text-[var(--secondary)]'}`}>
+                                                {DEFAULT_LANGUAGES.find(l => l.code === lang)?.label.split(' ')[0] || lang.toUpperCase()}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {!DEFAULT_LANGUAGES.some(l => l.code === lang) && (
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        removeCustomLanguage(lang);
+                                                    }}
+                                                    className="w-5 h-5 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                                                    title="언어 삭제"
+                                                >
+                                                    <span className="text-xs">✕</span>
+                                                </button>
+                                            )}
+                                            <input
+                                                type="checkbox"
+                                                className="hidden"
+                                                checked={selectedLanguages.includes(lang)}
+                                                onChange={() => toggleLanguage(lang)}
+                                            />
+                                        </div>
+                                    </label>
+                                ))}
+                            </div>
+
+                            <div className="flex gap-1">
+                                <input
+                                    type="text"
+                                    value={customLangInput}
+                                    onChange={e => setCustomLangInput(e.target.value)}
+                                    placeholder="+ Lang"
+                                    className="flex-1 w-full px-2 py-1.5 text-xs border border-[var(--border)] rounded bg-[var(--background)] focus:outline-none focus:border-[var(--primary)]"
+                                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomLanguage())}
+                                />
+                                <button type="button" onClick={addCustomLanguage} className="px-2 py-1.5 bg-[var(--secondary)] text-white text-xs rounded hover:opacity-90 transition-opacity">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/* Toast 메시지 렌더링 */}
+            <Toast message={toastMessage} isExiting={isToastExiting} />
         </form>
     );
 }

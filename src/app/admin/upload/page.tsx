@@ -16,7 +16,7 @@ export default function UploadPage() {
     }
 
     return (
-        <div className="max-w-[800px] mx-auto pb-16">
+        <div className="w-full pb-16">
             <BookForm mode="create" />
         </div>
     );

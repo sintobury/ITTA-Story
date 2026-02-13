@@ -29,7 +29,22 @@ export default function BookDetailClient({ id }: { id: string }) {
     const { isBlocked, blockUser } = useBlockedUser();
 
     const rawBook = mockBooks.find((b) => b.id === id);
+    // 책 정보는 앱 언어(UI 언어)에 맞춰 보여줌 (제목/설명 등)
+    // 단, 읽기 모드 진입 시엔 사용자가 선택한 언어(readingLanguage)로 보여줌
     const book = rawBook ? getLocalizedBook(rawBook, language) : null;
+
+    // [New] 읽기 언어 상태 (기본값: 앱 언어가 책에 있으면 앱 언어, 아니면 첫 번째 가용 언어)
+    const [readingLanguage, setReadingLanguage] = useState<string>(language);
+
+    useEffect(() => {
+        if (rawBook?.availableLanguages) {
+            if (rawBook.availableLanguages.includes(language)) {
+                setReadingLanguage(language);
+            } else if (rawBook.availableLanguages.length > 0) {
+                setReadingLanguage(rawBook.availableLanguages[0]);
+            }
+        }
+    }, [language, rawBook]);
 
     const [isReading, setIsReading] = useState(false);
 
@@ -71,7 +86,8 @@ export default function BookDetailClient({ id }: { id: string }) {
     }
 
     const rawPages = mockPages[id] || [];
-    const pages = rawPages.map(p => getLocalizedPage(p, language));
+    // 읽기 모드용 페이지 데이터: readingLanguage 기준
+    const pages = rawPages.map(p => getLocalizedPage(p, readingLanguage));
 
     const initiateDeleteComment = (commentId: string) => {
         setDeleteTargetId(commentId);
@@ -138,6 +154,9 @@ export default function BookDetailClient({ id }: { id: string }) {
                         user={user}
                         onReadClick={() => setIsReading(true)}
                         onLikeClick={handleToggleLike}
+                        // [New] 언어 선택 Props 전달
+                        readingLanguage={readingLanguage}
+                        onLanguageChange={setReadingLanguage}
                     />
                 </div>
             )}

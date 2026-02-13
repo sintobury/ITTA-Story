@@ -114,6 +114,20 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                     border-radius: 0.5rem;
                     background-color: var(--card-bg);
                     position: relative;
+                    height: 100%; /* Force full height */
+                }
+
+                .editor-container {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                :global(.quill) {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
                 }
 
                 .ql-toolbar {
@@ -124,17 +138,23 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
                     background-color: var(--card-bg);
                     border-radius: 0.5rem 0.5rem 0 0;
                     z-index: 10;
+                    flex: none; /* Header should not stretch */
                 }
                 
                 .ql-container.ql-snow {
                     border: none !important;
-                    min-height: 200px;
+                    flex: 1; /* Fill remaining height */
+                    display: flex;
+                    flex-direction: column;
                     font-size: 1rem;
+                    overflow: hidden;
                 }
                 
                 .ql-editor {
-                    min-height: 200px; 
+                    flex: 1;
                     padding: 16px;
+                    overflow-y: auto; /* Internal scroll */
+                    height: 100%;
                 }
 
                 /* --- [핵심] 글자 크기 스타일 --- */
