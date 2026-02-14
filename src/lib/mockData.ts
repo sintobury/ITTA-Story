@@ -52,6 +52,21 @@ export const mockUserLikes: Record<string, string[]> = {
     "u2": ["2"],
 };
 
+export interface ReadingHistory {
+    bookId: string;
+    lastPage: number;
+    lastReadAt: string;
+    completed: boolean;
+}
+
+export const mockReadingHistory: Record<string, ReadingHistory[]> = {
+    "u1": [
+        { bookId: "1", lastPage: 3, lastReadAt: "2023-10-20T10:00:00", completed: false },
+        { bookId: "2", lastPage: 1, lastReadAt: "2023-10-18T14:30:00", completed: false }
+    ],
+    "u2": []
+};
+
 const originalBooks: Book[] = [
     {
         id: "1",
@@ -264,7 +279,7 @@ export const mockComments: Comment[] = [
     {
         id: "c1",
         bookId: "1",
-        userName: "User1",
+        userName: "Normal User",
         content: "This book changed my life!",
         createdAt: "2023-10-01",
         translations: {
@@ -284,7 +299,7 @@ export const mockComments: Comment[] = [
     {
         id: "c3",
         bookId: "2",
-        userName: "User1",
+        userName: "Normal User",
         content: "Scary but important read.",
         createdAt: "2023-10-05",
         translations: {

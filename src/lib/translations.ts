@@ -8,9 +8,9 @@ export const translations = {
             login: "Login",
             signup: "Sign Up",
             logout: "Logout",
-            loginUser: "Login as User",
             loginAdmin: "Login as Admin",
             hello: "Hello",
+            myPage: "My Page",
         },
         home: {
             welcome: "Welcome to E-Library",
@@ -149,6 +149,20 @@ export const translations = {
             idAvailable: "ID is available!",
             idTaken: "ID is already taken.",
             checkIdFirst: "Please check ID duplication first.",
+        },
+        myPage: {
+            title: "My Page",
+            tabs: {
+                reading: "Reading List",
+                liked: "Liked Books",
+                comments: "My Comments"
+            },
+            resume: "Resume: Page",
+            noReading: "No books currently being read.",
+            noLiked: "No liked books yet.",
+            noComments: "No comments written yet.",
+            goBrowse: "Browse Books",
+            unit: "Page"
         }
     },
     ko: {
@@ -158,9 +172,9 @@ export const translations = {
             login: "로그인",
             signup: "회원가입",
             logout: "로그아웃",
-            loginUser: "사용자 로그인",
             loginAdmin: "관리자 로그인",
             hello: "반갑습니다",
+            myPage: "마이페이지",
         },
         home: {
             welcome: "E-Library에 오신 것을 환영합니다",
@@ -299,6 +313,20 @@ export const translations = {
             idAvailable: "사용 가능한 아이디입니다!",
             idTaken: "이미 사용 중인 아이디입니다.",
             checkIdFirst: "아이디 중복 확인을 해주세요.",
+        },
+        myPage: {
+            title: "마이페이지",
+            tabs: {
+                reading: "📚 읽고 있는 책",
+                liked: "❤️ 좋아요한 책",
+                comments: "💬 내 댓글"
+            },
+            resume: "이어보기:",
+            noReading: "아직 읽고 있는 책이 없습니다.",
+            noLiked: "좋아요한 책이 없습니다.",
+            noComments: "작성한 댓글이 없습니다.",
+            goBrowse: "책 구경하러 가기",
+            unit: "페이지"
         }
     }
 };

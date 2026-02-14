@@ -46,9 +46,10 @@ export default function Navbar() {
                     {/* 로그인 상태에 따른 UI 분기 처리 */}
                     {user ? (
                         <>
-                            <span className="text-sm text-[var(--secondary)] font-medium">
-                                {t.nav.hello}, <strong>{user.name}</strong> ({user.role})
-                            </span>
+                            <Link href="/mypage" className="btn btn-secondary flex items-center gap-2">
+                                <span>👤</span>
+                                <span>{t.nav.myPage || "마이페이지"}</span>
+                            </Link>
                             {/* 관리자(ADMIN)일 경우에만 관리자 페이지 링크 표시 */}
                             {user.role === "ADMIN" && (
                                 <Link href="/admin" className="btn btn-secondary">

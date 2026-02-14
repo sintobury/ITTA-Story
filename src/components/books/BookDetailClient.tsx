@@ -9,7 +9,8 @@ import {
     Comment,
     mockUserLikes,
     getLocalizedBook,
-    getLocalizedPage
+    getLocalizedPage,
+    mockReadingHistory,
 } from "@/lib/mockData";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -47,6 +48,38 @@ export default function BookDetailClient({ id }: { id: string }) {
     }, [language, rawBook]);
 
     const [isReading, setIsReading] = useState(false);
+
+    // [New] 초기 페이지 상태 및 읽기 기록 저장 로직
+    const [initialPage, setInitialPage] = useState(0);
+
+    useEffect(() => {
+        if (user && rawBook) {
+            const history = mockReadingHistory[user.id]?.find(h => h.bookId === rawBook.id);
+            if (history) {
+                setInitialPage(history.lastPage);
+            }
+        }
+    }, [user, rawBook]);
+
+    const handlePageChange = (pageIndex: number) => {
+        if (user && rawBook) {
+            const userHistory = mockReadingHistory[user.id] || [];
+            const existingIndex = userHistory.findIndex(h => h.bookId === rawBook.id);
+
+            if (existingIndex >= 0) {
+                userHistory[existingIndex].lastPage = pageIndex;
+                userHistory[existingIndex].lastReadAt = new Date().toISOString();
+            } else {
+                userHistory.push({
+                    bookId: rawBook.id,
+                    lastPage: pageIndex,
+                    lastReadAt: new Date().toISOString(),
+                    completed: false
+                });
+            }
+            mockReadingHistory[user.id] = userHistory;
+        }
+    };
 
     // [클라 확인용] 댓글 관리를 위한 로컬 상태
     const [comments, setComments] = useState<Comment[]>([]);
@@ -143,6 +176,8 @@ export default function BookDetailClient({ id }: { id: string }) {
                     pages={pages}
                     onClose={() => setIsReading(false)}
                     onTriggerToast={triggerToast}
+                    initialPage={initialPage}
+                    onPageChange={handlePageChange}
                 />
             ) : (
                 <div className="max-w-[800px] w-full">

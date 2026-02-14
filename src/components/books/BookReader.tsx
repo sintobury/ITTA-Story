@@ -25,12 +25,21 @@ interface BookReaderProps {
     pages: Page[];
     onClose: () => void;
     onTriggerToast: (message: string) => void;
+    initialPage?: number;
+    onPageChange?: (pageIndex: number) => void;
 }
 
-export default function BookReader({ pages, onClose, onTriggerToast }: BookReaderProps) {
+export default function BookReader({ pages, onClose, onTriggerToast, initialPage = 0, onPageChange }: BookReaderProps) {
     const { t } = useLanguage();
-    const [currentPageIndex, setCurrentPageIndex] = useState(0);
+    const [currentPageIndex, setCurrentPageIndex] = useState(initialPage);
     const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
+
+    // 페이지 변경 시 부모에게 알림 (읽기 기록 저장용)
+    useEffect(() => {
+        if (onPageChange) {
+            onPageChange(currentPageIndex);
+        }
+    }, [currentPageIndex, onPageChange]);
     const containerRef = useRef<HTMLDivElement>(null);
 
     const warnMessage = t.bookDetail.copyrightWarning;
