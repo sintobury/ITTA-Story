@@ -3,13 +3,15 @@
 import React from 'react';
 import { useLanguage } from "@/context/LanguageContext";
 import { Book } from "@/lib/mockData";
+import { Button } from "@/components/common/Button";
+import { User } from "@/context/AuthContext";
 
 interface BookInfoProps {
     book: Book;
     isLiked: boolean;
     likeCount: number;
     isLikedAnimating: boolean;
-    user: any;
+    user: User | null;
     onReadClick: () => void;
     onLikeClick: () => void;
     // [New] 언어 선택 Props
@@ -59,32 +61,38 @@ export default function BookInfo({
                             </label>
                             <div className="flex flex-wrap gap-1.5 justify-center sm:justify-start">
                                 {book.availableLanguages.map((lang) => (
-                                    <button
+                                    <Button
                                         key={lang}
                                         onClick={() => onLanguageChange(lang)}
-                                        className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${readingLanguage === lang
-                                            ? 'bg-blue-600 text-white shadow-md'
+                                        size="sm"
+                                        className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all h-auto border-none ${readingLanguage === lang
+                                            ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700'
                                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400'
                                             }`}
                                     >
                                         {LANGUAGE_LABELS[lang] || lang.toUpperCase()}
-                                    </button>
+                                    </Button>
                                 ))}
                             </div>
                         </div>
                     )}
 
                     <div className="flex gap-3 max-[600px]:justify-center">
-                        <button onClick={onReadClick} className="btn btn-primary flex-1 max-w-[140px] py-2 text-sm shadow-md shadow-blue-500/20">
+                        <Button
+                            onClick={onReadClick}
+                            variant="primary"
+                            className="flex-1 max-w-[140px] shadow-md shadow-blue-500/20"
+                        >
                             📖 {t.bookDetail.readNow}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             onClick={onLikeClick}
-                            className={`btn ${isLiked ? 'btn-danger' : 'btn-secondary'} py-2 text-sm relative transition-transform active:scale-95 overflow-visible ${isLikedAnimating ? 'animate-heartBounce before:content-[\'\'] before:absolute before:top-1/2 before:left-1/2 before:w-full before:h-full before:rounded-full before:z-[-1] before:border-2 before:border-red-400 before:animate-ringExpand after:content-[\'\'] after:absolute after:top-1/2 after:left-1/2 after:w-full after:h-full after:rounded-full after:z-[-1] after:animate-particlesExpand' : ''}`}
+                            variant={isLiked ? "danger" : "secondary"}
+                            className={`relative transition-transform active:scale-95 overflow-visible ${isLikedAnimating ? 'animate-heartBounce before:content-[\'\'] before:absolute before:top-1/2 before:left-1/2 before:w-full before:h-full before:rounded-full before:z-[-1] before:border-2 before:border-red-400 before:animate-ringExpand after:content-[\'\'] after:absolute after:top-1/2 after:left-1/2 after:w-full after:h-full after:rounded-full after:z-[-1] after:animate-particlesExpand' : ''}`}
                             title={user ? (isLiked ? t.bookDetail.likeTooltip.unlike : t.bookDetail.likeTooltip.like) : t.bookDetail.likeTooltip.loginRequired}
                         >
                             {isLiked ? `❤️ ${t.bookDetail.like}` : `🤍 ${t.bookDetail.like}`} ({likeCount})
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

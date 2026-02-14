@@ -4,7 +4,9 @@ declare module 'react-quill-new' {
         theme?: string;
         value?: string;
         defaultValue?: string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onChange?: (value: string, delta: any, source: any, editor: any) => void;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         modules?: any;
         formats?: string[];
         placeholder?: string;

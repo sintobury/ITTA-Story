@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/Toast";
+import { Button } from "@/components/common/Button";
 
 export default function UserCreation() {
     const [id, setId] = useState("");
@@ -66,13 +67,14 @@ export default function UserCreation() {
                             className="w-full p-3 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] text-base focus:outline-none focus:border-[var(--primary)] transition-colors"
                             required
                         />
-                        <button
+                        <Button
                             type="button"
                             onClick={handleCheckDuplicate}
-                            className="px-4 bg-[var(--secondary)] text-white border-none rounded-md cursor-pointer whitespace-nowrap text-sm hover:brightness-90 transition-all font-medium"
+                            variant="secondary"
+                            className="whitespace-nowrap font-medium"
                         >
                             {t.auth.checkDuplicate}
-                        </button>
+                        </Button>
                     </div>
                     {idMessage && (
                         <p className={`text-sm mt-1.5 ${idMessage.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
@@ -105,9 +107,14 @@ export default function UserCreation() {
                     />
                 </div>
 
-                <button type="submit" className="w-full p-3 bg-[var(--primary)] text-white border-none rounded-md text-base font-semibold cursor-pointer mt-4 hover:brightness-90 transition-all shadow-md hover:shadow-lg">
+                <Button
+                    type="submit"
+                    variant="primary"
+                    fullWidth
+                    className="mt-4 font-semibold shadow-md hover:shadow-lg"
+                >
                     회원 생성하기
-                </button>
+                </Button>
             </form>
 
             <Toast message={toastMessage} isExiting={isToastExiting} />

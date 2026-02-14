@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { Button } from "@/components/common/Button";
 
 export default function LoginPage() {
     const [id, setId] = useState("");
@@ -60,9 +61,14 @@ export default function LoginPage() {
                         />
                     </div>
 
-                    <button type="submit" className="w-full p-3 bg-[var(--primary)] text-white border-none rounded-md text-base font-semibold cursor-pointer mt-4 hover:brightness-90 transition-all shadow-md hover:shadow-lg">
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        fullWidth
+                        className="mt-4 font-semibold shadow-md hover:shadow-lg"
+                    >
                         {t.auth.loginBtn}
-                    </button>
+                    </Button>
                 </form>
 
             </div>

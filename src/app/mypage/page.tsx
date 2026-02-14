@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { mockBooks, mockReadingHistory, mockUserLikes, mockComments, getLocalizedBook } from "@/lib/mockData";
 import Link from "next/link";
+import { Button } from "@/components/common/Button";
 
 type Tab = "reading" | "liked" | "comments";
 
@@ -57,33 +58,36 @@ export default function MyPage() {
 
             {/* Tabs */}
             <div className="flex border-b border-[var(--border)] mb-8">
-                <button
+                <Button
                     onClick={() => setActiveTab("reading")}
-                    className={`px-6 py-3 font-bold text-sm transition-all border-b-2 ${activeTab === "reading"
+                    variant="ghost"
+                    className={`px-6 py-3 font-bold text-sm transition-all border-b-2 rounded-none h-auto hover:bg-transparent ${activeTab === "reading"
                         ? "border-[var(--primary)] text-[var(--primary)]"
                         : "border-transparent text-[var(--secondary)] hover:text-[var(--foreground)]"
                         }`}
                 >
                     {t.myPage.tabs.reading}
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={() => setActiveTab("liked")}
-                    className={`px-6 py-3 font-bold text-sm transition-all border-b-2 ${activeTab === "liked"
+                    variant="ghost"
+                    className={`px-6 py-3 font-bold text-sm transition-all border-b-2 rounded-none h-auto hover:bg-transparent ${activeTab === "liked"
                         ? "border-[var(--primary)] text-[var(--primary)]"
                         : "border-transparent text-[var(--secondary)] hover:text-[var(--foreground)]"
                         }`}
                 >
                     {t.myPage.tabs.liked}
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={() => setActiveTab("comments")}
-                    className={`px-6 py-3 font-bold text-sm transition-all border-b-2 ${activeTab === "comments"
+                    variant="ghost"
+                    className={`px-6 py-3 font-bold text-sm transition-all border-b-2 rounded-none h-auto hover:bg-transparent ${activeTab === "comments"
                         ? "border-[var(--primary)] text-[var(--primary)]"
                         : "border-transparent text-[var(--secondary)] hover:text-[var(--foreground)]"
                         }`}
                 >
                     {t.myPage.tabs.comments}
-                </button>
+                </Button>
             </div>
 
             {/* Content */}

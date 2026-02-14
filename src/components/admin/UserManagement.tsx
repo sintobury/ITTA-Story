@@ -1,6 +1,7 @@
 "use client";
 
 import { BlockedUser } from "@/context/BlockedUserContext";
+import { Button } from "@/components/common/Button";
 
 interface UserManagementProps {
     blockedUsers: BlockedUser[];
@@ -37,9 +38,13 @@ export default function UserManagement({ blockedUsers, onUnblock }: UserManageme
                                 <td className="p-4 border-b border-[var(--border)]">{user.memo || '-'}</td>
                                 <td className="p-4 border-b border-[var(--border)]">{user.blockedAt}</td>
                                 <td className="p-4 border-b border-[var(--border)]">
-                                    <button onClick={() => onUnblock(user.userName)} className="btn btn-secondary">
+                                    <Button
+                                        onClick={() => onUnblock(user.userName)}
+                                        variant="secondary"
+                                        size="sm"
+                                    >
                                         차단 해제
-                                    </button>
+                                    </Button>
                                 </td>
                             </tr>
                         ))}

@@ -19,6 +19,7 @@ import BookManagement from "@/components/admin/BookManagement";
 import UserManagement from "@/components/admin/UserManagement";
 import UserCreation from "@/components/admin/UserCreation";
 import { useToast } from "@/hooks/useToast";
+import { Button } from "@/components/common/Button";
 
 export default function AdminPage() {
     const { user } = useAuth();
@@ -64,38 +65,46 @@ export default function AdminPage() {
 
             <div className="mb-8 border-b border-[var(--border)] flex justify-between items-center gap-4">
                 <div className="flex gap-4">
-                    <button
+                    <Button
                         onClick={() => setActiveTab('books')}
-                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base ${activeTab === 'books'
+                        variant="ghost"
+                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base rounded-none h-auto hover:bg-transparent ${activeTab === 'books'
                             ? 'border-[var(--primary)] text-[var(--primary)] font-bold'
                             : 'border-transparent text-[var(--secondary)] font-normal'
                             }`}
                     >
                         책 관리
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={() => setActiveTab('users')}
-                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base ${activeTab === 'users'
+                        variant="ghost"
+                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base rounded-none h-auto hover:bg-transparent ${activeTab === 'users'
                             ? 'border-[var(--primary)] text-[var(--primary)] font-bold'
                             : 'border-transparent text-[var(--secondary)] font-normal'
                             }`}
                     >
                         유저 관리
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={() => setActiveTab('create-user')}
-                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base ${activeTab === 'create-user'
+                        variant="ghost"
+                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base rounded-none h-auto hover:bg-transparent ${activeTab === 'create-user'
                             ? 'border-[var(--primary)] text-[var(--primary)] font-bold'
                             : 'border-transparent text-[var(--secondary)] font-normal'
                             }`}
                     >
                         회원 생성
-                    </button>
+                    </Button>
                 </div>
                 {activeTab === 'books' && (
-                    <Link href="/admin/upload" className="btn btn-primary text-sm px-3 py-1.5">
+                    <Button
+                        onClick={() => router.push('/admin/upload')}
+                        variant="primary"
+                        size="sm"
+                        className="px-3 py-1.5 font-bold"
+                    >
                         새 책 업로드
-                    </Link>
+                    </Button>
                 )}
             </div>
 
@@ -121,12 +130,12 @@ export default function AdminPage() {
                 title="책 삭제 확인"
                 footer={
                     <>
-                        <button onClick={() => setDeleteTargetId(null)} className="btn btn-secondary">
+                        <Button onClick={() => setDeleteTargetId(null)} variant="secondary">
                             취소
-                        </button>
-                        <button onClick={handleConfirmDelete} className="btn btn-danger">
+                        </Button>
+                        <Button onClick={handleConfirmDelete} variant="danger">
                             삭제하기
-                        </button>
+                        </Button>
                     </>
                 }
             >

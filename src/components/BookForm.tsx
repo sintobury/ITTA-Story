@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/common/RichTextEditor";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/Toast";
+import { Button } from "@/components/common/Button";
 
 interface BookFormProps {
     initialBook?: Book;
@@ -252,9 +253,15 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                 ) : (
                                     <div className="relative w-full h-full group/preview">
                                         <img src={coverUrl} alt="Cover preview" className="w-full h-full object-cover" />
-                                        <button type="button" onClick={(e) => { e.preventDefault(); setCoverUrl(""); }} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity shadow-sm">
+                                        <Button
+                                            type="button"
+                                            onClick={(e) => { e.preventDefault(); setCoverUrl(""); }}
+                                            size="sm"
+                                            variant="danger"
+                                            className="absolute top-1 right-1 rounded-full w-5 h-5 min-h-0 p-0 text-xs flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity shadow-sm"
+                                        >
                                             ✕
-                                        </button>
+                                        </Button>
                                     </div>
                                 )}
                             </div>
@@ -313,7 +320,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                             페이지 내용 편집
                         </h3>
                         <span className="text-xs px-2 py-1 bg-[var(--background)] border border-[var(--border)] rounded text-[var(--secondary)] font-medium">
-                            Total: {pages.length}
+                            총: {pages.length} 페이지
                         </span>
                     </div>
 
@@ -331,9 +338,15 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                             페이지
                                         </h4>
                                         {pages.length > 1 && (
-                                            <button type="button" onClick={() => removePage(index)} className="text-[#e74c3c] text-xs hover:bg-red-50 px-2 py-1 rounded transition-colors font-medium opacity-0 group-hover/page:opacity-100 border border-transparent hover:border-red-200">
+                                            <Button
+                                                type="button"
+                                                onClick={() => removePage(index)}
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-[#e74c3c] hover:bg-red-50 hover:text-[#c0392b] px-2 py-1 h-auto rounded transition-colors font-medium opacity-0 group-hover/page:opacity-100 border border-transparent hover:border-red-200"
+                                            >
                                                 삭제
-                                            </button>
+                                            </Button>
                                         )}
                                     </div>
 
@@ -353,9 +366,15 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                                     ) : (
                                                         <div className="relative w-full h-full group/preview">
                                                             <img src={page.imageUrl} alt={`Page ${index + 1}`} className="w-full h-full object-contain p-2" />
-                                                            <button type="button" onClick={() => handleImageChange(index, "")} className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity shadow-md">
+                                                            <Button
+                                                                type="button"
+                                                                onClick={() => handleImageChange(index, "")}
+                                                                size="sm"
+                                                                variant="danger"
+                                                                className="absolute top-2 right-2 rounded-full w-6 h-6 min-h-0 p-0 text-xs flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity shadow-md"
+                                                            >
                                                                 ✕
-                                                            </button>
+                                                            </Button>
                                                         </div>
                                                     )}
                                                 </div>
@@ -365,11 +384,12 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                             <div className="w-full md:w-[70%] flex flex-col bg-white dark:bg-[#121212]">
                                                 <div className="flex border-b border-[var(--border)] bg-[var(--background)] px-2 pt-1 gap-1 overflow-x-auto overflow-y-hidden scroller-hide select-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                                                     {selectedLanguages.map(lang => (
-                                                        <button
+                                                        <Button
                                                             key={lang}
                                                             type="button"
                                                             onClick={() => handleTabChange(index, lang)}
-                                                            className={`min-w-[70px] px-3 py-2 text-xs font-bold rounded-t-lg transition-all whitespace-nowrap relative top-[1px] ${currentTab === lang
+                                                            variant="ghost"
+                                                            className={`min-w-[70px] px-3 py-2 text-xs font-bold rounded-t-lg rounded-b-none h-auto transition-all whitespace-nowrap relative top-[1px] hover:bg-transparent ${currentTab === lang
                                                                 ? 'border border-[var(--border)] border-b-white dark:border-b-[#121212] bg-white dark:bg-[#121212] text-[var(--primary)] shadow-[0_-1px_3px_rgba(0,0,0,0.02)] z-10'
                                                                 : 'border border-transparent text-[var(--secondary)] hover:text-[var(--foreground)] hover:bg-[var(--card-bg)]'
                                                                 }`}
@@ -378,7 +398,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                                                 <span>{DEFAULT_LANGUAGES.find(l => l.code === lang)?.label.split(' ')[0] || lang.toUpperCase()}</span>
                                                                 {page.contentByLang[lang] && page.contentByLang[lang] !== "<p><br></p>" && <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-sm block" />}
                                                             </div>
-                                                        </button>
+                                                        </Button>
                                                     ))}
                                                 </div>
 
@@ -401,14 +421,15 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                         })}
                     </div>
 
-                    <button
+                    <Button
                         type="button"
                         onClick={addPage}
-                        className="w-full mt-8 py-4 border border-dashed border-[var(--border)] rounded-xl text-[var(--secondary)] font-bold text-sm hover:border-[var(--primary)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all flex items-center justify-center gap-2 group active:scale-[0.99]"
+                        variant="ghost"
+                        className="w-full mt-8 py-4 h-auto border border-dashed border-[var(--border)] rounded-xl text-[var(--secondary)] font-bold text-sm hover:border-[var(--primary)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all flex items-center justify-center gap-2 group active:scale-[0.99]"
                     >
                         <span className="w-5 h-5 rounded-full bg-[var(--border)] text-white flex items-center justify-center group-hover:bg-[var(--primary)] transition-colors text-sm">+</span>
                         페이지 추가
-                    </button>
+                    </Button>
                 </section>
             </div>
 
@@ -421,19 +442,21 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                         </h2>
 
                         <div className="flex flex-col gap-2 mb-4">
-                            <button
+                            <Button
                                 type="submit"
-                                className="w-full py-2.5 rounded-lg bg-[var(--primary)] text-white font-bold shadow-md hover:brightness-110 hover:-translate-y-0.5 transition-all active:translate-y-0 text-sm"
+                                variant="primary"
+                                className="w-full text-sm font-bold shadow-md hover:brightness-110 hover:-translate-y-0.5 transition-all active:translate-y-0"
                             >
-                                {mode === "create" ? "✨ 발행하기" : "💾 저장하기"}
-                            </button>
-                            <button
+                                {mode === "create" ? "✨ 업로드" : "💾 저장"}
+                            </Button>
+                            <Button
                                 type="button"
                                 onClick={() => router.back()}
-                                className="w-full py-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--secondary)] font-medium hover:bg-[var(--border)] hover:text-[var(--foreground)] transition-colors text-sm"
+                                variant="secondary"
+                                className="w-full text-sm font-medium hover:text-[var(--foreground)] transition-colors"
                             >
                                 취소
-                            </button>
+                            </Button>
                         </div>
 
                         <div className="pt-2">
@@ -451,18 +474,20 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {!DEFAULT_LANGUAGES.some(l => l.code === lang) && (
-                                                <button
+                                                <Button
                                                     type="button"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
                                                         removeCustomLanguage(lang);
                                                     }}
-                                                    className="w-5 h-5 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="w-5 h-5 p-0 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                                                     title="언어 삭제"
                                                 >
                                                     <span className="text-xs">✕</span>
-                                                </button>
+                                                </Button>
                                             )}
                                             <input
                                                 type="checkbox"
@@ -484,9 +509,15 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                     className="flex-1 w-full px-2 py-1.5 text-xs border border-[var(--border)] rounded bg-[var(--background)] focus:outline-none focus:border-[var(--primary)]"
                                     onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomLanguage())}
                                 />
-                                <button type="button" onClick={addCustomLanguage} className="px-2 py-1.5 bg-[var(--secondary)] text-white text-xs rounded hover:opacity-90 transition-opacity">
+                                <Button
+                                    type="button"
+                                    onClick={addCustomLanguage}
+                                    variant="secondary"
+                                    size="sm"
+                                    className="px-2 py-1.5 h-auto rounded text-xs hover:opacity-90 transition-opacity"
+                                >
                                     +
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>

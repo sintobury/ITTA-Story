@@ -14,6 +14,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useTheme, Theme } from "@/context/ThemeContext";
 import { Language } from "@/lib/translations";
 import { Select } from "@/components/common/Select";
+import { Button } from "@/components/common/Button";
 
 export default function Navbar() {
     // 커스텀 훅을 사용하여 전역 상태(로그인, 언어, 테마)를 가져옴
@@ -56,9 +57,9 @@ export default function Navbar() {
                                     관리자 페이지
                                 </Link>
                             )}
-                            <button onClick={logout} className="btn btn-secondary">
+                            <Button onClick={logout} variant="secondary">
                                 {user.role === "ADMIN" ? "로그아웃" : t.nav.logout}
-                            </button>
+                            </Button>
                         </>
                     ) : (
                         // 비로그인 상태일 때 로그인/회원가입 버튼 표시

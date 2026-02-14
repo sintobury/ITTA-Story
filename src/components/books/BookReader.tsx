@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Page } from "@/lib/mockData";
 import { useLanguage } from "@/context/LanguageContext";
+import { Button } from "@/components/common/Button";
 
 // PageImage 컴포넌트
 function PageImage({ src, alt }: { src: string; alt: string }) {
@@ -42,8 +43,6 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
     }, [currentPageIndex, onPageChange]);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const warnMessage = t.bookDetail.copyrightWarning;
-
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
@@ -76,28 +75,30 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
             }}
         >
             <div className="w-full flex justify-end mb-3">
-                <button
+                <Button
                     onClick={onClose}
-                    className="bg-white py-2.5 px-5 rounded-full border border-[var(--border)] font-medium cursor-pointer shadow-sm transition-all text-sm text-[var(--foreground)] flex items-center gap-2 hover:bg-[#f8f9fa] hover:-translate-y-0.5 hover:shadow-md hover:text-[var(--primary)] hover:border-[var(--primary)]"
+                    variant="outline"
+                    className="bg-white rounded-full hover:bg-[#f8f9fa] hover:text-[var(--primary)] text-sm py-2.5 px-5 h-auto"
                 >
                     ← {t.bookDetail.closeBook}
-                </button>
+                </Button>
                 {/* Space holder for alignment: width of arrow button + margin */}
                 <div className="w-[50px] mx-6" aria-hidden="true" />
             </div>
 
             <div className="flex items-center justify-center gap-0 my-0 mb-8 perspective-[1500px]">
                 {/* 왼쪽 이동 버튼 */}
-                <button
+                <Button
                     onClick={() => {
                         setDirection('prev');
                         setCurrentPageIndex(p => Math.max(0, p - 1));
                     }}
-                    className="bg-white/80 border border-[var(--border)] rounded-full w-[50px] h-[50px] flex items-center justify-center text-2xl cursor-pointer transition-all shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:bg-[#eee]"
+                    variant="outline"
+                    className="bg-white/80 rounded-full w-[50px] h-[50px] p-0 text-2xl shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:bg-[#eee] border-[var(--border)]"
                     disabled={currentPageIndex === 0}
                 >
                     ‹
-                </button>
+                </Button>
 
                 {/* 왼쪽 페이지 (이미지 영역) */}
                 <div
@@ -157,16 +158,17 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
                 </div>
 
                 {/* 오른쪽 이동 버튼 */}
-                <button
+                <Button
                     onClick={() => {
                         setDirection('next');
                         setCurrentPageIndex(p => Math.min(pages.length - 1, p + 1));
                     }}
-                    className="bg-white/80 border border-[var(--border)] rounded-full w-[50px] h-[50px] flex items-center justify-center text-2xl cursor-pointer transition-all shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:bg-[#eee]"
+                    variant="outline"
+                    className="bg-white/80 rounded-full w-[50px] h-[50px] p-0 text-2xl shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:bg-[#eee] border-[var(--border)]"
                     disabled={currentPageIndex >= pages.length - 1}
                 >
                     ›
-                </button>
+                </Button>
             </div>
         </div>
     );

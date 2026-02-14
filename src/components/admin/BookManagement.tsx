@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Book, getLocalizedBook } from "@/lib/mockData";
 import { LanguageContextType } from "@/context/LanguageContext";
+import { Button } from "@/components/common/Button";
 
 interface BookManagementProps {
     books: Book[];
@@ -11,6 +13,7 @@ interface BookManagementProps {
 }
 
 export default function BookManagement({ books, language, onDeleteClick }: BookManagementProps) {
+    const router = useRouter();
     return (
         <section className="bg-[var(--card-bg)] p-8 rounded-xl shadow-[var(--card-shadow)] mt-8 animate-fadeIn" key="books">
             <table className="w-full border-collapse text-left">
@@ -34,15 +37,22 @@ export default function BookManagement({ books, language, onDeleteClick }: BookM
                                 <td className="p-4 border-b border-[var(--border)] text-[var(--secondary)]">{localizedBook.author}</td>
                                 <td className="p-4 border-b border-[var(--border)]">
                                     <div className="flex gap-2">
-                                        <Link href={`/admin/edit/${book.id}`} className="btn btn-secondary text-sm px-2.5 py-1 no-underline">
+                                        <Button
+                                            onClick={() => router.push(`/admin/edit/${book.id}`)}
+                                            variant="secondary"
+                                            size="sm"
+                                            className="px-2.5 py-1"
+                                        >
                                             수정
-                                        </Link>
-                                        <button
+                                        </Button>
+                                        <Button
                                             onClick={() => onDeleteClick(book.id)}
-                                            className="btn btn-danger text-sm px-2.5 py-1"
+                                            variant="danger"
+                                            size="sm"
+                                            className="px-2.5 py-1"
                                         >
                                             삭제
-                                        </button>
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>

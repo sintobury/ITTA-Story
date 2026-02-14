@@ -1,5 +1,3 @@
-import { Language } from "./translations";
-
 // 책 데이터 인터페이스 정의
 export interface Book {
     id: string;
@@ -175,8 +173,8 @@ const generateMoreBooks = (): Book[] => {
         const color = colors[i % colors.length];
         moreBooks.push({
             id: i.toString(),
-            title: `Book Title ${i}`,
-            author: `Author Number ${i}`,
+            title: `Book Title ${i} `,
+            author: `Author Number ${i} `,
             description: `This is a generated description for book number ${i}. It serves as a placeholder to test the layout and pagination features.`,
             coverUrl: `https://placehold.co/400x600/${color}/FFFFFF?text=Book+${i}`,
             likes: (i * 17) % 200, // Deterministic random-like value

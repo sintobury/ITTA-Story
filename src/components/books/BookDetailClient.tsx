@@ -18,6 +18,7 @@ import { useBlockedUser } from "@/context/BlockedUserContext";
 import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";
 import { useToast } from "@/hooks/useToast";
+import { Button } from "@/components/common/Button";
 
 import BookReader from "./BookReader";
 import BookInfo from "./BookInfo";
@@ -218,12 +219,12 @@ export default function BookDetailClient({ id }: { id: string }) {
                 }
                 footer={
                     <>
-                        <button onClick={() => setBlockTarget(null)} className="btn btn-secondary">
+                        <Button onClick={() => setBlockTarget(null)} variant="secondary">
                             취소
-                        </button>
-                        <button onClick={handleConfirmBlock} className="btn btn-danger">
+                        </Button>
+                        <Button onClick={handleConfirmBlock} variant="danger">
                             차단하기
-                        </button>
+                        </Button>
                     </>
                 }
             >
@@ -261,12 +262,12 @@ export default function BookDetailClient({ id }: { id: string }) {
                 title="댓글 삭제"
                 footer={
                     <>
-                        <button onClick={() => setDeleteTargetId(null)} className="btn btn-secondary">
+                        <Button onClick={() => setDeleteTargetId(null)} variant="secondary">
                             취소
-                        </button>
-                        <button onClick={confirmDeleteComment} className="btn btn-danger">
+                        </Button>
+                        <Button onClick={confirmDeleteComment} variant="danger">
                             삭제하기
-                        </button>
+                        </Button>
                     </>
                 }
             >

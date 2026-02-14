@@ -5,11 +5,11 @@
  */
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 
-type Role = "GUEST" | "USER" | "ADMIN";
+export type Role = "GUEST" | "USER" | "ADMIN";
 
-interface User {
+export interface User {
     id: string;
     name: string;
     email: string;
