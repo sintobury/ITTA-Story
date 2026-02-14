@@ -64,33 +64,33 @@ export default function AdminPage() {
             </div>
 
             <div className="mb-8 border-b border-[var(--border)] flex justify-between items-center gap-4">
-                <div className="flex gap-4">
+                <div className="flex p-1 bg-[var(--card-bg)] rounded-xl border border-[var(--border)]">
                     <Button
                         onClick={() => setActiveTab('books')}
-                        variant="ghost"
-                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base rounded-none h-auto hover:bg-transparent ${activeTab === 'books'
-                            ? 'border-[var(--primary)] text-[var(--primary)] font-bold'
-                            : 'border-transparent text-[var(--secondary)] font-normal'
+                        variant={activeTab === 'books' ? 'primary' : 'ghost'}
+                        className={`px-4 py-2 text-sm rounded-lg h-auto transition-all ${activeTab === 'books'
+                            ? 'font-bold shadow-sm'
+                            : 'hover:bg-[var(--background)]'
                             }`}
                     >
                         책 관리
                     </Button>
                     <Button
                         onClick={() => setActiveTab('users')}
-                        variant="ghost"
-                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base rounded-none h-auto hover:bg-transparent ${activeTab === 'users'
-                            ? 'border-[var(--primary)] text-[var(--primary)] font-bold'
-                            : 'border-transparent text-[var(--secondary)] font-normal'
+                        variant={activeTab === 'users' ? 'primary' : 'ghost'}
+                        className={`px-4 py-2 text-sm rounded-lg h-auto transition-all ${activeTab === 'users'
+                            ? 'font-bold shadow-sm'
+                            : 'hover:bg-[var(--background)]'
                             }`}
                     >
                         유저 관리
                     </Button>
                     <Button
                         onClick={() => setActiveTab('create-user')}
-                        variant="ghost"
-                        className={`px-6 py-3 bg-none border-b-2 cursor-pointer text-base rounded-none h-auto hover:bg-transparent ${activeTab === 'create-user'
-                            ? 'border-[var(--primary)] text-[var(--primary)] font-bold'
-                            : 'border-transparent text-[var(--secondary)] font-normal'
+                        variant={activeTab === 'create-user' ? 'primary' : 'ghost'}
+                        className={`px-4 py-2 text-sm rounded-lg h-auto transition-all ${activeTab === 'create-user'
+                            ? 'font-bold shadow-sm'
+                            : 'hover:bg-[var(--background)]'
                             }`}
                     >
                         회원 생성

@@ -57,38 +57,40 @@ export default function MyPage() {
         <div className="max-w-[1200px] mx-auto px-4 py-8 animate-fadeIn">
             <h1 className="text-3xl font-bold mb-8 text-[var(--foreground)]">{t.myPage.title}</h1>
 
-            {/* Tabs */}
-            <div className="flex border-b border-[var(--border)] mb-8">
-                <Button
-                    onClick={() => setActiveTab("reading")}
-                    variant="ghost"
-                    className={`px-6 py-3 font-bold text-sm transition-all border-b-2 rounded-none h-auto hover:bg-transparent ${activeTab === "reading"
-                        ? "border-[var(--primary)] text-[var(--primary)]"
-                        : "border-transparent text-[var(--secondary)] hover:text-[var(--foreground)]"
-                        }`}
-                >
-                    {t.myPage.tabs.reading}
-                </Button>
-                <Button
-                    onClick={() => setActiveTab("liked")}
-                    variant="ghost"
-                    className={`px-6 py-3 font-bold text-sm transition-all border-b-2 rounded-none h-auto hover:bg-transparent ${activeTab === "liked"
-                        ? "border-[var(--primary)] text-[var(--primary)]"
-                        : "border-transparent text-[var(--secondary)] hover:text-[var(--foreground)]"
-                        }`}
-                >
-                    {t.myPage.tabs.liked}
-                </Button>
-                <Button
-                    onClick={() => setActiveTab("comments")}
-                    variant="ghost"
-                    className={`px-6 py-3 font-bold text-sm transition-all border-b-2 rounded-none h-auto hover:bg-transparent ${activeTab === "comments"
-                        ? "border-[var(--primary)] text-[var(--primary)]"
-                        : "border-transparent text-[var(--secondary)] hover:text-[var(--foreground)]"
-                        }`}
-                >
-                    {t.myPage.tabs.comments}
-                </Button>
+            {/* Tabs (Pill Style) */}
+            <div className="flex justify-center mb-8">
+                <div className="flex p-1 bg-[var(--card-bg)] rounded-xl border border-[var(--border)] shadow-sm">
+                    <Button
+                        onClick={() => setActiveTab("reading")}
+                        variant={activeTab === "reading" ? "primary" : "ghost"}
+                        className={`px-6 py-2.5 text-sm font-medium rounded-lg h-auto transition-all ${activeTab === "reading"
+                            ? "shadow-md"
+                            : "hover:bg-[var(--background)]"
+                            }`}
+                    >
+                        {t.myPage.tabs.reading}
+                    </Button>
+                    <Button
+                        onClick={() => setActiveTab("liked")}
+                        variant={activeTab === "liked" ? "primary" : "ghost"}
+                        className={`px-6 py-2.5 text-sm font-medium rounded-lg h-auto transition-all ${activeTab === "liked"
+                            ? "shadow-md"
+                            : "hover:bg-[var(--background)]"
+                            }`}
+                    >
+                        {t.myPage.tabs.liked}
+                    </Button>
+                    <Button
+                        onClick={() => setActiveTab("comments")}
+                        variant={activeTab === "comments" ? "primary" : "ghost"}
+                        className={`px-6 py-2.5 text-sm font-medium rounded-lg h-auto transition-all ${activeTab === "comments"
+                            ? "shadow-md"
+                            : "hover:bg-[var(--background)]"
+                            }`}
+                    >
+                        {t.myPage.tabs.comments}
+                    </Button>
+                </div>
             </div>
 
             {/* Content */}

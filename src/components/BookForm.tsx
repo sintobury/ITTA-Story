@@ -393,24 +393,28 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
 
                                             {/* 오른쪽: 텍스트 에디터 (70%) */}
                                             <div className="w-full md:w-[70%] flex flex-col bg-white dark:bg-[#121212]">
-                                                <div className="flex border-b border-[var(--border)] bg-[var(--background)] px-2 pt-1 gap-1 overflow-x-auto overflow-y-hidden scroller-hide select-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                                                    {selectedLanguages.map(lang => (
-                                                        <Button
-                                                            key={lang}
-                                                            type="button"
-                                                            onClick={() => handleTabChange(index, lang)}
-                                                            variant="ghost"
-                                                            className={`min-w-[70px] px-3 py-2 text-xs font-bold rounded-t-lg rounded-b-none h-auto transition-all whitespace-nowrap relative top-[1px] hover:bg-transparent ${currentTab === lang
-                                                                ? 'border border-[var(--border)] border-b-white dark:border-b-[#121212] bg-white dark:bg-[#121212] text-[var(--primary)] shadow-[0_-1px_3px_rgba(0,0,0,0.02)] z-10'
-                                                                : 'border border-transparent text-[var(--secondary)] hover:text-[var(--foreground)] hover:bg-[var(--card-bg)]'
-                                                                }`}
-                                                        >
-                                                            <div className="flex items-center justify-center gap-1.5">
-                                                                <span>{DEFAULT_LANGUAGES.find(l => l.code === lang)?.label.split(' ')[0] || lang.toUpperCase()}</span>
-                                                                {page.contentByLang[lang] && page.contentByLang[lang] !== "<p><br></p>" && <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-sm block" />}
-                                                            </div>
-                                                        </Button>
-                                                    ))}
+                                                <div className="flex justify-start px-4 py-3 border-b border-[var(--border)] bg-[var(--background)]">
+                                                    <div className="flex p-1 bg-[var(--card-bg)] rounded-xl border border-[var(--border)] shadow-sm overflow-x-auto scroller-hide max-w-full">
+                                                        {selectedLanguages.map(lang => (
+                                                            <Button
+                                                                key={lang}
+                                                                type="button"
+                                                                onClick={() => handleTabChange(index, lang)}
+                                                                variant={currentTab === lang ? 'primary' : 'ghost'}
+                                                                className={`min-w-[70px] px-3 py-1.5 text-xs font-medium rounded-lg h-auto transition-all whitespace-nowrap ${currentTab === lang
+                                                                    ? 'shadow-sm font-bold'
+                                                                    : 'hover:bg-[var(--background)]'
+                                                                    }`}
+                                                            >
+                                                                <div className="flex items-center justify-center gap-1.5">
+                                                                    <span>{DEFAULT_LANGUAGES.find(l => l.code === lang)?.label.split(' ')[0] || lang.toUpperCase()}</span>
+                                                                    {stripHtml(page.contentByLang[lang] || "") !== "" && (
+                                                                        <span className={`w-1.5 h-1.5 rounded-full shadow-sm block ${currentTab === lang ? 'bg-white' : 'bg-green-500'}`} />
+                                                                    )}
+                                                                </div>
+                                                            </Button>
+                                                        ))}
+                                                    </div>
                                                 </div>
 
                                                 {/* Editor Wrapper with Padding and Full Height */}
