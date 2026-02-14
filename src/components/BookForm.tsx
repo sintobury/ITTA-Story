@@ -12,6 +12,7 @@ import RichTextEditor from "@/components/common/RichTextEditor";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/Toast";
 import { Button } from "@/components/common/Button";
+import Image from "next/image";
 
 interface BookFormProps {
     initialBook?: Book;
@@ -209,7 +210,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
         if (!validateForm()) return;
 
         console.log({ title, author, description, coverUrl, availableLanguages: selectedLanguages, pages });
-        alert(mode === "create" ? "책이 성공적으로 발행되었습니다!" : "책 정보가 수정되었습니다!");
+        alert(mode === "create" ? "책이 성공적으로 업로드되었습니다!" : "책 정보가 수정되었습니다!");
         router.push("/admin");
     };
 
@@ -252,7 +253,12 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                     </>
                                 ) : (
                                     <div className="relative w-full h-full group/preview">
-                                        <img src={coverUrl} alt="Cover preview" className="w-full h-full object-cover" />
+                                        <Image
+                                            src={coverUrl}
+                                            alt="Cover preview"
+                                            fill
+                                            className="object-cover"
+                                        />
                                         <Button
                                             type="button"
                                             onClick={(e) => { e.preventDefault(); setCoverUrl(""); }}
@@ -365,7 +371,12 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                                         </>
                                                     ) : (
                                                         <div className="relative w-full h-full group/preview">
-                                                            <img src={page.imageUrl} alt={`Page ${index + 1}`} className="w-full h-full object-contain p-2" />
+                                                            <Image
+                                                                src={page.imageUrl}
+                                                                alt={`Page ${index + 1}`}
+                                                                fill
+                                                                className="object-contain p-2"
+                                                            />
                                                             <Button
                                                                 type="button"
                                                                 onClick={() => handleImageChange(index, "")}

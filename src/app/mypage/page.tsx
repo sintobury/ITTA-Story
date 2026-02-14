@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { mockBooks, mockReadingHistory, mockUserLikes, mockComments, getLocalizedBook } from "@/lib/mockData";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/common/Button";
 
 type Tab = "reading" | "liked" | "comments";
@@ -98,7 +99,13 @@ export default function MyPage() {
                             readingBooks.map((book: any) => (
                                 <Link key={book.id} href={`/books/${book.id}`} className="group block">
                                     <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all">
-                                        <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                        <Image
+                                            src={book.coverUrl}
+                                            alt={book.title}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                                        />
                                         <div className="absolute bottom-0 left-0 w-full bg-black/60 text-white text-xs p-2 backdrop-blur-sm">
                                             {t.myPage.resume} {book.lastPage}{t.myPage.unit}
                                         </div>
@@ -121,8 +128,14 @@ export default function MyPage() {
                         {likedBooks.length > 0 ? (
                             likedBooks.map((book: any) => (
                                 <Link key={book.id} href={`/books/${book.id}`} className="group block">
-                                    <div className="aspect-[2/3] mb-3 overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all">
-                                        <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                    <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all">
+                                        <Image
+                                            src={book.coverUrl}
+                                            alt={book.title}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                                        />
                                     </div>
                                     <h3 className="font-bold text-[var(--foreground)] truncate group-hover:text-[var(--primary)] transition-colors">{book.title}</h3>
                                     <p className="text-xs text-[var(--secondary)] truncate">{book.author}</p>

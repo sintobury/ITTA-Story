@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from "next/image";
 import { Page } from "@/lib/mockData";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
@@ -12,11 +13,15 @@ function PageImage({ src, alt }: { src: string; alt: string }) {
     return (
         <div className={`relative w-full h-full rounded-lg overflow-hidden ${isLoading ? 'bg-[#f3f4f6]' : 'bg-transparent'}`}>
             {isLoading && <div className="absolute top-0 left-0 w-full h-full bg-gray-200 animate-pulse z-10" />}
-            <img
+            {/* Replaced img tag with Image component */}
+            <Image
                 src={src}
                 alt={alt}
-                className={`block w-full h-full object-contain rounded-lg transition-opacity duration-700 ${!isLoading ? 'opacity-100' : 'opacity-0'}`}
+                fill // Use fill to make the image cover its parent
+                className={`object-contain rounded-lg transition-opacity duration-700 ${!isLoading ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setIsLoading(false)}
+                sizes="(max-width: 768px) 100vw, 50vw" // Added sizes for responsive images
+                priority // Added priority for important images
             />
         </div>
     );

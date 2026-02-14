@@ -3,6 +3,7 @@
 import React from 'react';
 import { useLanguage } from "@/context/LanguageContext";
 import { Book } from "@/lib/mockData";
+import Image from "next/image";
 import { Button } from "@/components/common/Button";
 import { User } from "@/context/AuthContext";
 
@@ -43,7 +44,16 @@ export default function BookInfo({
     return (
         <div className="flex gap-6 bg-[var(--card-bg)] p-6 rounded-xl shadow-[var(--card-shadow)] max-[600px]:flex-col max-[600px]:items-center max-[600px]:text-center">
             <div className="flex flex-col h-full justify-between">
-                <img src={book.coverUrl} alt={book.title} className="w-[180px] h-auto object-cover rounded-lg flex-shrink-0 shadow-md" style={{ aspectRatio: '2/3' }} />
+                <div className="relative w-[180px] h-auto aspect-[2/3] rounded-lg shadow-md overflow-hidden flex-shrink-0">
+                    <Image
+                        src={book.coverUrl}
+                        alt={book.title}
+                        fill
+                        className="object-cover"
+                        sizes="180px"
+                        priority
+                    />
+                </div>
             </div>
             <div className="flex-1 flex flex-col justify-between py-1">
                 <div>

@@ -9,6 +9,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { mockBooks, getLocalizedBook } from "@/lib/mockData";
 import { useLanguage } from "@/context/LanguageContext";
 import { Suspense, useState, useEffect } from "react";
@@ -185,10 +186,12 @@ function HomeContent() {
             >
               {/* 이미지 영역 (2/3) */}
               <div className="w-2/3 h-full overflow-hidden bg-gray-100 relative rounded-l-xl">
-                <img
+                <Image
                   src={localizedBook.coverUrl}
                   alt={localizedBook.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:contrast-[1.05]"
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110 group-hover:contrast-[1.05]"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 {/* 좋아요 뱃지 */}
                 {book.likes > 0 && (

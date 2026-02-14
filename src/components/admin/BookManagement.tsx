@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Book, getLocalizedBook } from "@/lib/mockData";
 import { LanguageContextType } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
+import Image from "next/image";
 
 interface BookManagementProps {
     books: Book[];
@@ -31,7 +32,15 @@ export default function BookManagement({ books, language, onDeleteClick }: BookM
                         return (
                             <tr key={book.id}>
                                 <td className="p-4 border-b border-[var(--border)]">
-                                    <img src={localizedBook.coverUrl} alt="" className="w-10 h-[60px] object-cover rounded shadow-sm" />
+                                    <div className="relative w-10 h-[60px]">
+                                        <Image
+                                            src={localizedBook.coverUrl}
+                                            alt=""
+                                            fill
+                                            className="object-cover rounded shadow-sm"
+                                            sizes="40px"
+                                        />
+                                    </div>
                                 </td>
                                 <td className="p-4 border-b border-[var(--border)] font-medium text-lg">{localizedBook.title}</td>
                                 <td className="p-4 border-b border-[var(--border)] text-[var(--secondary)]">{localizedBook.author}</td>
