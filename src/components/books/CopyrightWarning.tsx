@@ -8,7 +8,7 @@ export default function CopyrightWarning() {
 
     return (
         <div className="text-[var(--secondary)] text-sm opacity-70 text-center py-6 border-b border-[var(--border)] mb-6">
-            {t.bookDetail.copyrightWarning}
+            {t.copyrightWarning}
         </div>
     );
 }

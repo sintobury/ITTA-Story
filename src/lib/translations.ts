@@ -30,6 +30,7 @@ export const translations = {
         },
         bookDetail: {
             readNow: "Read Now",
+            readFromStart: "Read from Start",
             back: "Back to Details",
             closeBook: "Close Book",
             previous: "Previous",
@@ -60,9 +61,12 @@ export const translations = {
                 like: "Like",
                 unlike: "Unlike"
             },
-            copyrightWarning: "🚫 The copyright of this fairy tale belongs to the site operator and the author. Unauthorized reproduction and distribution are prohibited.",
-            rightClickWarning: "Right-click is disabled to protect copyright."
+            resumePage: "resume Page",
+            language: "select Language",
+            totalPages: "total ",
         },
+        copyrightWarning: "🚫 The copyright of this fairy tale belongs to the site operator and the author. Unauthorized reproduction and distribution are prohibited.",
+        rightClickWarning: "Right-click is disabled to protect copyright.",
         admin: {
             dashboard: "Admin Page",
             upload: "Upload New Book",
@@ -154,6 +158,7 @@ export const translations = {
             title: "My Page",
             tabs: {
                 reading: "Reading List",
+                completed: "Completed Books",
                 liked: "Liked Books",
                 comments: "My Comments"
             },
@@ -194,6 +199,7 @@ export const translations = {
         },
         bookDetail: {
             readNow: "지금 읽기",
+            readFromStart: "처음부터",
             back: "상세 정보로 돌아가기",
             closeBook: "책 덮기",
             previous: "이전",
@@ -224,9 +230,12 @@ export const translations = {
                 like: "좋아요",
                 unlike: "좋아요 취소"
             },
-            copyrightWarning: "🚫 본 동화의 저작권은 사이트 운영자와 작가에게 있으며, 무단 복제 및 배포를 금합니다.",
-            rightClickWarning: "저작권 보호를 위해 우클릭이 제한됩니다."
+            resumePage: "이어보기",
+            language: "언어 선택",
+            totalPages: "총 ",
         },
+        copyrightWarning: "🚫 본 동화의 저작권은 사이트 운영자와 작가에게 있으며, 무단 복제 및 배포를 금합니다.",
+        rightClickWarning: "저작권 보호를 위해 우클릭이 제한됩니다.",
         admin: {
             dashboard: "관리자 페이지",
             upload: "새 책 업로드",
@@ -318,6 +327,7 @@ export const translations = {
             title: "마이페이지",
             tabs: {
                 reading: "📚 읽고 있는 책",
+                completed: "✔ 다 읽은 책",
                 liked: "❤️ 좋아요한 책",
                 comments: "💬 내 댓글"
             },

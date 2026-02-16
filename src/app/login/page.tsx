@@ -8,27 +8,40 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/Toast";
 
 export default function LoginPage() {
     const [id, setId] = useState("");
     const [password, setPassword] = useState("");
-    const { loginAsUser, loginAsAdmin } = useAuth();
+    const [loading, setLoading] = useState(false);
     const { t } = useLanguage();
     const router = useRouter();
+    const { toastMessage, isToastExiting, triggerToast } = useToast();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // [클라 확인용] 목업 로그인 로직 (서버 연동 시 API 호출로 대체)
-        if (id === "admin" && password === "admin") {
-            loginAsAdmin();
-        } else {
-            // 그 외의 입력은 일반 유저로 처리
-            loginAsUser();
+        setLoading(true);
+        // Supabase requires email, so we append a domain
+        const email = `${id}@example.com`;
+
+        try {
+            // Login Logic Only
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+            if (error) throw error;
+            router.push("/");
+
+        } catch (error: any) {
+            triggerToast(error.message || "오류가 발생했습니다.");
+        } finally {
+            setLoading(false);
         }
-        router.push("/");
     };
 
     return (
@@ -66,11 +79,13 @@ export default function LoginPage() {
                         variant="primary"
                         fullWidth
                         className="mt-4 font-semibold shadow-md hover:shadow-lg"
+                        disabled={loading}
                     >
-                        {t.auth.loginBtn}
+                        {loading ? "Processing..." : t.auth.loginBtn}
                     </Button>
                 </form>
 
+                <Toast message={toastMessage} isExiting={isToastExiting} />
             </div>
         </div>
     );

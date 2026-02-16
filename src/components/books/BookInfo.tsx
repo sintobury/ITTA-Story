@@ -13,7 +13,11 @@ interface BookInfoProps {
     likeCount: number;
     isLikedAnimating: boolean;
     user: User | null;
-    onReadClick: () => void;
+
+    onReadStart: () => void;
+    onReadResume: () => void;
+    initialPage: number;
+    totalPages: number; // [New] 전체 페이지 수
     onLikeClick: () => void;
     // [New] 언어 선택 Props
     readingLanguage: string;
@@ -34,12 +38,16 @@ export default function BookInfo({
     likeCount,
     isLikedAnimating,
     user,
-    onReadClick,
+    onReadStart,
+    onReadResume,
+    initialPage,
+    totalPages,
     onLikeClick,
     readingLanguage,
     onLanguageChange
 }: BookInfoProps) {
     const { t } = useLanguage();
+
 
     return (
         <div className="flex gap-6 bg-[var(--card-bg)] p-6 rounded-xl shadow-[var(--card-shadow)] max-[600px]:flex-col max-[600px]:items-center max-[600px]:text-center">
@@ -66,19 +74,24 @@ export default function BookInfo({
                     {/* 언어 선택 UI */}
                     {book.availableLanguages && book.availableLanguages.length > 1 && (
                         <div className="mb-3">
-                            <label className="block text-xs font-medium text-[var(--secondary)] mb-1.5">
-                                언어 선택 (Language)
-                            </label>
+                            <div className="flex justify-between items-end mb-1.5">
+                                <label className="block text-xs font-medium text-[var(--secondary)]">
+                                    {t.bookDetail.language}
+                                </label>
+                                {totalPages > 0 && (
+                                    <span className="text-xs text-[var(--secondary)]">
+                                        {t.bookDetail.totalPages} {totalPages}p
+                                    </span>
+                                )}
+                            </div>
                             <div className="flex flex-wrap gap-1.5 justify-center sm:justify-start">
                                 {book.availableLanguages.map((lang) => (
                                     <Button
                                         key={lang}
                                         onClick={() => onLanguageChange(lang)}
+                                        variant={readingLanguage === lang ? 'primary' : 'readable-gray'}
                                         size="sm"
-                                        className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all h-auto border-none ${readingLanguage === lang
-                                            ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400'
-                                            }`}
+                                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all h-auto ${readingLanguage === lang ? 'shadow-md' : ''}`}
                                     >
                                         {LANGUAGE_LABELS[lang] || lang.toUpperCase()}
                                     </Button>
@@ -88,13 +101,33 @@ export default function BookInfo({
                     )}
 
                     <div className="flex gap-3 max-[600px]:justify-center">
-                        <Button
-                            onClick={onReadClick}
-                            variant="primary"
-                            className="flex-1 max-w-[140px] shadow-md shadow-blue-500/20"
-                        >
-                            📖 {t.bookDetail.readNow}
-                        </Button>
+                        {initialPage > 0 ? (
+                            <>
+                                <Button
+                                    onClick={onReadStart}
+                                    variant="secondary"
+                                    className="flex-1 max-w-[140px] shadow-sm"
+                                >
+                                    {t.bookDetail.readFromStart}
+                                </Button>
+                                <Button
+                                    onClick={onReadResume}
+                                    variant="primary"
+                                    className="flex-1 max-w-[140px] shadow-md shadow-blue-500/20"
+                                >
+                                    {`${t.bookDetail.resumePage} ${initialPage + 1}p`}
+                                </Button>
+                            </>
+                        ) : (
+                            <Button
+                                onClick={onReadStart}
+                                variant="primary"
+                                className="flex-1 max-w-[140px] shadow-md shadow-blue-500/20"
+                            >
+                                📖 {t.bookDetail.readNow}
+                            </Button>
+                        )}
+
                         <Button
                             onClick={onLikeClick}
                             variant={isLiked ? "danger" : "secondary"}
@@ -109,3 +142,4 @@ export default function BookInfo({
         </div>
     );
 }
+

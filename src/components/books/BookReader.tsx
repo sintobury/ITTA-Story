@@ -72,7 +72,7 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
             className="w-fit mx-auto min-h-[80vh] flex flex-col items-center relative select-none"
             onContextMenu={(e) => {
                 e.preventDefault();
-                onTriggerToast(t.bookDetail.rightClickWarning);
+                onTriggerToast(t.rightClickWarning);
             }}
             onDragStart={(e) => {
                 e.preventDefault();

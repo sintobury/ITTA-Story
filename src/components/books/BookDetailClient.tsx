@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 import {
-    mockBooks,
+    mockBooks, // Keep for fallback? No, remove.
     mockPages,
     mockComments,
     Comment,
@@ -11,7 +11,9 @@ import {
     getLocalizedBook,
     getLocalizedPage,
     mockReadingHistory,
+    Book, // Import Book interface
 } from "@/lib/mockData";
+import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useBlockedUser } from "@/context/BlockedUserContext";
@@ -25,15 +27,14 @@ import BookInfo from "./BookInfo";
 import CommentSection from "./CommentSection";
 import CopyrightWarning from "./CopyrightWarning";
 
-export default function BookDetailClient({ id }: { id: string }) {
+export default function BookDetailClient({ initialBook }: { initialBook: Book }) {
     const { user } = useAuth();
     const { language } = useLanguage();
     const { isBlocked, blockUser } = useBlockedUser();
 
-    const rawBook = mockBooks.find((b) => b.id === id);
-    // 책 정보는 앱 언어(UI 언어)에 맞춰 보여줌 (제목/설명 등)
-    // 단, 읽기 모드 진입 시엔 사용자가 선택한 언어(readingLanguage)로 보여줌
-    const book = rawBook ? getLocalizedBook(rawBook, language) : null;
+    // Use initialBook directly
+    const rawBook = initialBook;
+    const book = getLocalizedBook(rawBook, language);
 
     // [New] 읽기 언어 상태 (기본값: 앱 언어가 책에 있으면 앱 언어, 아니면 첫 번째 가용 언어)
     const [readingLanguage, setReadingLanguage] = useState<string>(language);
@@ -53,32 +54,92 @@ export default function BookDetailClient({ id }: { id: string }) {
     // [New] 초기 페이지 상태 및 읽기 기록 저장 로직
     const [initialPage, setInitialPage] = useState(0);
 
+    // Pages State
+    const [pages, setPages] = useState<any[]>([]);
+
     useEffect(() => {
-        if (user && rawBook) {
-            const history = mockReadingHistory[user.id]?.find(h => h.bookId === rawBook.id);
-            if (history) {
-                setInitialPage(history.lastPage);
+        const loadData = async () => {
+            if (!rawBook) return;
+
+            // 1. Fetch Pages First
+            const { data: dbPages } = await supabase
+                .from('pages')
+                .select('*')
+                .eq('book_id', rawBook.id)
+                .order('page_number', { ascending: true });
+
+            let currentPages: any[] = [];
+            if (dbPages) {
+                const formattedPages = dbPages.map(p => ({
+                    pageNumber: p.page_number,
+                    content: p.content,
+                    imageUrl: p.image_url,
+                    contentByLang: p.content_by_lang,
+                    translations: p.translations
+                }));
+                currentPages = formattedPages.map(p => getLocalizedPage(p, readingLanguage));
+                setPages(currentPages);
             }
-        }
-    }, [user, rawBook]);
 
-    const handlePageChange = (pageIndex: number) => {
+            // 2. Fetch User Data (Progress & Likes)
+            if (user) {
+                // Like Status
+                const { data: like } = await supabase
+                    .from('likes')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('book_id', rawBook.id)
+                    .single();
+                setIsLiked(!!like);
+
+                // Reading Progress
+                const { data: progress } = await supabase
+                    .from('reading_progress')
+                    .select('last_page')
+                    .eq('user_id', user.id)
+                    .eq('book_id', rawBook.id)
+                    .single();
+
+                if (progress) {
+                    // [Validation] Check if stored page index is valid for current total pages
+                    if (currentPages.length > 0 && progress.last_page >= currentPages.length) {
+                        console.warn("Stored page index out of bounds (Book edited?), resetting to 0");
+                        setInitialPage(0);
+
+                        // Auto-correct DB
+                        await supabase
+                            .from('reading_progress')
+                            .update({ last_page: 0, completed: false })
+                            .eq('user_id', user.id)
+                            .eq('book_id', rawBook.id);
+
+                        triggerToast("책 내용이 변경되어 첫 페이지부터 시작합니다.");
+                    } else {
+                        setInitialPage(progress.last_page);
+                    }
+                }
+            }
+        };
+
+        loadData();
+    }, [user, rawBook, readingLanguage]);
+
+    const handlePageChange = async (pageIndex: number) => {
+        // Update local state immediately so UI reflects progress when reader closes
+        setInitialPage(pageIndex);
+
         if (user && rawBook) {
-            const userHistory = mockReadingHistory[user.id] || [];
-            const existingIndex = userHistory.findIndex(h => h.bookId === rawBook.id);
-
-            if (existingIndex >= 0) {
-                userHistory[existingIndex].lastPage = pageIndex;
-                userHistory[existingIndex].lastReadAt = new Date().toISOString();
-            } else {
-                userHistory.push({
-                    bookId: rawBook.id,
-                    lastPage: pageIndex,
-                    lastReadAt: new Date().toISOString(),
-                    completed: false
+            const { error } = await supabase
+                .from('reading_progress')
+                .upsert({
+                    user_id: user.id,
+                    book_id: rawBook.id,
+                    last_page: pageIndex, // 0-based index for DB
+                    last_read_at: new Date().toISOString(),
+                    completed: pageIndex === pages.length - 1 // Mark as completed if last page
                 });
-            }
-            mockReadingHistory[user.id] = userHistory;
+
+            if (error) console.error("Error saving reading progress:", error);
         }
     };
 
@@ -87,7 +148,7 @@ export default function BookDetailClient({ id }: { id: string }) {
 
     // [클라 확인용] 좋아요 관리를 위한 로컬 상태
     const [isLiked, setIsLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(0);
+    const [likeCount, setLikeCount] = useState(0); // Initialize from props?
     const [isLikedAnimating, setIsLikedAnimating] = useState(false);
 
     // 차단 UI 관리를 위한 상태
@@ -98,40 +159,73 @@ export default function BookDetailClient({ id }: { id: string }) {
     // 삭제 UI 관리를 위한 상태
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
+    const startFromBeginning = () => {
+        setInitialPage(0);
+        setIsReading(true);
+    };
+
+    const resumeReading = () => {
+        setIsReading(true);
+    };
+
     // 토스트 알림 상태
     const { toastMessage, isToastExiting, triggerToast } = useToast();
 
     useEffect(() => {
-        setComments(mockComments.filter((c) => c.bookId === id));
+        const fetchComments = async () => {
+            const { data: dbComments } = await supabase
+                .from('comments')
+                .select('*')
+                .eq('book_id', rawBook.id)
+                .order('created_at', { ascending: false });
+
+            if (dbComments) {
+                const formattedComments: Comment[] = dbComments.map(c => ({
+                    id: c.id,
+                    bookId: c.book_id,
+                    userName: c.display_name || "User", // need to join users table properly or store display_name
+                    content: c.content,
+                    createdAt: c.created_at,
+                    translations: c.translations
+                }));
+                setComments(formattedComments);
+            }
+        };
 
         if (rawBook) {
             setLikeCount(rawBook.likes);
-            if (user) {
-                const userLikedBooks = mockUserLikes[user.id] || [];
-                setIsLiked(userLikedBooks.includes(id));
-            } else {
-                setIsLiked(false);
-            }
+            fetchComments();
         }
-    }, [id, user, rawBook]);
+    }, [rawBook.id]); // only re-fetch if book changes
 
     if (!book) {
         notFound();
     }
 
-    const rawPages = mockPages[id] || [];
-    // 읽기 모드용 페이지 데이터: readingLanguage 기준
-    const pages = rawPages.map(p => getLocalizedPage(p, readingLanguage));
+    // Legacy mapping removed
+    // const rawPages = mockPages[id] || [];
+    // const pages = rawPages.map(p => getLocalizedPage(p, readingLanguage));
 
     const initiateDeleteComment = (commentId: string) => {
         setDeleteTargetId(commentId);
     };
 
-    const confirmDeleteComment = () => {
+    const confirmDeleteComment = async () => {
         if (deleteTargetId) {
+            // Optimistic Update
             setComments(prev => prev.filter(c => c.id !== deleteTargetId));
+
+            // DB Delete
+            const { error } = await supabase.from('comments').delete().eq('id', deleteTargetId);
+
+            if (error) {
+                console.error("Failed to delete comment:", error);
+                triggerToast("댓글 삭제 실패");
+                // Rollback? (Skip for now)
+            } else {
+                triggerToast("댓글이 삭제되었습니다.");
+            }
             setDeleteTargetId(null);
-            triggerToast("댓글이 삭제되었습니다.");
         }
     };
 
@@ -149,22 +243,77 @@ export default function BookDetailClient({ id }: { id: string }) {
         }
     };
 
-    const handleToggleLike = () => {
+    const handleToggleLike = async () => {
         if (!user) {
             triggerToast("로그인 후 좋아요를 누를 수 있습니다.");
             return;
         }
 
         if (isLiked) {
+            // Unlike
             setIsLikedAnimating(false);
-            setLikeCount(prev => prev - 1);
+            setLikeCount(prev => Math.max(0, prev - 1));
             setIsLiked(false);
+
+            const { error } = await supabase
+                .from('likes')
+                .delete()
+                .eq('user_id', user.id)
+                .eq('book_id', rawBook.id);
+
+            // Also decrease count in books table? 
+            // Trigger or Rpc is better, but simple increment works for now
+            await supabase.rpc('decrement_likes', { book_id: rawBook.id });
+
         } else {
+            // Like
             setIsLikedAnimating(true);
             setTimeout(() => setIsLikedAnimating(false), 600);
 
             setLikeCount(prev => prev + 1);
             setIsLiked(true);
+
+            const { error } = await supabase
+                .from('likes')
+                .insert({ user_id: user.id, book_id: rawBook.id });
+
+            await supabase.rpc('increment_likes', { book_id: rawBook.id });
+        }
+    };
+
+    const handlePostComment = async (content: string) => {
+        if (!user) return;
+
+        // Optimistic UI update (optional, but good for UX)
+        // Need to create a temp comment? 
+        // Let's just wait for DB for now for simplicity and data integrity (ID generation)
+
+        const { data: newComment, error } = await supabase
+            .from('comments')
+            .insert({
+                book_id: rawBook.id,
+                user_id: user.id,
+                content: content,
+                display_name: user.name || "User" // Should ideally be handle by trigger or user profile link
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error("Error posting comment:", error);
+            triggerToast("댓글 작성 실패");
+        } else {
+            // Add to local state
+            const formattedComment: Comment = {
+                id: newComment.id,
+                bookId: newComment.book_id,
+                userName: newComment.display_name || "User",
+                content: newComment.content,
+                createdAt: newComment.created_at,
+                translations: newComment.translations
+            };
+            setComments(prev => [formattedComment, ...prev]);
+            triggerToast("댓글이 작성되었습니다.");
         }
     };
 
@@ -188,7 +337,10 @@ export default function BookDetailClient({ id }: { id: string }) {
                         likeCount={likeCount}
                         isLikedAnimating={isLikedAnimating}
                         user={user}
-                        onReadClick={() => setIsReading(true)}
+                        onReadStart={startFromBeginning}
+                        onReadResume={resumeReading}
+                        initialPage={initialPage}
+                        totalPages={pages.length}
                         onLikeClick={handleToggleLike}
                         // [New] 언어 선택 Props 전달
                         readingLanguage={readingLanguage}
@@ -205,6 +357,7 @@ export default function BookDetailClient({ id }: { id: string }) {
                     user={user}
                     onDelete={initiateDeleteComment}
                     onBlock={handleInitiateBlock}
+                    onPost={handlePostComment}
                 />
             </div>
 

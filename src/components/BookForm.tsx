@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/Toast";
 import { Button } from "@/components/common/Button";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase";
 
 interface BookFormProps {
     initialBook?: Book;
@@ -77,6 +78,31 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
 
 
     // --- Handlers ---
+    const uploadImage = async (file: File, bucket: 'covers' | 'pages'): Promise<string | null> => {
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from(bucket)
+                .upload(filePath, file);
+
+            if (uploadError) {
+                console.error(`Error uploading to ${bucket}:`, uploadError);
+                triggerToast("이미지 업로드 실패");
+                return null;
+            }
+
+            const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+            return data.publicUrl;
+        } catch (error) {
+            console.error("Upload exception:", error);
+            triggerToast("이미지 업로드 중 오류 발생");
+            return null;
+        }
+    };
+
     const toggleLanguage = (langCode: string) => {
         setSelectedLanguages(prev => {
             if (prev.includes(langCode)) {
@@ -138,10 +164,18 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
         setActiveTabs(prev => ({ ...prev, [index]: lang }));
     };
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void, bucket: 'covers' | 'pages') => {
         if (e.target.files && e.target.files[0]) {
-            const url = URL.createObjectURL(e.target.files[0]);
-            setter(url);
+            const file = e.target.files[0];
+            // Show preview immediately? Or wait for upload? 
+            // Let's show loading or just wait. For now, waiting is safer for URL consistency.
+            // A spinner would be nice, but simple toast for now.
+            triggerToast("이미지 업로드 중...");
+            const publicUrl = await uploadImage(file, bucket);
+            if (publicUrl) {
+                setter(publicUrl);
+                triggerToast("이미지 업로드 완료");
+            }
         }
     };
 
@@ -163,55 +197,123 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
         for (let i = 0; i < pages.length; i++) {
             const page = pages[i];
 
-            // 모든 언어의 내용이 비어있는지 확인 (이미지만 있는 페이지 허용 여부 고려 -> 현재는 텍스트 필수)
-            const contentValues = selectedLanguages.map(lang => (page.contentByLang[lang] || ""));
-            const isAllEmpty = contentValues.every(val => stripHtml(val) === "");
+            // 모든 언어의 내용이 비어있는지 확인 (이미지만 있는 페이지 허용)
+            // 로직: 하나라도 텍스트가 있다면, 선택된 모든 언어의 텍스트가 있어야 함. (번역 누락 방지)
+            // 단, 아예 모든 언어의 텍스트가 없다면(이미지 전용 등) 통과.
 
-            // 만약 모든 언어가 비어있다면 pass (아직 작성 안한 페이지로 간주? 아니면 필수? -> 기획상 페이지 내용은 필수여야 함)
-            // *수정*: 페이지가 추가되었으면 내용은 무조건 있어야 함. 단, 작성을 아예 안한 초기 상태 페이지라면? 
-            // 현재 로직: "모두 비어있으면" -> continue (체크 안함). 
-            // 하지만 사용자가 페이지를 추가했다면 작성을 의도한 것이므로, 체크를 하는 게 맞음.
-            // 다만 '내용이 없는 페이지'를 허용할 것인가? -> 책의 페이지는 내용이 있어야 함.
-
-            // 기존 로직 유지하되, stripHtml 적용
-            if (isAllEmpty) {
-                // 모두 비어있더라도, 페이지가 존재하면 작성을 유도해야 함. (단, 첫 페이지가 아예 비어있는 경우 등 처리가 필요)
-                // 여기서는 "모두 비어있으면" 에러로 처리하지 않고 continue했던 기존 로직이 '작성 중인 페이지만 검사'하는 의도였는지 불분명.
-                // 보통은 빈 페이지 업로드를 막아야 하므로, isAllEmpty 체크를 제거하거나, '이미지가 있으면 통과' 등의 로직이 필요.
-                // 사용자 요청: "텍스트 안적고 클릭만 했는데 업로드 됨" -> 빈 텍스트 감지 실패.
-                // 따라서 "하나라도 비어있으면" 안되는 게 아니라, "선택된 언어에 대한 내용은 필수"여야 함.
-            }
-
-            // 선택된 언어 중 내용이 없는 것이 있는지 확인
-            const missingLangs = selectedLanguages.filter(lang => {
+            const contentStates = selectedLanguages.map(lang => {
                 const val = page.contentByLang[lang] || "";
-                return stripHtml(val) === "";
+                return { lang, hasText: stripHtml(val) !== "" };
             });
 
-            if (missingLangs.length > 0) {
-                const missingLangCode = missingLangs[0];
-                const defaultLabel = DEFAULT_LANGUAGES.find(l => l.code === missingLangCode)?.label.split(' ')[0];
-                const missingLangLabel = defaultLabel || missingLangCode;
+            const allEmpty = contentStates.every(c => !c.hasText);
+            const someEmpty = contentStates.some(c => !c.hasText);
 
-                triggerToast(`${i + 1}페이지의 [${missingLangLabel}] 내용을 입력해주세요.`);
-                const element = document.getElementById(`page-${i}`);
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    handleTabChange(i, missingLangs[0]);
+            if (allEmpty) {
+                // 모든 텍스트가 비어있으면 통과 (이미지 페이지로 간주)
+                continue;
+            }
+
+            if (someEmpty) {
+                // 텍스트가 일부만 있는 경우 -> 번역 누락으로 판단
+                const missingLang = contentStates.find(c => !c.hasText)?.lang;
+                if (missingLang) {
+                    const defaultLabel = DEFAULT_LANGUAGES.find(l => l.code === missingLang)?.label.split(' ')[0];
+                    const missingLangLabel = defaultLabel || missingLang;
+
+                    triggerToast(`${i + 1}페이지의 [${missingLangLabel}] 내용을 입력해주세요.`);
+                    const element = document.getElementById(`page-${i}`);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        handleTabChange(i, missingLang); // 해당 탭으로 전환
+                    }
+                    return false;
                 }
-                return false;
             }
         }
         return true;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validateForm()) return;
 
-        console.log({ title, author, description, coverUrl, availableLanguages: selectedLanguages, pages });
-        alert(mode === "create" ? "책이 성공적으로 업로드되었습니다!" : "책 정보가 수정되었습니다!");
-        router.push("/admin");
+        try {
+            triggerToast(mode === "create" ? "책을 등록하는 중입니다..." : "책 정보를 수정하는 중입니다...");
+
+            const bookData = {
+                title,
+                author,
+                description,
+                cover_url: coverUrl,
+                available_languages: selectedLanguages,
+                // translations could be added here if we had a UI for it
+            };
+
+            let bookId = initialBook?.id;
+
+            if (mode === "create") {
+                // 1. Insert Book
+                const { data, error } = await supabase
+                    .from('books')
+                    .insert(bookData)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                bookId = data.id;
+            } else {
+                // 1. Update Book
+                const { error } = await supabase
+                    .from('books')
+                    .update(bookData)
+                    .eq('id', bookId);
+
+                if (error) throw error;
+
+                // 2. Delete existing pages (Strategy: Delete All & Re-insert)
+                const { error: deleteError } = await supabase
+                    .from('pages')
+                    .delete()
+                    .eq('book_id', bookId);
+
+                if (deleteError) throw deleteError;
+            }
+
+            if (!bookId) throw new Error("Book ID is missing");
+
+            // 3. Prepare Pages Data
+            const pagesData = pages.map((p, index) => ({
+                book_id: bookId,
+                page_number: index + 1,
+                image_url: p.imageUrl || null, // null if empty
+                content_by_lang: p.contentByLang,
+            }));
+
+            console.log("Pages Data Payload:", pagesData);
+
+            // 4. Insert Pages
+            if (pagesData.length > 0) {
+                const { error: pagesError } = await supabase
+                    .from('pages')
+                    .insert(pagesData);
+
+                if (pagesError) throw pagesError;
+            }
+
+            triggerToast(mode === "create" ? "책이 성공적으로 등록되었습니다!" : "책 정보가 수정되었습니다!");
+
+            // Redirect after a short delay to allow toast to be seen
+            setTimeout(() => {
+                router.push("/admin");
+                router.refresh(); // Refresh to show new data
+            }, 1000);
+
+        } catch (error: any) {
+            console.error("Error saving book:", error);
+            console.error("Error details:", error.details, error.hint, error.message);
+            triggerToast(`오류 발생: ${error.message || "알 수 없는 오류"}`);
+        }
     };
 
     // [CSS Break-out]
@@ -246,7 +348,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                             <div className="flex-1 w-full border border-dashed border-[var(--border)] rounded-lg bg-[var(--background)] flex flex-col items-center justify-center relative overflow-hidden group hover:border-[var(--primary)] transition-all cursor-pointer shadow-sm min-h-[200px]">
                                 {!coverUrl ? (
                                     <>
-                                        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setCoverUrl)} id="cover-upload" className="hidden" />
+                                        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setCoverUrl, 'covers')} id="cover-upload" className="hidden" />
                                         <label htmlFor="cover-upload" className="absolute inset-0 flex flex-col items-center justify-center text-[var(--secondary)] cursor-pointer group-hover:text-[var(--primary)] transition-colors">
                                             <span className="text-2xl opacity-50">📷</span>
                                         </label>
@@ -363,7 +465,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                                 <div className="flex-1 border border-dashed border-[var(--border)] rounded-lg flex flex-col items-center justify-center relative overflow-hidden bg-white dark:bg-[#1e1e1e] hover:border-[var(--primary)] transition-all group/image cursor-pointer shadow-inner">
                                                     {!page.imageUrl ? (
                                                         <>
-                                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, (url) => handleImageChange(index, url))} id={`page-img-${index}`} className="hidden" />
+                                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, (url) => handleImageChange(index, url), 'pages')} id={`page-img-${index}`} className="hidden" />
                                                             <label htmlFor={`page-img-${index}`} className="absolute inset-0 cursor-pointer flex flex-col items-center justify-center text-[var(--secondary)] group-hover/image:text-[var(--primary)] transition-colors">
                                                                 <span className="text-3xl mb-2 opacity-40 group-hover/image:opacity-80 transition-opacity">📷</span>
                                                                 <span className="text-xs">이미지 업로드</span>

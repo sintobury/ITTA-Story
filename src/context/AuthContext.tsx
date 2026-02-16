@@ -5,7 +5,8 @@
  */
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 export type Role = "GUEST" | "USER" | "ADMIN";
 
@@ -14,46 +15,85 @@ export interface User {
     name: string;
     email: string;
     role: Role;
+    avatarUrl?: string; // Optional: For future use
 }
 
 interface AuthContextType {
     user: User | null;
-    loginAsUser: () => void;
-    loginAsAdmin: () => void;
-    logout: () => void;
+    loading: boolean;
+    logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const loginAsUser = () => {
-        // [클라 확인용] 일반 유저 로그인 모의 로직 (서버 연동 시 삭제 예정)
-        setUser({
-            id: "u1",
-            name: "Normal User",
-            email: "user@example.com",
-            role: "USER",
+    useEffect(() => {
+        const fetchUserProfile = async (session: any) => {
+            try {
+                // Fetch role from public.users table
+                const { data: profile, error } = await supabase
+                    .from('users')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+
+                const role = (profile?.role?.toUpperCase() as Role) || "USER";
+
+                setUser({
+                    id: session.user.id,
+                    name: session.user.email?.split('@')[0] || "User", // Default name from email
+                    email: session.user.email!,
+                    role: role,
+                });
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+                // Fallback
+                setUser({
+                    id: session.user.id,
+                    name: session.user.email?.split('@')[0] || "User",
+                    email: session.user.email!,
+                    role: "USER",
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Initial Session Check
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                fetchUserProfile(session);
+            } else {
+                setLoading(false);
+            }
         });
-    };
 
-    const loginAsAdmin = () => {
-        // [클라 확인용] 관리자 로그인 모의 로직 (서버 연동 시 삭제 예정)
-        setUser({
-            id: "a1",
-            name: "Admin User",
-            email: "admin@example.com",
-            role: "ADMIN",
+        // Listen for Auth Changes
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session) {
+                fetchUserProfile(session);
+            } else {
+                setUser(null);
+                setLoading(false);
+            }
         });
-    };
 
-    const logout = () => {
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const logout = async () => {
+        await supabase.auth.signOut();
         setUser(null);
+        window.location.href = "/"; // Force redirect to home
     };
 
     return (
-        <AuthContext.Provider value={{ user, loginAsUser, loginAsAdmin, logout }}>
+        <AuthContext.Provider value={{ user, loading, logout }}>
             {children}
         </AuthContext.Provider>
     );

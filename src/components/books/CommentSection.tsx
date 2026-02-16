@@ -12,11 +12,19 @@ interface CommentSectionProps {
     user: User | null;
     onDelete: (id: string) => void;
     onBlock: (name: string) => void;
+    onPost: (content: string) => void; // New prop
 }
 
-export default function CommentSection({ comments, user, onDelete, onBlock }: CommentSectionProps) {
+export default function CommentSection({ comments, user, onDelete, onBlock, onPost }: CommentSectionProps) {
     const { t, language } = useLanguage();
     const router = useRouter();
+    const [newComment, setNewComment] = React.useState("");
+
+    const handlePost = () => {
+        if (!newComment.trim()) return;
+        onPost(newComment);
+        setNewComment("");
+    };
 
     return (
         <div>
@@ -64,8 +72,17 @@ export default function CommentSection({ comments, user, onDelete, onBlock }: Co
                         placeholder={t.bookDetail.placeholder}
                         className="w-full p-4 border border-[var(--border)] rounded-lg font-inherit resize-y focus:outline-none focus:border-[var(--primary)] focus:shadow-[0_0_0_2px_rgba(52,152,219,0.1)] transition-colors"
                         rows={3}
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
                     />
-                    <Button variant="primary" className="self-start">{t.bookDetail.postComment}</Button>
+                    <Button
+                        variant="primary"
+                        className="self-start"
+                        onClick={handlePost}
+                        disabled={!newComment.trim()}
+                    >
+                        {t.bookDetail.postComment}
+                    </Button>
                 </div>
             ) : (
                 <div className="p-6 bg-[var(--background)] border border-[var(--border)] rounded-lg text-center">

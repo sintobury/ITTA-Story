@@ -1,7 +1,7 @@
 import React, { ButtonHTMLAttributes } from 'react';
 
 // 버튼 변형(Variant) 정의
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'readable-gray';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -40,7 +40,8 @@ export function Button({
         secondary: "bg-[var(--card-bg)] text-[var(--secondary)] border border-[var(--border)] hover:text-[var(--primary)] hover:bg-[var(--background)]",
         danger: "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100",
         ghost: "bg-transparent text-[var(--secondary)] hover:text-[var(--primary)] hover:bg-[var(--background)]",
-        outline: "bg-transparent border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
+        outline: "bg-transparent border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white",
+        "readable-gray": "bg-slate-200 text-slate-700 border border-slate-200 hover:bg-slate-300 hover:border-slate-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-700"
     };
 
     // 3. 크기(Size) 스타일
