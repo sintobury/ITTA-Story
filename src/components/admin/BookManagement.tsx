@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Book, getLocalizedBook } from "@/lib/mockData";
+import { Book } from "@/types";
+import { getLocalizedBook } from "@/lib/seedData";
 import { LanguageContextType } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
 import Image from "next/image";

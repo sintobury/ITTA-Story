@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { mockBooks, getLocalizedBook } from "@/lib/mockData";
+import { mockBooks, getLocalizedBook } from "@/lib/seedData";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Image from "next/image";

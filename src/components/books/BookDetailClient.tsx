@@ -3,16 +3,15 @@
 import { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 import {
-    mockBooks, // Keep for fallback? No, remove.
+    mockBooks,
     mockPages,
     mockComments,
-    Comment,
     mockUserLikes,
     getLocalizedBook,
     getLocalizedPage,
     mockReadingHistory,
-    Book, // Import Book interface
-} from "@/lib/mockData";
+} from "@/lib/seedData";
+import { Book, Comment } from "@/types";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";

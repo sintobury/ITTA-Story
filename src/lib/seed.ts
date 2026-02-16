@@ -1,6 +1,6 @@
 
 import { supabase } from './supabase';
-import { mockBooks, mockPages } from './mockData';
+import { mockBooks, mockPages } from './seedData';
 
 // Helper to generate deterministic UUID from numeric ID string
 const generateUUID = (id: string): string => {

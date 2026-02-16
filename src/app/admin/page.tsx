@@ -12,7 +12,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useBlockedUser } from "@/context/BlockedUserContext";
-import { mockBooks, getLocalizedBook } from "@/lib/mockData";
+import { mockBooks, getLocalizedBook } from "@/lib/seedData";
 import { supabase } from "@/lib/supabase";
 import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";

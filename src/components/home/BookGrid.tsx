@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/context/LanguageContext";
-import { getLocalizedBook } from "@/lib/mockData"; // 나중에 유틸로 분리 권장 (지금은 타입 호환 위해 사용)
-import { Book } from "@/lib/mockData"; // 타입
+import { getLocalizedBook } from "@/lib/seedData"; // 나중에 유틸로 분리 권장
+import { Book } from "@/types";
 
 interface BookGridProps {
     books: Book[];

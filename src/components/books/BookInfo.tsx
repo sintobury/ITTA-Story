@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useLanguage } from "@/context/LanguageContext";
-import { Book } from "@/lib/mockData";
+import { Book } from "@/types";
 import Image from "next/image";
 import { Button } from "@/components/common/Button";
 import { User } from "@/context/AuthContext";

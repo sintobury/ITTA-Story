@@ -11,7 +11,7 @@ import { notFound, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import BookForm from "@/components/BookForm";
 import { supabase } from "@/lib/supabase";
-import { Book, Page } from "@/lib/mockData";
+import { Book, Page } from "@/types";
 
 export default function EditBookPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);

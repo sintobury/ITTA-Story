@@ -3,7 +3,8 @@
 import React from 'react';
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
-import { Comment, getLocalizedComment } from "@/lib/mockData";
+import { Comment } from "@/types";
+import { getLocalizedComment } from "@/lib/seedData";
 import { Button } from "@/components/common/Button";
 import { User } from "@/context/AuthContext";
 

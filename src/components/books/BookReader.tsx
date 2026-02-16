@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from "next/image";
-import { Page } from "@/lib/mockData";
+import { Page } from "@/types";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
 

@@ -6,7 +6,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Book, Page } from "@/lib/mockData";
+import { Book, Page } from "@/types";
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/common/RichTextEditor";
 import { useToast } from "@/hooks/useToast";
