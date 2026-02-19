@@ -12,16 +12,14 @@ export default function HomeControls() {
     const searchParams = useSearchParams();
 
     // URL 파라미터 초기값
-    const initialKeyword = searchParams.get("q") || "";
-    const initialType = searchParams.get("type") || "title";
-    const initialSort = searchParams.get("sort") || "newest";
 
-    const [keyword, setKeyword] = useState(initialKeyword);
-    const [filterType, setFilterType] = useState(initialType);
-    const [sortOrder, setSortOrder] = useState(initialSort);
+    const [keyword, setKeyword] = useState(searchParams.get("q") || "");
+    const [filterType, setFilterType] = useState(searchParams.get("type") || "title");
+    const [sortOrder, setSortOrder] = useState(searchParams.get("sort") || "newest");
 
     // URL 변경 감지하여 상태 동기화 (뒤로가기 등 지원)
     useEffect(() => {
+        // eslint-disable-next-line
         setKeyword(searchParams.get("q") || "");
         setFilterType(searchParams.get("type") || "title");
         setSortOrder(searchParams.get("sort") || "newest");

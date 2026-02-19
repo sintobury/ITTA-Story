@@ -18,7 +18,7 @@ export interface Book {
 
 export interface Page {
     pageNumber: number;
-    content: string; // 기본 컨텐츠 (보통 한국어 또는 대표 언어)
+    content?: string; // 기본 컨텐츠 (보통 한국어 또는 대표 언어, 레거시 지원용)
     imageUrl?: string;
     // 언어별 컨텐츠 저장 (contentByLang으로 명확히 구분)
     contentByLang?: {
@@ -35,6 +35,7 @@ export interface Page {
 export interface Comment {
     id: string;
     bookId: string;
+    userId: string; // 차단을 위해 추가
     userName: string;
     content: string;
     createdAt: string;

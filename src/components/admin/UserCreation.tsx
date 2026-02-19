@@ -3,6 +3,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/Toast";
 import { Button } from "@/components/common/Button";
+import { supabase } from "@/lib/supabase";
 
 export default function UserCreation() {
     const [id, setId] = useState("");
@@ -14,20 +15,37 @@ export default function UserCreation() {
     const { t } = useLanguage();
     const { toastMessage, isToastExiting, triggerToast } = useToast();
 
-    const handleCheckDuplicate = () => {
+    const handleCheckDuplicate = async () => {
         if (!id) return;
 
-        // [클라 확인용] 중복 확인 목업 로직
-        if (id === "admin" || id === "user") {
-            setIdMessage({ text: t.auth.idTaken, type: 'error' });
-            setIsIdChecked(false);
-        } else {
-            setIdMessage({ text: t.auth.idAvailable, type: 'success' });
-            setIsIdChecked(true);
+        try {
+            // RPC로 유저중복 여부 확인
+            // Supabase의 'check_email_exists' RPC 함수를 호출합니다.
+            const { data: exists, error } = await supabase.rpc('check_email_exists', {
+                email_input: `${id}@example.com`
+            });
+
+            if (error) {
+                console.error("Duplicate check error:", error);
+                // RPC가 없거나 실패한 경우, 안전하게 실패 처리하거나 경고
+                triggerToast(t.admin.checkError || "중복 확인 중 오류가 발생했습니다.");
+                return;
+            }
+
+            if (exists) {
+                setIdMessage({ text: t.auth.idTaken, type: 'error' });
+                setIsIdChecked(false);
+            } else {
+                setIdMessage({ text: t.auth.idAvailable, type: 'success' });
+                setIsIdChecked(true);
+            }
+        } catch (err) {
+            console.error(err);
+            triggerToast("중복 확인 실패");
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!isIdChecked) {
@@ -35,16 +53,40 @@ export default function UserCreation() {
             return;
         }
 
-        // [클라 확인용] 목업 회원가입 로직
-        console.log(`Creating user: ${id}, ${nickname}`);
-        triggerToast(`유저 '${nickname}' (${id}) 생성이 완료되었습니다.`);
+        try {
+            const response = await fetch('/api/admin/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: `${id}@example.com`, // 아이디를 이메일 형식으로 변환 (가정)
+                    password,
+                    nickname
+                })
+            });
 
-        // Reset form
-        setId("");
-        setPassword("");
-        setNickname("");
-        setIsIdChecked(false);
-        setIdMessage(null);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to create user');
+            }
+
+            triggerToast(`유저 '${nickname}' (${id}) 생성이 완료되었습니다.`);
+
+            // 폼 초기화
+            setId("");
+            setPassword("");
+            setNickname("");
+            setIsIdChecked(false);
+            setIdMessage(null);
+
+        } catch (error) {
+            console.error('Error creating user:', error);
+            if (error instanceof Error) {
+                triggerToast(`오류 발생: ${error.message}`);
+            } else {
+                triggerToast('알 수 없는 오류가 발생했습니다.');
+            }
+        }
     };
 
     return (

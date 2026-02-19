@@ -1,11 +1,13 @@
+"use client";
+
 /**
  * [AuthContext.tsx]
  * 사용자 인증 상태(로그인/로그아웃)와 사용자 권한(User/Admin)을 전역에서 관리하는 컨텍스트 파일입니다.
  * 앱 어디서든 useAuth() 훅을 통해 현재 로그인한 유저 정보에 접근할 수 있습니다.
  */
-"use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
 export type Role = "GUEST" | "USER" | "ADMIN";
@@ -15,7 +17,7 @@ export interface User {
     name: string;
     email: string;
     role: Role;
-    avatarUrl?: string; // Optional: For future use
+    avatarUrl?: string;
 }
 
 interface AuthContextType {
@@ -31,10 +33,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchUserProfile = async (session: any) => {
+        const fetchUserProfile = async (session: Session) => {
             try {
-                // Fetch role from public.users table
-                const { data: profile, error } = await supabase
+                // public.users 테이블에서 권한 정보 가져오기
+                const { data: profile } = await supabase
                     .from('users')
                     .select('role')
                     .eq('id', session.user.id)
@@ -44,13 +46,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 setUser({
                     id: session.user.id,
-                    name: session.user.email?.split('@')[0] || "User", // Default name from email
+                    name: session.user.email?.split('@')[0] || "User", // 이메일에서 기본 이름 추출
                     email: session.user.email!,
                     role: role,
                 });
             } catch (error) {
                 console.error("Error fetching user profile:", error);
-                // Fallback
+                // 기본값 설정
                 setUser({
                     id: session.user.id,
                     name: session.user.email?.split('@')[0] || "User",
@@ -62,16 +64,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         };
 
-        // Initial Session Check
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        // 초기 세션 확인
+        supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null }, error: AuthError | null }) => {
             if (session) {
                 fetchUserProfile(session);
             } else {
                 setLoading(false);
             }
+        }).catch(() => {
+            setLoading(false);
         });
 
-        // Listen for Auth Changes
+        // 인증 상태 변경 감지
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -89,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const logout = async () => {
         await supabase.auth.signOut();
         setUser(null);
-        window.location.href = "/"; // Force redirect to home
+        window.location.href = "/"; // 홈으로 강제 이동
     };
 
     return (

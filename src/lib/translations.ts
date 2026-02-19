@@ -26,6 +26,13 @@ export const translations = {
                 newest: "Newest",
                 oldest: "Oldest",
                 popular: "Popular"
+            },
+            fetchError: "An error occurred while fetching data.",
+            pagination: {
+                firstPage: "First Page",
+                prevPage: "Previous Page",
+                nextPage: "Next Page",
+                lastPage: "Last Page"
             }
         },
         bookDetail: {
@@ -42,18 +49,7 @@ export const translations = {
             placeholder: "Write a comment...",
             loginToComment: "Login to leave a comment! ✍️",
             goToLogin: "Go to Login",
-            deleteAdmin: "Delete",
-            blockUser: "Block",
-            blockConfirm: "Block this user?",
-            blockReason: "Reason for blocking:",
-            blockMemo: "Memo (Optional):",
-            cancel: "Cancel",
-            confirmBlock: "Block",
-            reasons: {
-                spam: "Spam/Ad",
-                abuse: "Abuse/Harassment",
-                other: "Other"
-            },
+            deleteFail: "Failed to delete comment.",
             like: "Like",
             liked: "Liked",
             likeTooltip: {
@@ -64,6 +60,14 @@ export const translations = {
             resumePage: "resume Page",
             language: "select Language",
             totalPages: "total ",
+            progressReset: "Book content changed, restarting from page 1.",
+            postSuccess: "Comment posted!",
+            postFail: "Failed to post comment.",
+            deleteConfirm: "Are you sure you want to delete this comment?",
+            deleteUndo: "This action cannot be undone.",
+            deleteSuccess: "Comment deleted.",
+            blockSuccess: "User {user} has been blocked.",
+            authorLabel: "By"
         },
         copyrightWarning: "🚫 The copyright of this fairy tale belongs to the site operator and the author. Unauthorized reproduction and distribution are prohibited.",
         rightClickWarning: "Right-click is disabled to protect copyright.",
@@ -75,6 +79,7 @@ export const translations = {
             blockedUsers: "Blocked Users",
             noBlockedUsers: "No blocked users.",
             unblock: "Unblock",
+            checkError: "Failed to check duplicate ID.",
             table: {
                 cover: "Cover",
                 title: "Title",
@@ -153,6 +158,10 @@ export const translations = {
             idAvailable: "ID is available!",
             idTaken: "ID is already taken.",
             checkIdFirst: "Please check ID duplication first.",
+            userNotFound: "User not found.",
+            wrongPassword: "Wrong password.",
+            processing: "Processing...",
+            error: "An error occurred."
         },
         myPage: {
             title: "My Page",
@@ -167,7 +176,11 @@ export const translations = {
             noLiked: "No liked books yet.",
             noComments: "No comments written yet.",
             goBrowse: "Browse Books",
-            unit: "Page"
+            unit: "Page",
+            loading: "Loading...",
+            unknownBook: "Unknown Book",
+            noCompleted: "No completed books yet.",
+            completedBadge: "✔ Completed"
         }
     },
     ko: {
@@ -195,6 +208,13 @@ export const translations = {
                 newest: "최신순",
                 oldest: "과거순",
                 popular: "인기순"
+            },
+            fetchError: "데이터를 불러오는 중 오류가 발생했습니다.",
+            pagination: {
+                firstPage: "첫 페이지",
+                prevPage: "이전 페이지",
+                nextPage: "다음 페이지",
+                lastPage: "마지막 페이지"
             }
         },
         bookDetail: {
@@ -211,18 +231,7 @@ export const translations = {
             placeholder: "댓글을 작성하세요...",
             loginToComment: "로그인하고 댓글을 남겨보세요! ✍️",
             goToLogin: "로그인하러 가기",
-            deleteAdmin: "삭제",
-            blockUser: "차단",
-            blockConfirm: "이 유저를 차단하시겠습니까?",
-            blockReason: "차단 사유:",
-            blockMemo: "메모 (선택사항):",
-            cancel: "취소",
-            confirmBlock: "차단하기",
-            reasons: {
-                spam: "광고/스팸",
-                abuse: "욕설/비방",
-                other: "기타"
-            },
+            deleteFail: "댓글 삭제 실패",
             like: "좋아요",
             liked: "좋아요 취소",
             likeTooltip: {
@@ -233,17 +242,27 @@ export const translations = {
             resumePage: "이어보기",
             language: "언어 선택",
             totalPages: "총 ",
+            progressReset: "책 내용이 변경되어 첫 페이지부터 시작합니다.",
+            postSuccess: "댓글이 작성되었습니다.",
+            postFail: "댓글 작성 실패",
+            deleteConfirm: "정말로 이 댓글을 삭제하시겠습니까?",
+            deleteUndo: "이 작업은 되돌릴 수 없습니다.",
+            deleteSuccess: "댓글이 삭제되었습니다.",
+            blockSuccess: "{user}님을 차단했습니다.",
+            authorLabel: "저자"
         },
         copyrightWarning: "🚫 본 동화의 저작권은 사이트 운영자와 작가에게 있으며, 무단 복제 및 배포를 금합니다.",
         rightClickWarning: "저작권 보호를 위해 우클릭이 제한됩니다.",
         admin: {
             dashboard: "관리자 페이지",
+
             upload: "새 책 업로드",
             manage: "책 관리",
             manageUsers: "유저 관리",
             blockedUsers: "차단된 유저 목록",
             noBlockedUsers: "차단된 유저가 없습니다.",
             unblock: "차단 해제",
+            checkError: "아이디 중복 확인에 실패했습니다.",
             table: {
                 cover: "표지",
                 title: "제목",
@@ -322,6 +341,10 @@ export const translations = {
             idAvailable: "사용 가능한 아이디입니다!",
             idTaken: "이미 사용 중인 아이디입니다.",
             checkIdFirst: "아이디 중복 확인을 해주세요.",
+            userNotFound: "존재하지 않는 계정입니다.",
+            wrongPassword: "비밀번호가 틀렸습니다.",
+            processing: "처리 중...",
+            error: "오류가 발생했습니다."
         },
         myPage: {
             title: "마이페이지",
@@ -336,7 +359,11 @@ export const translations = {
             noLiked: "좋아요한 책이 없습니다.",
             noComments: "작성한 댓글이 없습니다.",
             goBrowse: "책 구경하러 가기",
-            unit: "페이지"
+            unit: "페이지",
+            loading: "로딩 중...",
+            unknownBook: "알 수 없는 책",
+            noCompleted: "아직 다 읽은 책이 없습니다.",
+            completedBadge: "✔ 완독"
         }
     }
 };

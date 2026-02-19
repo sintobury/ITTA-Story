@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
-import {
-    mockBooks,
-    mockPages,
-    mockComments,
-    mockUserLikes,
-    getLocalizedBook,
-    getLocalizedPage,
-    mockReadingHistory,
-} from "@/lib/seedData";
+import { getLocalizedBook, getLocalizedPage } from "@/lib/utils";
 import { Book, Comment } from "@/types";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -20,7 +12,6 @@ import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/common/Button";
-
 import BookReader from "./BookReader";
 import BookInfo from "./BookInfo";
 import CommentSection from "./CommentSection";
@@ -28,14 +19,14 @@ import CopyrightWarning from "./CopyrightWarning";
 
 export default function BookDetailClient({ initialBook }: { initialBook: Book }) {
     const { user } = useAuth();
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { isBlocked, blockUser } = useBlockedUser();
 
-    // Use initialBook directly
+    // initialBook을 직접 사용
     const rawBook = initialBook;
     const book = getLocalizedBook(rawBook, language);
 
-    // [New] 읽기 언어 상태 (기본값: 앱 언어가 책에 있으면 앱 언어, 아니면 첫 번째 가용 언어)
+    // 기본값: 앱 언어가 책에 있으면 앱 언어, 아니면 첫 번째 가용 언어
     const [readingLanguage, setReadingLanguage] = useState<string>(language);
 
     useEffect(() => {
@@ -50,26 +41,43 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
 
     const [isReading, setIsReading] = useState(false);
 
-    // [New] 초기 페이지 상태 및 읽기 기록 저장 로직
     const [initialPage, setInitialPage] = useState(0);
 
-    // Pages State
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [pages, setPages] = useState<any[]>([]);
+
+    const { toastMessage, isToastExiting, triggerToast } = useToast();
+
+    const [comments, setComments] = useState<Comment[]>([]);
+
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(0);
+    const [isLikedAnimating, setIsLikedAnimating] = useState(false);
+
+    const [blockTargetId, setBlockTargetId] = useState<string | null>(null);
+    const [blockTarget, setBlockTarget] = useState<string | null>(null);
+    const [blockReason, setBlockReason] = useState("spam");
+    const [blockMemo, setBlockMemo] = useState("");
+
+    const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
     useEffect(() => {
         const loadData = async () => {
             if (!rawBook) return;
 
-            // 1. Fetch Pages First
             const { data: dbPages } = await supabase
                 .from('pages')
                 .select('*')
                 .eq('book_id', rawBook.id)
                 .order('page_number', { ascending: true });
 
+            /** 페이지 데이터 구조가 동적이거나 복잡하여 임시로 any[]를 사용합니다. */
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let currentPages: any[] = [];
             if (dbPages) {
-                const formattedPages = dbPages.map(p => ({
+                /** Supabase 반환 데이터의 타입 매핑을 위해 any를 허용합니다. */
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const formattedPages = dbPages.map((p: any) => ({
                     pageNumber: p.page_number,
                     content: p.content,
                     imageUrl: p.image_url,
@@ -80,9 +88,7 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                 setPages(currentPages);
             }
 
-            // 2. Fetch User Data (Progress & Likes)
             if (user) {
-                // Like Status
                 const { data: like } = await supabase
                     .from('likes')
                     .select('*')
@@ -91,7 +97,6 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                     .single();
                 setIsLiked(!!like);
 
-                // Reading Progress
                 const { data: progress } = await supabase
                     .from('reading_progress')
                     .select('last_page')
@@ -100,19 +105,19 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                     .single();
 
                 if (progress) {
-                    // [Validation] Check if stored page index is valid for current total pages
+                    // 저장된 페이지 인덱스가 현재 총 페이지 수보다 큰지 확인 (책 수정됨?)
                     if (currentPages.length > 0 && progress.last_page >= currentPages.length) {
-                        console.warn("Stored page index out of bounds (Book edited?), resetting to 0");
+                        console.warn("저장된 페이지 인덱스 범위를 벗어남 (책이 수정됨?), 0으로 초기화");
                         setInitialPage(0);
 
-                        // Auto-correct DB
+                        // DB 자동 보정
                         await supabase
                             .from('reading_progress')
                             .update({ last_page: 0, completed: false })
                             .eq('user_id', user.id)
                             .eq('book_id', rawBook.id);
 
-                        triggerToast("책 내용이 변경되어 첫 페이지부터 시작합니다.");
+                        triggerToast(t.bookDetail.progressReset);
                     } else {
                         setInitialPage(progress.last_page);
                     }
@@ -121,10 +126,11 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
         };
 
         loadData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, rawBook, readingLanguage]);
 
     const handlePageChange = async (pageIndex: number) => {
-        // Update local state immediately so UI reflects progress when reader closes
+        // 로컬 상태 즉시 업데이트 (리더가 닫힐 때 진행도 반영)
         setInitialPage(pageIndex);
 
         if (user && rawBook) {
@@ -133,30 +139,14 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                 .upsert({
                     user_id: user.id,
                     book_id: rawBook.id,
-                    last_page: pageIndex, // 0-based index for DB
+                    last_page: pageIndex, // DB는 0-based index 사용 (0부터 시작)
                     last_read_at: new Date().toISOString(),
-                    completed: pageIndex === pages.length - 1 // Mark as completed if last page
+                    completed: pageIndex === pages.length - 1 // 마지막 페이지 도달 시 완료 처리
                 });
 
-            if (error) console.error("Error saving reading progress:", error);
+            if (error) console.error("독서 기록 저장 실패:", error);
         }
     };
-
-    // [클라 확인용] 댓글 관리를 위한 로컬 상태
-    const [comments, setComments] = useState<Comment[]>([]);
-
-    // [클라 확인용] 좋아요 관리를 위한 로컬 상태
-    const [isLiked, setIsLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(0); // Initialize from props?
-    const [isLikedAnimating, setIsLikedAnimating] = useState(false);
-
-    // 차단 UI 관리를 위한 상태
-    const [blockTarget, setBlockTarget] = useState<string | null>(null);
-    const [blockReason, setBlockReason] = useState("spam");
-    const [blockMemo, setBlockMemo] = useState("");
-
-    // 삭제 UI 관리를 위한 상태
-    const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
     const startFromBeginning = () => {
         setInitialPage(0);
@@ -166,9 +156,6 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
     const resumeReading = () => {
         setIsReading(true);
     };
-
-    // 토스트 알림 상태
-    const { toastMessage, isToastExiting, triggerToast } = useToast();
 
     useEffect(() => {
         const fetchComments = async () => {
@@ -182,7 +169,8 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                 const formattedComments: Comment[] = dbComments.map(c => ({
                     id: c.id,
                     bookId: c.book_id,
-                    userName: c.display_name || "User", // need to join users table properly or store display_name
+                    userId: c.user_id, // DB에서 user_id 매핑
+                    userName: c.display_name || "User", // users 테이블 조인 또는 display_name 저장 필요
                     content: c.content,
                     createdAt: c.created_at,
                     translations: c.translations
@@ -195,15 +183,11 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
             setLikeCount(rawBook.likes);
             fetchComments();
         }
-    }, [rawBook.id]); // only re-fetch if book changes
+    }, [rawBook, rawBook.likes]); // 책이 변경될 때만 다시 가져옴
 
     if (!book) {
         notFound();
     }
-
-    // Legacy mapping removed
-    // const rawPages = mockPages[id] || [];
-    // const pages = rawPages.map(p => getLocalizedPage(p, readingLanguage));
 
     const initiateDeleteComment = (commentId: string) => {
         setDeleteTargetId(commentId);
@@ -211,68 +195,69 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
 
     const confirmDeleteComment = async () => {
         if (deleteTargetId) {
-            // Optimistic Update
+            // 낙관적 업데이트 (Optimistic Update)
             setComments(prev => prev.filter(c => c.id !== deleteTargetId));
 
-            // DB Delete
+            // DB 삭제
             const { error } = await supabase.from('comments').delete().eq('id', deleteTargetId);
 
             if (error) {
-                console.error("Failed to delete comment:", error);
-                triggerToast("댓글 삭제 실패");
-                // Rollback? (Skip for now)
+                console.error("댓글 삭제 실패:", error);
+                triggerToast(t.bookDetail.deleteFail);
+                // 롤백 로직 추가 가능
             } else {
-                triggerToast("댓글이 삭제되었습니다.");
+                triggerToast(t.bookDetail.deleteSuccess);
             }
             setDeleteTargetId(null);
         }
     };
 
-    const handleInitiateBlock = (userName: string) => {
+    const handleInitiateBlock = (userId: string, userName: string) => {
+        setBlockTargetId(userId);
         setBlockTarget(userName);
         setBlockReason("spam");
         setBlockMemo("");
     };
 
     const handleConfirmBlock = () => {
-        if (blockTarget) {
-            blockUser(blockTarget, blockReason, blockMemo);
+        if (blockTarget && blockTargetId) {
+            blockUser(blockTargetId, blockTarget, blockReason, blockMemo);
             triggerToast(`${blockTarget}님을 차단했습니다.`);
             setBlockTarget(null);
+            setBlockTargetId(null);
         }
     };
 
     const handleToggleLike = async () => {
         if (!user) {
-            triggerToast("로그인 후 좋아요를 누를 수 있습니다.");
+            triggerToast(t.bookDetail.likeTooltip.loginRequired);
             return;
         }
 
         if (isLiked) {
-            // Unlike
+            // 좋아요 취소
             setIsLikedAnimating(false);
             setLikeCount(prev => Math.max(0, prev - 1));
             setIsLiked(false);
 
-            const { error } = await supabase
+            await supabase
                 .from('likes')
                 .delete()
                 .eq('user_id', user.id)
                 .eq('book_id', rawBook.id);
 
-            // Also decrease count in books table? 
-            // Trigger or Rpc is better, but simple increment works for now
+            // books 테이블 카운트 감소 (트리거 또는 RPC 권장, 현재는 단순 감소)
             await supabase.rpc('decrement_likes', { book_id: rawBook.id });
 
         } else {
-            // Like
+            // 좋아요
             setIsLikedAnimating(true);
             setTimeout(() => setIsLikedAnimating(false), 600);
 
             setLikeCount(prev => prev + 1);
             setIsLiked(true);
 
-            const { error } = await supabase
+            await supabase
                 .from('likes')
                 .insert({ user_id: user.id, book_id: rawBook.id });
 
@@ -283,36 +268,34 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
     const handlePostComment = async (content: string) => {
         if (!user) return;
 
-        // Optimistic UI update (optional, but good for UX)
-        // Need to create a temp comment? 
-        // Let's just wait for DB for now for simplicity and data integrity (ID generation)
-
+        // 데이터 무결성(ID 생성)을 위해 지금은 DB 응답 대기
         const { data: newComment, error } = await supabase
             .from('comments')
             .insert({
                 book_id: rawBook.id,
                 user_id: user.id,
                 content: content,
-                display_name: user.name || "User" // Should ideally be handle by trigger or user profile link
+                display_name: user.name || "User" // 트리거 또는 유저 프로필 링크로 처리하는 것이 이상적
             })
             .select()
             .single();
 
         if (error) {
-            console.error("Error posting comment:", error);
-            triggerToast("댓글 작성 실패");
+            console.error("댓글 작성 오류:", error);
+            triggerToast(t.bookDetail.postFail);
         } else {
-            // Add to local state
+            // 로컬 상태 추가
             const formattedComment: Comment = {
                 id: newComment.id,
                 bookId: newComment.book_id,
+                userId: newComment.user_id,
                 userName: newComment.display_name || "User",
                 content: newComment.content,
                 createdAt: newComment.created_at,
                 translations: newComment.translations
             };
             setComments(prev => [formattedComment, ...prev]);
-            triggerToast("댓글이 작성되었습니다.");
+            triggerToast(t.bookDetail.postSuccess);
         }
     };
 
@@ -341,7 +324,7 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                         initialPage={initialPage}
                         totalPages={pages.length}
                         onLikeClick={handleToggleLike}
-                        // [New] 언어 선택 Props 전달
+                        // 언어 선택 Props 전달
                         readingLanguage={readingLanguage}
                         onLanguageChange={setReadingLanguage}
                     />
@@ -382,7 +365,7 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
             >
                 <div>
                     <div className="mb-5">
-                        <label className="block mb-2 font-medium text-[var(--secondary)] text-sm">차단 사유</label>
+                        <label className="block mb-2 font-medium text-[var(--secondary)] text-sm">차단 사유:</label>
                         <select
                             value={blockReason}
                             onChange={e => setBlockReason(e.target.value)}
@@ -395,7 +378,7 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                     </div>
 
                     <div className="mb-5">
-                        <label className="block mb-2 font-medium text-[var(--secondary)] text-sm">메모 (선택사항)</label>
+                        <label className="block mb-2 font-medium text-[var(--secondary)] text-sm">메모 (선택사항):</label>
                         <textarea
                             value={blockMemo}
                             onChange={e => setBlockMemo(e.target.value)}
@@ -418,7 +401,7 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                             취소
                         </Button>
                         <Button onClick={confirmDeleteComment} variant="danger">
-                            삭제하기
+                            삭제
                         </Button>
                     </>
                 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/context/LanguageContext";
-import { getLocalizedBook } from "@/lib/seedData"; // 나중에 유틸로 분리 권장
+import { getLocalizedBook } from "@/lib/utils";
 import { Book } from "@/types";
 
 interface BookGridProps {

@@ -6,22 +6,20 @@ import { Page } from "@/types";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
 
-// PageImage 컴포넌트
 function PageImage({ src, alt }: { src: string; alt: string }) {
     const [isLoading, setIsLoading] = useState(true);
 
     return (
         <div className={`relative w-full h-full rounded-lg overflow-hidden ${isLoading ? 'bg-[#f3f4f6]' : 'bg-transparent'}`}>
             {isLoading && <div className="absolute top-0 left-0 w-full h-full bg-gray-200 animate-pulse z-10" />}
-            {/* Replaced img tag with Image component */}
             <Image
                 src={src}
                 alt={alt}
-                fill // Use fill to make the image cover its parent
+                fill
                 className={`object-contain rounded-lg transition-opacity duration-700 ${!isLoading ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setIsLoading(false)}
-                sizes="(max-width: 768px) 100vw, 50vw" // Added sizes for responsive images
-                priority // Added priority for important images
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
             />
         </div>
     );
@@ -57,8 +55,8 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
             // 드래그/선택 시에는 토스트를 띄우지 않고 조용히 막음
         };
 
-        // TypeScript defines 'selectstart' as a valid event on GlobalEventHandlers, but sometimes misses it on elements.
-        // We attach it manually here.
+        // TypeScript는 'selectstart'를 GlobalEventHandlers의 유효한 이벤트로 정의하지만, 
+        // 때때로 요소에서 누락될 수 있어 수동으로 연결합니다.
         container.addEventListener('selectstart', handleSelectStart);
         return () => {
             container.removeEventListener('selectstart', handleSelectStart);
@@ -87,7 +85,7 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
                 >
                     ← {t.bookDetail.closeBook}
                 </Button>
-                {/* Space holder for alignment: width of arrow button + margin */}
+                {/* 정렬을 위한 공간 확보: 화살표 버튼 너비 + 마진 */}
                 <div className="w-[50px] mx-6" aria-hidden="true" />
             </div>
 
@@ -115,7 +113,7 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
                 >
                     <div className="flex-1 flex flex-col items-center justify-center h-full w-full p-6">
                         {pages[currentPageIndex]?.imageUrl ? (
-                            <PageImage src={pages[currentPageIndex].imageUrl!} alt="Page illustration" />
+                            <PageImage src={pages[currentPageIndex].imageUrl!} alt={t.admin.uploadPage.labels.illustration} />
                         ) : (
                             <div className="w-full h-full" />
                         )}
@@ -139,10 +137,10 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
                                 {/* HTML 태그 렌더링 (dangerouslySetInnerHTML) */}
                                 <div
                                     className="text-xl leading-[1.8] max-w-[360px] w-full ql-editor-content break-keep text-left"
-                                    dangerouslySetInnerHTML={{ __html: pages[currentPageIndex].content }}
+                                    dangerouslySetInnerHTML={{ __html: pages[currentPageIndex].content || "" }}
                                 />
                                 <style jsx>{`
-                                    /* Quill 에디터 스타일 복원 */
+                                    /* Quill 에디터 스타일 */
                                     .ql-editor-content :global(p) { margin-bottom: 1em; }
                                     .ql-editor-content :global(h1), .ql-editor-content :global(h2), .ql-editor-content :global(h3) { margin-bottom: 0.5em; font-weight: bold; }
                                     .ql-editor-content :global(strong) { font-weight: bold; }

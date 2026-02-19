@@ -1,23 +1,4 @@
-import { Book, Page, Comment, ReadingHistory } from '@/types';
-
-
-
-
-
-export const mockUserLikes: Record<string, string[]> = {
-    "u1": ["1", "3"],
-    "u2": ["2"],
-};
-
-
-
-export const mockReadingHistory: Record<string, ReadingHistory[]> = {
-    "u1": [
-        { bookId: "1", lastPage: 3, lastReadAt: "2023-10-20T10:00:00", completed: false },
-        { bookId: "2", lastPage: 1, lastReadAt: "2023-10-18T14:30:00", completed: false }
-    ],
-    "u2": []
-};
+import { Book, Page, Comment } from '@/types';
 
 const originalBooks: Book[] = [
     {
@@ -231,6 +212,7 @@ export const mockComments: Comment[] = [
     {
         id: "c1",
         bookId: "1",
+        userId: "u3",
         userName: "Normal User",
         content: "This book changed my life!",
         createdAt: "2023-10-01",
@@ -241,6 +223,7 @@ export const mockComments: Comment[] = [
     {
         id: "c2",
         bookId: "1",
+        userId: "u2",
         userName: "User2",
         content: "The illustrations are beautiful.",
         createdAt: "2023-10-02",
@@ -251,6 +234,7 @@ export const mockComments: Comment[] = [
     {
         id: "c3",
         bookId: "2",
+        userId: "u3",
         userName: "Normal User",
         content: "Scary but important read.",
         createdAt: "2023-10-05",
@@ -259,46 +243,3 @@ export const mockComments: Comment[] = [
         }
     },
 ];
-
-// 다국어 컨텐츠를 가져오는 헬퍼 함수
-export function getLocalizedBook(book: Book, lang: string) {
-    if (lang === 'en') return book;
-    const translation = book.translations?.[lang];
-    return {
-        ...book,
-        title: translation?.title || book.title,
-        author: translation?.author || book.author,
-        description: translation?.description || book.description,
-    };
-}
-
-// 수정된 getLocalizedPage (contentByLang 우선 사용)
-export function getLocalizedPage(page: Page, lang: string) {
-    // 1순위: contentByLang 확인
-    if (page.contentByLang && page.contentByLang[lang]) {
-        return {
-            ...page,
-            content: page.contentByLang[lang]
-        };
-    }
-
-    // 2순위: 기존 translations 확인 (레거시 지원)
-    if (lang !== 'en' && page.translations?.[lang]?.content) {
-        return {
-            ...page,
-            content: page.translations[lang].content
-        };
-    }
-
-    // 3순위: 기본 content (보통 영어)
-    return page;
-}
-
-export function getLocalizedComment(comment: Comment, lang: string) {
-    if (lang === 'en') return comment;
-    const translation = comment.translations?.[lang];
-    return {
-        ...comment,
-        content: translation?.content || comment.content,
-    };
-}

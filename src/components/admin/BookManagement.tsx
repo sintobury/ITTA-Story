@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Book } from "@/types";
-import { getLocalizedBook } from "@/lib/seedData";
+import { getLocalizedBook } from "@/lib/utils";
 import { LanguageContextType } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
 import Image from "next/image";

@@ -17,14 +17,12 @@ interface BookInfoProps {
     onReadStart: () => void;
     onReadResume: () => void;
     initialPage: number;
-    totalPages: number; // [New] 전체 페이지 수
+    totalPages: number;
     onLikeClick: () => void;
-    // [New] 언어 선택 Props
     readingLanguage: string;
     onLanguageChange: (lang: string) => void;
 }
 
-// 언어 라벨 매핑 (BookForm과 동일하게 맞춤)
 const LANGUAGE_LABELS: Record<string, string> = {
     ko: '한국어',
     en: 'English',
@@ -66,7 +64,7 @@ export default function BookInfo({
             <div className="flex-1 flex flex-col justify-between py-1">
                 <div>
                     <h1 className="text-2xl font-bold mb-1 text-[var(--foreground)]">{book.title}</h1>
-                    <p className="text-[var(--secondary)] text-sm mb-3">by {book.author}</p>
+                    <p className="text-[var(--secondary)] text-sm mb-3">{t.bookDetail.authorLabel} {book.author}</p>
                     <p className="text-[var(--foreground)] text-sm leading-relaxed line-clamp-6">{book.description}</p>
                 </div>
 

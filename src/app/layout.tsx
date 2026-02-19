@@ -11,7 +11,7 @@ import Navbar from "@/components/Navbar";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { BlockedUserProvider } from "@/context/BlockedUserContext";
-import { ThemeProvider } from "@/context/ThemeContext";
+
 
 // 폰트 설정 (하위 컴포넌트에 자동 적용됨)
 const gowunDodum = Gowun_Dodum({
@@ -36,16 +36,14 @@ export default function RootLayout({
         {/* 전역 상태 관리자들 (로그인, 언어, 테마 등) */}
         <AuthProvider>
           <LanguageProvider>
-            <ThemeProvider>
-              <BlockedUserProvider>
-                {/* 상단 네비게이션 바 */}
-                <Navbar />
-                {/* 페이지 본문이 표시되는 영역 */}
-                <main className="container" style={{ paddingBottom: "2rem" }}>
-                  {children}
-                </main>
-              </BlockedUserProvider>
-            </ThemeProvider>
+            <BlockedUserProvider>
+              {/* 상단 네비게이션 바 */}
+              <Navbar />
+              {/* 페이지 본문이 표시되는 영역 */}
+              <main className="container" style={{ paddingBottom: "2rem" }}>
+                {children}
+              </main>
+            </BlockedUserProvider>
           </LanguageProvider>
         </AuthProvider>
       </body>

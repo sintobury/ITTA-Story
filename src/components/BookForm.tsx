@@ -32,12 +32,12 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
     const router = useRouter();
     const { toastMessage, isToastExiting, triggerToast } = useToast();
 
-    const getInitialValue = (obj: any, field: string) => {
+    const getInitialValue = (obj: Book, field: keyof Book) => {
         if (!obj) return "";
-        return obj[field] || "";
+        return (obj[field] as string) || "";
     };
 
-    // --- State ---
+    // --- 상태 (State) ---
     const [title, setTitle] = useState(initialBook ? getInitialValue(initialBook, 'title') : "");
     const [author, setAuthor] = useState(initialBook ? getInitialValue(initialBook, 'author') : "");
     const [description, setDescription] = useState(initialBook ? getInitialValue(initialBook, 'description') : "");
@@ -55,8 +55,8 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
         initialPages
             ? initialPages.map(p => ({
                 contentByLang: p.contentByLang || (p.translations ?
-                    Object.keys(p.translations).reduce((acc, lang) => ({ ...acc, [lang]: p.translations![lang].content || "" }), { en: p.content })
-                    : { en: p.content }),
+                    Object.keys(p.translations).reduce((acc, lang) => ({ ...acc, [lang]: p.translations![lang].content || "" }), { en: p.content || "" })
+                    : { en: p.content || "" }),
                 imageUrl: p.imageUrl || ""
             }))
             : [{ contentByLang: { ko: "" }, imageUrl: "" }]
@@ -74,10 +74,11 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
         if (Object.keys(initialTabs).length > 0) {
             setActiveTabs(prev => ({ ...prev, ...initialTabs }));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pages.length, selectedLanguages]);
 
 
-    // --- Handlers ---
+    // --- 핸들러 (Handlers) ---
     const uploadImage = async (file: File, bucket: 'covers' | 'pages'): Promise<string | null> => {
         try {
             const fileExt = file.name.split('.').pop();
@@ -167,9 +168,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void, bucket: 'covers' | 'pages') => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            // Show preview immediately? Or wait for upload? 
-            // Let's show loading or just wait. For now, waiting is safer for URL consistency.
-            // A spinner would be nice, but simple toast for now.
+            // 업로드 중 메시지 표시
             triggerToast("이미지 업로드 중...");
             const publicUrl = await uploadImage(file, bucket);
             if (publicUrl) {
@@ -179,8 +178,8 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
         }
     };
 
-    // --- Validation ---
-    // Helper: HTML 태그 제거 후 텍스트만 추출
+    // --- 검증 (Validation) ---
+    // 헬퍼: HTML 태그 제거 후 텍스트만 추출
     const stripHtml = (html: string) => {
         const tmp = document.createElement("DIV");
         tmp.innerHTML = html;
@@ -247,13 +246,12 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                 description,
                 cover_url: coverUrl,
                 available_languages: selectedLanguages,
-                // translations could be added here if we had a UI for it
             };
 
             let bookId = initialBook?.id;
 
             if (mode === "create") {
-                // 1. Insert Book
+                // 1. 책 등록 (Insert Book)
                 const { data, error } = await supabase
                     .from('books')
                     .insert(bookData)
@@ -263,7 +261,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                 if (error) throw error;
                 bookId = data.id;
             } else {
-                // 1. Update Book
+                // 1. 책 수정 (Update Book)
                 const { error } = await supabase
                     .from('books')
                     .update(bookData)
@@ -271,7 +269,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
 
                 if (error) throw error;
 
-                // 2. Delete existing pages (Strategy: Delete All & Re-insert)
+                // 2. 기존 페이지 삭제 (전략: 전체 삭제 후 재생성)
                 const { error: deleteError } = await supabase
                     .from('pages')
                     .delete()
@@ -282,7 +280,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
 
             if (!bookId) throw new Error("Book ID is missing");
 
-            // 3. Prepare Pages Data
+            // 3. 페이지 데이터 준비
             const pagesData = pages.map((p, index) => ({
                 book_id: bookId,
                 page_number: index + 1,
@@ -292,7 +290,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
 
             console.log("Pages Data Payload:", pagesData);
 
-            // 4. Insert Pages
+            // 4. 페이지 등록 (Insert Pages)
             if (pagesData.length > 0) {
                 const { error: pagesError } = await supabase
                     .from('pages')
@@ -303,16 +301,16 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
 
             triggerToast(mode === "create" ? "책이 성공적으로 등록되었습니다!" : "책 정보가 수정되었습니다!");
 
-            // Redirect after a short delay to allow toast to be seen
+            // 토스트 메시지 전달 후 리다이렉트
             setTimeout(() => {
                 router.push("/admin");
-                router.refresh(); // Refresh to show new data
+                router.refresh(); // 데이터 갱신을 위해 리프레시
             }, 1000);
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error saving book:", error);
-            console.error("Error details:", error.details, error.hint, error.message);
-            triggerToast(`오류 발생: ${error.message || "알 수 없는 오류"}`);
+            const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류";
+            triggerToast(`오류 발생: ${errorMessage}`);
         }
     };
 
@@ -341,7 +339,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                         {/* 표지 이미지 (작게) - Flex Column으로 높이 동기화 */}
                         <div className="w-[140px] flex-shrink-0 max-md:w-full flex flex-col">
                             {/* 오른쪽 헤더(28px + mb-2)와 높이를 맞추기 위한 Spacer + Label */}
-                            <div className="flex-none h-[36px] flex items-end pb-1"> {/* 1.75rem(h3) + 0.5rem(mb-2) approx 36px? Or just match structure */}
+                            <div className="flex-none h-[36px] flex items-end pb-1"> {/* 1.75rem(h3) + 0.5rem(mb-2) 대략 36px? 혹은 구조 맞춤 */}
                                 <label className="block font-medium text-[var(--secondary)] text-xs">표지</label>
                             </div>
 
@@ -519,7 +517,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                                                     </div>
                                                 </div>
 
-                                                {/* Editor Wrapper with Padding and Full Height */}
+                                                {/* 에디터 래퍼: 패딩 및 전체 높이 */}
                                                 <div className="flex-1 flex flex-col relative p-1 bg-white dark:bg-[#121212] overflow-hidden">
                                                     <div className="flex-1 h-full transition-all">
                                                         <RichTextEditor
@@ -577,7 +575,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                         </div>
 
                         <div className="pt-2">
-                            <h4 className="font-bold text-[var(--foreground)] mb-2 text-xs uppercase tracking-wide opacity-80">Languages</h4>
+                            <h4 className="font-bold text-[var(--foreground)] mb-2 text-xs uppercase tracking-wide opacity-80">언어 설정</h4>
                             <div className="flex flex-col gap-1.5 mb-3">
                                 {availableLanguages.map(lang => (
                                     <label key={lang} className={`flex items-center justify-between p-2 rounded border cursor-pointer transition-all select-none ${selectedLanguages.includes(lang) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]'}`}>

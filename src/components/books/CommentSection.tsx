@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { Comment } from "@/types";
-import { getLocalizedComment } from "@/lib/seedData";
+import { getLocalizedComment } from "@/lib/utils";
 import { Button } from "@/components/common/Button";
 import { User } from "@/context/AuthContext";
 
@@ -12,8 +12,8 @@ interface CommentSectionProps {
     comments: Comment[];
     user: User | null;
     onDelete: (id: string) => void;
-    onBlock: (name: string) => void;
-    onPost: (content: string) => void; // New prop
+    onBlock: (userId: string, userName: string) => void;
+    onPost: (content: string) => void;
 }
 
 export default function CommentSection({ comments, user, onDelete, onBlock, onPost }: CommentSectionProps) {
@@ -51,7 +51,7 @@ export default function CommentSection({ comments, user, onDelete, onBlock, onPo
                                             🗑️ 삭제
                                         </Button>
                                         <Button
-                                            onClick={() => onBlock(comment.userName)}
+                                            onClick={() => onBlock(comment.userId, comment.userName)}
                                             size="sm"
                                             className="bg-[#ffedd5] text-[#ea580c] hover:bg-[#fed7aa] border-none"
                                         >

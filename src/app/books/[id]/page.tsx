@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import BookDetailClient from '@/components/books/BookDetailClient';
 
+import { SITE_NAME } from '@/lib/constants';
+
 interface Props {
     params: Promise<{ id: string }>;
 }
@@ -18,13 +20,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!book) {
         return {
-            title: 'Book Not Found | E-Library',
-            description: 'The requested book could not be found.',
+            title: `책을 찾을 수 없음 | ${SITE_NAME}`,
+            description: '요청하신 책을 찾을 수 없습니다.',
         };
     }
 
     return {
-        title: `${book.title} | E-Library`,
+        title: `${book.title} | ${SITE_NAME}`,
         description: book.description,
         openGraph: {
             title: book.title,
@@ -44,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BookDetailPage({ params }: Props) {
     const { id } = await params;
 
-    // Fetch Book Data
+    // 책 데이터 가져오기
     const { data: book, error } = await supabase
         .from('books')
         .select('*')
@@ -55,11 +57,9 @@ export default async function BookDetailPage({ params }: Props) {
         notFound();
     }
 
-    // Pass data to Client Component
-    // Transform snake_case to camelCase for compatibility with Client Component expectations
-    // Or update Client Component to accept DB format. 
-    // Let's transform here to minimize Client component changes for now, 
-    // but ideally Client should use shared types.
+    // 클라이언트 컴포넌트로 데이터 전달
+    // DB의 snake_case를 클라이언트 컴포넌트가 기대하는 camelCase로 변환
+    // 클라이언트 컴포넌트가 DB 형식을 직접 사용하도록 수정할 수도 있지만, 현재는 여기서 변환하여 전달함.
     const formattedBook = {
         id: book.id,
         title: book.title,

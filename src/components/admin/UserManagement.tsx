@@ -5,7 +5,7 @@ import { Button } from "@/components/common/Button";
 
 interface UserManagementProps {
     blockedUsers: BlockedUser[];
-    onUnblock: (userName: string) => void;
+    onUnblock: (userId: string) => void;
 }
 
 export default function UserManagement({ blockedUsers, onUnblock }: UserManagementProps) {
@@ -27,7 +27,7 @@ export default function UserManagement({ blockedUsers, onUnblock }: UserManageme
                     </thead>
                     <tbody>
                         {blockedUsers.map(user => (
-                            <tr key={user.userName}>
+                            <tr key={user.userId}>
                                 <td className="p-4 border-b border-[var(--border)]"><strong>{user.userName}</strong></td>
                                 <td className="p-4 border-b border-[var(--border)]">
                                     {user.reason === 'spam' && '광고/스팸'}
@@ -39,7 +39,7 @@ export default function UserManagement({ blockedUsers, onUnblock }: UserManageme
                                 <td className="p-4 border-b border-[var(--border)]">{user.blockedAt}</td>
                                 <td className="p-4 border-b border-[var(--border)]">
                                     <Button
-                                        onClick={() => onUnblock(user.userName)}
+                                        onClick={() => onUnblock(user.userId)}
                                         variant="secondary"
                                         size="sm"
                                     >

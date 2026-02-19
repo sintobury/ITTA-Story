@@ -5,14 +5,23 @@
  */
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import BookForm from "@/components/BookForm";
 
 export default function UploadPage() {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
+    const router = useRouter();
 
-    if (!user || user.role !== 'ADMIN') {
-        return <div className="max-w-[800px] mx-auto pb-16">Access Denied</div>;
+    useEffect(() => {
+        if (!loading && (!user || user.role !== 'ADMIN')) {
+            router.push('/');
+        }
+    }, [user, loading, router]);
+
+    if (loading || !user || user.role !== 'ADMIN') {
+        return null;
     }
 
     return (

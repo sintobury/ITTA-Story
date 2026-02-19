@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { mockBooks, getLocalizedBook } from "@/lib/seedData";
+import { getLocalizedBook } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,34 +13,37 @@ import { Button } from "@/components/common/Button";
 type Tab = "reading" | "completed" | "liked" | "comments";
 
 export default function MyPage() {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const { language, t } = useLanguage();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>("reading");
 
-    // Redirect if not logged in
+    // 데이터 상태
+    /** 초기 데이터 로딩 시 타입 불일치를 유연하게 처리하기 위해 any를 허용합니다. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [readingList, setReadingList] = useState<any[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [completedList, setCompletedList] = useState<any[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [likedList, setLikedList] = useState<any[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [commentList, setCommentList] = useState<any[]>([]);
+    const [dataLoading, setDataLoading] = useState(true);
+
+    // 비로그인 시 리다이렉트 (Auth 로딩이 끝난 후 체크)
     useEffect(() => {
-        if (!user) {
+        if (!authLoading && !user) {
             router.push("/login");
         }
-    }, [user, router]);
-
-    if (!user) return null;
-
-    // Data States
-    const [readingList, setReadingList] = useState<any[]>([]);
-    const [completedList, setCompletedList] = useState<any[]>([]);
-    const [likedList, setLikedList] = useState<any[]>([]);
-    const [commentList, setCommentList] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    }, [user, authLoading, router]);
 
     useEffect(() => {
         const fetchMyData = async () => {
             if (!user) return;
-            setLoading(true);
+            setDataLoading(true);
 
             try {
-                // 1. Reading History (In Progress)
+                // 1. 읽고 있는 책 (진행 중)
                 const { data: readingData } = await supabase
                     .from('reading_progress')
                     .select('*, books(*)')
@@ -49,6 +52,8 @@ export default function MyPage() {
                     .order('last_read_at', { ascending: false });
 
                 if (readingData) {
+                    /** 조인된 데이터의 복잡한 타입 추론을 피하기 위해 any를 사용합니다. */
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const formattedReading = readingData.map((item: any) => ({
                         ...getLocalizedBook(item.books, language),
                         lastPage: item.last_page + 1,
@@ -57,7 +62,7 @@ export default function MyPage() {
                     setReadingList(formattedReading);
                 }
 
-                // 2. Completed Books
+                // 2. 다 읽은 책 (완독)
                 const { data: completedData } = await supabase
                     .from('reading_progress')
                     .select('*, books(*)')
@@ -66,6 +71,8 @@ export default function MyPage() {
                     .order('last_read_at', { ascending: false });
 
                 if (completedData) {
+                    /** 조인된 데이터의 복잡한 타입 추론을 피하기 위해 any를 사용합니다. */
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const formattedCompleted = completedData.map((item: any) => ({
                         ...getLocalizedBook(item.books, language),
                         lastPage: item.last_page + 1,
@@ -74,7 +81,7 @@ export default function MyPage() {
                     setCompletedList(formattedCompleted);
                 }
 
-                // 3. Liked Books
+                // 3. 좋아요한 책
                 const { data: likesData } = await supabase
                     .from('likes')
                     .select('*, books(*)')
@@ -82,11 +89,13 @@ export default function MyPage() {
                     .order('created_at', { ascending: false });
 
                 if (likesData) {
+                    /** 조인된 데이터의 복잡한 타입 추론을 피하기 위해 any를 사용합니다. */
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const formattedLikes = likesData.map((item: any) => getLocalizedBook(item.books, language));
                     setLikedList(formattedLikes);
                 }
 
-                // 4. My Comments
+                // 4. 내 댓글
                 const { data: commentsData } = await supabase
                     .from('comments')
                     .select('*, books(*)')
@@ -94,10 +103,12 @@ export default function MyPage() {
                     .order('created_at', { ascending: false });
 
                 if (commentsData) {
+                    /** 조인된 데이터의 복잡한 타입 추론을 피하기 위해 any를 사용합니다. */
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const formattedComments = commentsData.map((item: any) => ({
                         id: item.id,
                         bookId: item.book_id,
-                        bookTitle: item.books ? getLocalizedBook(item.books, language).title : "Unknown Book",
+                        bookTitle: item.books ? getLocalizedBook(item.books, language).title : t.myPage.unknownBook,
                         content: item.content,
                         createdAt: new Date(item.created_at).toLocaleDateString(),
                         translations: item.translations
@@ -108,18 +119,20 @@ export default function MyPage() {
             } catch (error) {
                 console.error("Error fetching my page data:", error);
             } finally {
-                setLoading(false);
+                setDataLoading(false);
             }
         };
 
         fetchMyData();
-    }, [user, language]);
+    }, [user, language, t]);
+
+    if (!user) return null;
 
     return (
         <div className="max-w-[1200px] mx-auto px-4 py-8 animate-fadeIn">
             <h1 className="text-3xl font-bold mb-8 text-[var(--foreground)]">{t.myPage.title}</h1>
 
-            {/* Tabs (Pill Style) */}
+            {/* 탭 (알약 스타일) */}
             <div className="flex justify-center mb-8 bg-[var(--card-bg)] p-1.5 rounded-2xl border border-[var(--border)] shadow-sm inline-flex">
                 <Button
                     onClick={() => setActiveTab("reading")}
@@ -163,15 +176,16 @@ export default function MyPage() {
                 </Button>
             </div>
 
-            {/* Content */}
+            {/* 콘텐츠 */}
             <div className="min-h-[400px]">
-                {loading ? (
-                    <div className="flex justify-center py-20">Loading...</div>
+                {dataLoading ? (
+                    <div className="flex justify-center py-20">{t.myPage.loading}</div>
                 ) : (
                     <>
                         {activeTab === "reading" && (
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-fadeIn">
                                 {readingList.length > 0 ? (
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     readingList.map((book: any) => (
                                         <Link key={book.id} href={`/books/${book.id}`} className="group block">
                                             <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all">
@@ -202,6 +216,7 @@ export default function MyPage() {
                         {activeTab === "completed" && (
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-fadeIn">
                                 {completedList.length > 0 ? (
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     completedList.map((book: any) => (
                                         <Link key={book.id} href={`/books/${book.id}`} className="group block">
                                             <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all grayscale hover:grayscale-0">
@@ -213,7 +228,7 @@ export default function MyPage() {
                                                     sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
                                                 />
                                                 <div className="absolute top-2 right-2 bg-green-500/90 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm shadow-sm">
-                                                    ✔ 완독
+                                                    {t.myPage.completedBadge}
                                                 </div>
                                             </div>
                                             <h3 className="font-bold text-[var(--foreground)] truncate group-hover:text-[var(--primary)] transition-colors">{book.title}</h3>
@@ -222,7 +237,7 @@ export default function MyPage() {
                                     ))
                                 ) : (
                                     <div className="col-span-full flex flex-col items-center justify-center py-20 text-[var(--secondary)]">
-                                        <p className="mb-4 text-lg">아직 다 읽은 책이 없습니다.</p>
+                                        <p className="mb-4 text-lg">{t.myPage.noCompleted}</p>
                                         <Link href="/" className="btn btn-primary">{t.myPage.goBrowse}</Link>
                                     </div>
                                 )}
@@ -232,6 +247,7 @@ export default function MyPage() {
                         {activeTab === "liked" && (
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-fadeIn">
                                 {likedList.length > 0 ? (
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     likedList.map((book: any) => (
                                         <Link key={book.id} href={`/books/${book.id}`} className="group block">
                                             <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all">

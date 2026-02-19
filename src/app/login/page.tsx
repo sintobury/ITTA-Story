@@ -2,7 +2,6 @@
  * [login/page.tsx]
  * 사용자 로그인 페이지입니다.
  * - 아이디와 비밀번호를 입력받아 로그인을 처리합니다.
- * - 실제 인증 대신 Mock 데이터를 사용하여 로그인을 시뮬레이션합니다.
  */
 "use client";
 
@@ -25,20 +24,44 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        // Supabase requires email, so we append a domain
+        // Supabase는 이메일 형식이 필요하므로 도메인을 추가합니다.
         const email = `${id}@example.com`;
 
         try {
-            // Login Logic Only
+            // 1. 유저 존재 여부 확인 (상세 에러 처리)
+            // Supabase에 'check_email_exists' RPC 함수가 필요합니다.
+            const { data: userExists, error: rpcError } = await supabase.rpc('check_email_exists', {
+                email_input: email
+            });
+
+            if (rpcError) {
+                console.error("RPC Error:", rpcError);
+                // RPC 실패 시 일반 로그인으로 진행 (예: 함수가 아직 생성되지 않음)
+                // 또는 엄격도에 따라 에러를 발생시킬 수 있음.
+                // 현재는 RPC가 없어도 유저를 차단하지 않도록 로그인 진행.
+                // 단, 상세 에러는 확인할 수 없음.
+            } else if (userExists === false) {
+                // 유저가 존재하지 않음
+                throw new Error(t.auth.userNotFound);
+            }
+
+            // 2. 로그인
             const { error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
-            if (error) throw error;
+
+            if (error) {
+                // 유저 존재 확인을 통과했다면 비밀번호 오류일 것임
+                // (이메일 미인증 등 다른 오류일 수도 있지만 대개 비밀번호 오류)
+                throw new Error(t.auth.wrongPassword);
+            }
+
             router.push("/");
 
-        } catch (error: any) {
-            triggerToast(error.message || "오류가 발생했습니다.");
+        } catch (error) {
+            const err = error as Error;
+            triggerToast(err.message || t.auth.error);
         } finally {
             setLoading(false);
         }
@@ -81,7 +104,7 @@ export default function LoginPage() {
                         className="mt-4 font-semibold shadow-md hover:shadow-lg"
                         disabled={loading}
                     >
-                        {loading ? "Processing..." : t.auth.loginBtn}
+                        {loading ? t.auth.processing : t.auth.loginBtn}
                     </Button>
                 </form>
 

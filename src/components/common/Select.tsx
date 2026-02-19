@@ -9,10 +9,10 @@ export interface SelectOption {
 
 interface SelectProps {
     value: string | number;
-    onChange: (value: string) => void; // Simplified signature: passes value directly
+    onChange: (value: string) => void; // 단순화된 서명: 값을 직접 전달
     options: SelectOption[];
     variant?: 'default' | 'ghost';
-    className?: string; // Trigger class
+    className?: string; // 트리거 클래스
     icon?: React.ReactNode;
     placeholder?: string;
     width?: string;
@@ -34,14 +34,14 @@ export function Select({
     variant = 'default',
     className = "",
     icon,
-    width = "", // Default to auto width (fit content)
+    width = "", // 기본값: 자동 너비 (내용에 맞게)
     align = "left",
     size = 'md',
 }: SelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Click outside handler
+    // 외부 클릭 핸들러 (Click outside handler)
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -54,7 +54,7 @@ export function Select({
 
     const selectedOption = options.find(opt => opt.value === value) || options[0];
 
-    // Find longest label for sizing
+    // 사이징을 위해 가장 긴 라벨 찾기
     const longestLabel = options.reduce((a, b) => (a.length > b.label.length ? a : b.label), "");
 
     // --- Styles ---
@@ -74,7 +74,7 @@ export function Select({
     const paddingLeft = icon ? "pl-9" : "";
     const paddingRight = "pr-2";
 
-    // Common classes for both Ghost and Trigger to ensure identical sizing
+    // 고스트와 트리거의 크기를 일치시키기 위한 공통 클래스
     const commonClass = `
         ${baseTriggerStyles}
         ${variantStyles[variant]}
@@ -85,32 +85,32 @@ export function Select({
 
     return (
         <div className={`relative inline-grid align-top ${width}`} ref={containerRef}>
-            {/* Ghost Element for Width Sizing (Invisible) */}
+            {/* 너비 계산을 위한 고스트 엘리먼트 (보이지 않음) */}
             <div className={`${commonClass} invisible pointer-events-none col-start-1 row-start-1 h-0 overflow-hidden`}>
-                {/* Icon Spacer */}
+                {/* 아이콘 공간 */}
                 {icon && <span className="w-4 h-4 mr-2"></span>}
                 <span className="opacity-0">{longestLabel}</span>
             </div>
 
-            {/* Actual Interactive Trigger */}
+            {/* 실제 인터랙티브 트리거 */}
             <div
                 className={`${commonClass} col-start-1 row-start-1 w-full h-full`}
                 onClick={() => setIsOpen(!isOpen)}
             >
-                {/* Left Icon (Absolute) */}
+                {/* 왼쪽 아이콘 (절대 위치) */}
                 {icon && (
                     <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none flex items-center justify-center">
                         {icon}
                     </span>
                 )}
 
-                {/* Selected Label */}
+                {/* 선택된 라벨 */}
                 <span className="truncate text-[var(--foreground)] w-full text-left">
                     {selectedOption?.label}
                 </span>
             </div>
 
-            {/* Dropdown Menu */}
+            {/* 드롭다운 메뉴 */}
             {isOpen && (
                 <div className={`absolute top-full mt-1 ${align === 'right' ? 'right-0' : 'left-0'} w-full max-h-60 overflow-auto bg-[var(--card-bg)] border border-[var(--border)] rounded-xl shadow-lg z-50 animate-slideDown min-w-max`}>
                     <ul>

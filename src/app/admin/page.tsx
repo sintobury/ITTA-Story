@@ -8,11 +8,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useBlockedUser } from "@/context/BlockedUserContext";
-import { mockBooks, getLocalizedBook } from "@/lib/seedData";
 import { supabase } from "@/lib/supabase";
 import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";
@@ -23,25 +21,26 @@ import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/common/Button";
 
 export default function AdminPage() {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
     const router = useRouter();
-    const { language } = useLanguage(); // 컨텐츠 다국어 처리를 위해 언어 설정만 가져옴
+    const { language } = useLanguage();
     const { blockedUsers, unblockUser } = useBlockedUser();
 
-    const [activeTab, setActiveTab] = useState<'books' | 'users' | 'create-user' | 'system'>('books');
+    const [activeTab, setActiveTab] = useState<'books' | 'users' | 'create-user'>('books');
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
     const { toastMessage, isToastExiting, triggerToast } = useToast();
+    /** 다양한 필드를 포함하는 책 데이터를 유연하게 처리하기 위해 any를 사용합니다. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [books, setBooks] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
 
+    // 관리자가 아니면 리다이렉트
     useEffect(() => {
-        if (user && user.role === 'ADMIN') {
-            fetchBooks();
+        if (!loading && (!user || user.role !== 'ADMIN')) {
+            router.push('/login');
         }
-    }, [user]);
+    }, [user, loading, router]);
 
     const fetchBooks = async () => {
-        setIsLoading(true);
         const { data, error } = await supabase
             .from('books')
             .select('*')
@@ -51,8 +50,10 @@ export default function AdminPage() {
             console.error("Error fetching books:", error);
             triggerToast("책 목록을 불러오는데 실패했습니다.");
         } else {
-            // Transform Supabase data to Book interface (camelCase)
-            const formattedBooks = data.map(b => ({
+            // Supabase 데이터를 Book 인터페이스로 변환 (camelCase)
+            /** DB 스키마(snake_case)와 프론트엔드 타입(camelCase) 간 변환을 위해 any를 사용합니다. */
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const formattedBooks = data.map((b: any) => ({
                 id: b.id,
                 title: b.title,
                 author: b.author,
@@ -65,8 +66,14 @@ export default function AdminPage() {
             }));
             setBooks(formattedBooks);
         }
-        setIsLoading(false);
     };
+
+    useEffect(() => {
+        if (user && user.role === 'ADMIN') {
+            fetchBooks();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user]);
 
     const handleInitiateDelete = (bookId: string) => {
         setDeleteTargetId(bookId);
@@ -78,7 +85,7 @@ export default function AdminPage() {
             const bookToDelete = books.find(b => b.id === deleteTargetId);
             const title = bookToDelete ? bookToDelete.title : '책';
 
-            // Optimistic UI Update
+            // 낙관적 UI 업데이트 (Optimistic UI Update)
             setBooks(prev => prev.filter(b => b.id !== deleteTargetId));
             triggerToast(`${title} 삭제 중...`);
             setDeleteTargetId(null);
@@ -88,7 +95,6 @@ export default function AdminPage() {
             if (error) {
                 console.error("Failed to delete book:", error);
                 triggerToast("책 삭제 실패 (DB 오류)");
-                // Rollback? or just refresh
                 fetchBooks();
             } else {
                 triggerToast(`${title}이(가) 삭제되었습니다.`);
@@ -136,16 +142,6 @@ export default function AdminPage() {
                     >
                         회원 생성
                     </Button>
-                    <Button
-                        onClick={() => setActiveTab('system')}
-                        variant={activeTab === 'system' ? 'primary' : 'ghost'}
-                        className={`px-4 py-2 text-sm rounded-lg h-auto transition-all ${activeTab === 'system'
-                            ? 'font-bold shadow-sm'
-                            : 'hover:bg-[var(--background)]'
-                            }`}
-                    >
-                        시스템
-                    </Button>
                 </div>
                 {activeTab === 'books' && (
                     <Button
@@ -153,6 +149,7 @@ export default function AdminPage() {
                         variant="primary"
                         size="sm"
                         className="px-3 py-1.5 font-bold"
+                        data-testid="create-book-btn"
                     >
                         새 책 업로드
                     </Button>
@@ -170,34 +167,8 @@ export default function AdminPage() {
                     blockedUsers={blockedUsers}
                     onUnblock={unblockUser}
                 />
-            ) : activeTab === 'create-user' ? (
-                <UserCreation />
             ) : (
-                <div className="bg-[var(--card-bg)] p-6 rounded-xl border border-[var(--border)] shadow-sm">
-                    <h2 className="text-xl font-bold mb-4">데이터 마이그레이션</h2>
-                    <p className="mb-4 text-[var(--secondary)]">
-                        Mock 데이터(로컬)를 Supabase 데이터베이스로 복사합니다.<br />
-                        <b>주의:</b> 이미 데이터가 존재할 경우 중복될 수 있습니다. (현재 중복 체크 로직 없음)
-                    </p>
-                    <Button
-                        onClick={async () => {
-                            if (!confirm("경고: 기존 책 데이터가 모두 삭제되고 초기화됩니다.\n정말 진행하시겠습니까?")) return;
-                            const { resetDatabase, seedDatabase } = await import('@/lib/seed');
-
-                            triggerToast("데이터베이스 초기화 중...");
-                            const resetLogs = await resetDatabase();
-
-                            triggerToast("Mock 데이터 마이그레이션 시작...");
-                            const seedLogs = await seedDatabase();
-
-                            alert([...resetLogs, ...seedLogs].join('\n'));
-                            triggerToast("초기화 및 마이그레이션 완료!");
-                        }}
-                        variant="danger"
-                    >
-                        DB 초기화 및 Mock 데이터 재업로드
-                    </Button>
-                </div>
+                <UserCreation />
             )}
 
             {/* 책 삭제 확인 모달 */}

@@ -11,7 +11,6 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { useTheme, Theme } from "@/context/ThemeContext";
 import { Language } from "@/lib/translations";
 import { Select } from "@/components/common/Select";
 import { Button } from "@/components/common/Button";
@@ -49,16 +48,16 @@ export default function Navbar() {
                         <>
                             <Link href="/mypage" className="btn btn-secondary flex items-center gap-2">
                                 <span>👤</span>
-                                <span>{t.nav.myPage || "마이페이지"}</span>
+                                {t.nav.myPage}
                             </Link>
                             {/* 관리자(ADMIN)일 경우에만 관리자 페이지 링크 표시 */}
                             {user.role === "ADMIN" && (
                                 <Link href="/admin" className="btn btn-secondary">
-                                    관리자 페이지
+                                    {t.nav.admin}
                                 </Link>
                             )}
                             <Button onClick={logout} variant="secondary">
-                                {user.role === "ADMIN" ? "로그아웃" : t.nav.logout}
+                                {t.nav.logout}
                             </Button>
                         </>
                     ) : (

@@ -4,8 +4,10 @@ import HomeControls from "@/components/home/HomeControls";
 import BookGrid from "@/components/home/BookGrid";
 import HomePagination from "@/components/home/HomePagination";
 import HomeHeader from "@/components/home/HomeHeader";
+import HomeNoResults from "@/components/home/HomeNoResults";
+import HomeError from "@/components/home/HomeError";
 
-// Force Dynamic Rendering for Search Params
+// 검색 파라미터에 대한 동적 렌더링 강제
 export const dynamic = "force-dynamic";
 
 interface HomeProps {
@@ -18,54 +20,54 @@ interface HomeProps {
 }
 
 async function HomeContent({ searchParams }: { searchParams: Awaited<HomeProps['searchParams']> }) {
-  const params = await searchParams; // Next.js 15: searchParams can be a Promise
+  const params = await searchParams; // Next.js 15: searchParams는 Promise일 수 있음
   const query = params.q || "";
   const filterType = params.type || "title";
   const sortOrder = params.sort || "newest";
   const currentPage = Number(params.page) || 1;
   const ITEMS_PER_PAGE = 8;
 
-  // Build Supabase Query
+  // Supabase 쿼리 빌드
   let dbQuery = supabase
     .from('books')
     .select('*', { count: 'exact' });
 
-  // 1. Filtering
+  // 1. 필터링 (Filtering)
   if (query) {
     if (filterType === "author") {
       dbQuery = dbQuery.ilike('author', `%${query}%`);
     } else {
-      // Default: Title
+      // 기본값: 제목 (Default: Title)
       dbQuery = dbQuery.ilike('title', `%${query}%`);
     }
   }
 
-  // 2. Sorting
+  // 2. 정렬 (Sorting)
   if (sortOrder === "popular") {
     dbQuery = dbQuery.order('likes_count', { ascending: false });
   } else if (sortOrder === "oldest") {
     dbQuery = dbQuery.order('created_at', { ascending: true });
   } else {
-    // Default: Newest
+    // 기본값: 최신순 (Default: Newest)
     dbQuery = dbQuery.order('created_at', { ascending: false });
   }
 
-  // 3. Pagination
+  // 3. 페이지네이션 (Pagination)
   const from = (currentPage - 1) * ITEMS_PER_PAGE;
   const to = from + ITEMS_PER_PAGE - 1;
   dbQuery = dbQuery.range(from, to);
 
-  // Execute Fetch
+  // 쿼리 실행 (Execute Fetch)
   const { data: books, count, error } = await dbQuery;
 
   if (error) {
     console.error("Error fetching books:", error);
-    return <div className="text-center py-20 text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</div>;
+    return <HomeError />;
   }
 
   const totalPages = count ? Math.ceil(count / ITEMS_PER_PAGE) : 1;
 
-  // Transform DB data to Mock Data format (for compatibility)
+  // DB 데이터를 Mock Data 형식으로 변환 (호환성 유지)
   // DB: cover_url, likes_count, available_languages, translations
   // App: coverUrl, likes, availableLanguages, translations
   const formattedBooks = books?.map(b => ({
@@ -87,10 +89,7 @@ async function HomeContent({ searchParams }: { searchParams: Awaited<HomeProps['
       <HomeControls />
 
       {formattedBooks.length === 0 ? (
-        <div className="text-center py-20 text-[var(--secondary)]">
-          <h2 className="text-xl font-medium mb-2">검색 결과가 없습니다.</h2>
-          <p>다른 검색어나 필터를 시도해 보세요.</p>
-        </div>
+        <HomeNoResults />
       ) : (
         <BookGrid books={formattedBooks} />
       )}
@@ -115,7 +114,7 @@ function HomeSkeleton() {
 }
 
 export default async function Home({ searchParams }: HomeProps) {
-  // await searchParams in parent to pass to content
+  // 부모 컴포넌트에서 searchParams를 await하여 자식에게 전달
   const params = await searchParams;
   return (
     <Suspense fallback={<HomeSkeleton />}>
