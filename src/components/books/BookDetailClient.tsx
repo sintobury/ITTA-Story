@@ -12,6 +12,8 @@ import Toast from "@/components/Toast";
 import Modal from "@/components/Modal";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/common/Button";
+import { Label } from "@/components/common/Label";
+import { Textarea } from "@/components/common/Textarea";
 import BookReader from "./BookReader";
 import BookInfo from "./BookInfo";
 import CommentSection from "./CommentSection";
@@ -365,7 +367,7 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
             >
                 <div>
                     <div className="mb-5">
-                        <label className="block mb-2 font-medium text-[var(--secondary)] text-sm">차단 사유:</label>
+                        <Label className="text-[var(--secondary)] text-sm">차단 사유:</Label>
                         <select
                             value={blockReason}
                             onChange={e => setBlockReason(e.target.value)}
@@ -378,12 +380,12 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                     </div>
 
                     <div className="mb-5">
-                        <label className="block mb-2 font-medium text-[var(--secondary)] text-sm">메모 (선택사항):</label>
-                        <textarea
+                        <Label className="text-[var(--secondary)] text-sm">메모 (선택사항):</Label>
+                        <Textarea
                             value={blockMemo}
                             onChange={e => setBlockMemo(e.target.value)}
                             rows={3}
-                            className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] text-[0.95rem] transition-colors focus:outline-none focus:border-[var(--primary)] focus:shadow-[0_0_0_2px_rgba(52,152,219,0.1)]"
+                            className="text-[0.95rem]"
                             placeholder="관리자용 메모를 입력하세요"
                         />
                     </div>

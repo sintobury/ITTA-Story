@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
 import { Select } from "@/components/common/Select";
+import { Input } from "@/components/common/Input";
 
 export default function HomeControls() {
     const { t } = useLanguage();
@@ -61,13 +62,13 @@ export default function HomeControls() {
                             className="min-w-[70px] !pl-6 !py-3 rounded-l-2xl"
                         />
                     </div>
-                    <input
+                    <Input
                         type="text"
                         value={keyword}
                         onChange={(e) => setKeyword(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder={t.home.searchPlaceholder}
-                        className="flex-1 bg-transparent px-4 py-3 outline-none text-[var(--foreground)] text-base placeholder-[var(--secondary)]"
+                        className="flex-1 bg-transparent px-4 py-3 border-none shadow-none focus:shadow-none focus:border-none focus:ring-0 text-[var(--foreground)] text-base placeholder-[var(--secondary)] rounded-none"
                     />
                     <Button
                         onClick={handleSearch}

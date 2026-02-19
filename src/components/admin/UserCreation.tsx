@@ -3,6 +3,8 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/Toast";
 import { Button } from "@/components/common/Button";
+import { Label } from "@/components/common/Label";
+import { Input } from "@/components/common/Input";
 import { supabase } from "@/lib/supabase";
 
 export default function UserCreation() {
@@ -95,9 +97,9 @@ export default function UserCreation() {
 
             <form onSubmit={handleSubmit}>
                 <div className="mb-6">
-                    <label className="block mb-2 font-medium text-[var(--foreground)]">{t.auth.id}</label>
+                    <Label>{t.auth.id}</Label>
                     <div className="flex gap-2">
-                        <input
+                        <Input
                             type="text"
                             value={id}
                             onChange={(e) => {
@@ -106,7 +108,6 @@ export default function UserCreation() {
                                 setIdMessage(null);
                             }}
                             placeholder={t.auth.idPlaceholder}
-                            className="w-full p-3 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] text-base focus:outline-none focus:border-[var(--primary)] transition-colors"
                             required
                         />
                         <Button
@@ -126,25 +127,23 @@ export default function UserCreation() {
                 </div>
 
                 <div className="mb-6">
-                    <label className="block mb-2 font-medium text-[var(--foreground)]">{t.auth.password}</label>
-                    <input
+                    <Label>{t.auth.password}</Label>
+                    <Input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder={t.auth.pwPlaceholder}
-                        className="w-full p-3 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] text-base focus:outline-none focus:border-[var(--primary)] transition-colors"
                         required
                     />
                 </div>
 
                 <div className="mb-6">
-                    <label className="block mb-2 font-medium text-[var(--foreground)]">{t.auth.nickname}</label>
-                    <input
+                    <Label>{t.auth.nickname}</Label>
+                    <Input
                         type="text"
                         value={nickname}
                         onChange={(e) => setNickname(e.target.value)}
                         placeholder={t.auth.nickPlaceholder}
-                        className="w-full p-3 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] text-base focus:outline-none focus:border-[var(--primary)] transition-colors"
                         required
                     />
                 </div>

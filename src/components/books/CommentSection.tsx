@@ -6,6 +6,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Comment } from "@/types";
 import { getLocalizedComment } from "@/lib/utils";
 import { Button } from "@/components/common/Button";
+import { Textarea } from "@/components/common/Textarea";
 import { User } from "@/context/AuthContext";
 
 interface CommentSectionProps {
@@ -69,9 +70,9 @@ export default function CommentSection({ comments, user, onDelete, onBlock, onPo
 
             {user ? (
                 <div className="flex flex-col gap-4">
-                    <textarea
+                    <Textarea
                         placeholder={t.bookDetail.placeholder}
-                        className="w-full p-4 border border-[var(--border)] rounded-lg font-inherit resize-y focus:outline-none focus:border-[var(--primary)] focus:shadow-[0_0_0_2px_rgba(52,152,219,0.1)] transition-colors"
+                        className="w-full p-4 font-inherit resize-y"
                         rows={3}
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}

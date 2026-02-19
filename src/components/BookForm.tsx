@@ -12,6 +12,9 @@ import RichTextEditor from "@/components/common/RichTextEditor";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/Toast";
 import { Button } from "@/components/common/Button";
+import { Label } from "@/components/common/Label";
+import { Input } from "@/components/common/Input";
+import { Textarea } from "@/components/common/Textarea";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
@@ -340,7 +343,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                         <div className="w-[140px] flex-shrink-0 max-md:w-full flex flex-col">
                             {/* 오른쪽 헤더(28px + mb-2)와 높이를 맞추기 위한 Spacer + Label */}
                             <div className="flex-none h-[36px] flex items-end pb-1"> {/* 1.75rem(h3) + 0.5rem(mb-2) 대략 36px? 혹은 구조 맞춤 */}
-                                <label className="block font-medium text-[var(--secondary)] text-xs">표지</label>
+                                <Label className="text-[var(--secondary)] text-xs">표지</Label>
                             </div>
 
                             <div className="flex-1 w-full border border-dashed border-[var(--border)] rounded-lg bg-[var(--background)] flex flex-col items-center justify-center relative overflow-hidden group hover:border-[var(--primary)] transition-all cursor-pointer shadow-sm min-h-[200px]">
@@ -384,34 +387,35 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-none">
                                 <div>
-                                    <label className="block mb-1 font-medium text-[var(--foreground)] text-sm">제목 <span className="text-red-500">*</span></label>
-                                    <input
+                                    <Label required size="sm">제목</Label>
+                                    <Input
                                         type="text"
                                         value={title}
                                         onChange={e => setTitle(e.target.value)}
                                         placeholder="책 제목"
-                                        className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:border-[var(--primary)] outline-none transition-all shadow-sm"
+                                        sizeVariant="sm"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block mb-1 font-medium text-[var(--foreground)] text-sm">저자 <span className="text-red-500">*</span></label>
-                                    <input
+                                    <Label required size="sm">저자</Label>
+                                    <Input
                                         type="text"
                                         value={author}
                                         onChange={e => setAuthor(e.target.value)}
                                         placeholder="저자명"
-                                        className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:border-[var(--primary)] outline-none transition-all shadow-sm"
+                                        sizeVariant="sm"
                                     />
                                 </div>
                             </div>
 
                             <div className="flex-1 flex flex-col min-h-[100px]">
-                                <label className="block mb-1 font-medium text-[var(--foreground)] text-sm">설명 <span className="text-red-500">*</span></label>
-                                <textarea
+                                <Label required size="sm">설명</Label>
+                                <Textarea
                                     value={description}
                                     onChange={e => setDescription(e.target.value)}
                                     placeholder="책 설명"
-                                    className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:border-[var(--primary)] outline-none transition-all resize-none shadow-sm flex-1 h-full min-h-[80px]"
+                                    sizeVariant="sm"
+                                    className="flex-1 h-full min-h-[80px]"
                                 />
                             </div>
                         </div>
@@ -616,12 +620,12 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                             </div>
 
                             <div className="flex gap-1">
-                                <input
+                                <Input
                                     type="text"
                                     value={customLangInput}
                                     onChange={e => setCustomLangInput(e.target.value)}
                                     placeholder="+ Lang"
-                                    className="flex-1 w-full px-2 py-1.5 text-xs border border-[var(--border)] rounded bg-[var(--background)] focus:outline-none focus:border-[var(--primary)]"
+                                    className="flex-1 px-2 py-1.5 text-xs text-base"
                                     onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomLanguage())}
                                 />
                                 <Button

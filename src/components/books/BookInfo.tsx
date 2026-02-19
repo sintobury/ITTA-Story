@@ -5,6 +5,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Book } from "@/types";
 import Image from "next/image";
 import { Button } from "@/components/common/Button";
+import { Label } from "@/components/common/Label";
 import { User } from "@/context/AuthContext";
 
 interface BookInfoProps {
@@ -73,9 +74,9 @@ export default function BookInfo({
                     {book.availableLanguages && book.availableLanguages.length > 1 && (
                         <div className="mb-3">
                             <div className="flex justify-between items-end mb-1.5">
-                                <label className="block text-xs font-medium text-[var(--secondary)]">
+                                <Label className="text-xs font-medium text-[var(--secondary)] mb-0">
                                     {t.bookDetail.language}
-                                </label>
+                                </Label>
                                 {totalPages > 0 && (
                                     <span className="text-xs text-[var(--secondary)]">
                                         {t.bookDetail.totalPages} {totalPages}p
