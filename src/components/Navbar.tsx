@@ -15,6 +15,8 @@ import { Language } from "@/lib/translations";
 import { Select } from "@/components/common/Select";
 import { Button } from "@/components/common/Button";
 
+import { SITE_NAME } from "@/lib/constants";
+
 export default function Navbar() {
     // 커스텀 훅을 사용하여 전역 상태(로그인, 언어, 테마)를 가져옴
     const { user, logout } = useAuth();
@@ -25,7 +27,7 @@ export default function Navbar() {
             <div className="max-w-[1200px] mx-auto px-4 py-3 flex justify-between items-center w-full">
                 {/* 로고: 클릭 시 메인 페이지로 이동 */}
                 <Link href="/" className="text-2xl font-extrabold text-[var(--primary)] no-underline flex items-center gap-2">
-                    📚 E-Library
+                    📚 {SITE_NAME}
                 </Link>
 
                 <div className="flex items-center gap-4">
@@ -61,7 +63,7 @@ export default function Navbar() {
                             </Button>
                         </>
                     ) : (
-                        // 비로그인 상태일 때 로그인/회원가입 버튼 표시
+                        // 비로그인 상태일 때 로그인 버튼 표시
                         <div className="flex gap-2 items-center">
                             <Link href="/login" className="btn btn-primary no-underline">
                                 {t.nav.login}
