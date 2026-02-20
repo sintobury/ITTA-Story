@@ -45,6 +45,9 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
     const [author, setAuthor] = useState(initialBook ? getInitialValue(initialBook, 'author') : "");
     const [description, setDescription] = useState(initialBook ? getInitialValue(initialBook, 'description') : "");
     const [coverUrl, setCoverUrl] = useState(initialBook?.coverUrl || "");
+    // 번역 정보 상태 추가 (기존 데이터 보존)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [translations, setTranslations] = useState<any>(initialBook?.translations || {});
 
     const [availableLanguages, setAvailableLanguages] = useState<string[]>(
         initialBook?.availableLanguages || ['ko', 'en', 'ja', 'zh']
@@ -65,7 +68,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
             : [{ contentByLang: { ko: "" }, imageUrl: "" }]
     );
 
-    const [activeTabs, setActiveTabs] = useState<Record<number, string>>({});
+    const [activeTabs, setActiveTabs] = useState<Record<string | number, string>>({});
 
     useEffect(() => {
         const initialTabs: Record<number, string> = {};
@@ -249,6 +252,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                 description,
                 cover_url: coverUrl,
                 available_languages: selectedLanguages,
+                translations: translations, // 번역 정보 포함
             };
 
             let bookId = initialBook?.id;
@@ -378,30 +382,76 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
 
                         {/* 텍스트 정보 (Flex Layout for Dynamic Height) */}
                         <div className="flex-1 flex flex-col gap-4 min-w-0">
-                            <div className="flex-none">
+                            <div className="flex-none flex justify-between items-center">
                                 <h3 className="text-[var(--primary)] text-lg font-bold flex items-center gap-2 mb-2">
                                     <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--primary)] text-white text-xs">1</span>
                                     책 기본 정보
                                 </h3>
+                                {/* 메타데이터 언어 탭 */}
+                                <div className="flex p-0.5 bg-[var(--background)] rounded-lg border border-[var(--border)]">
+                                    {selectedLanguages.map(lang => (
+                                        <button
+                                            key={`meta-${lang}`}
+                                            type="button"
+                                            onClick={() => setActiveTabs(prev => ({ ...prev, meta: lang }))}
+                                            className={`px-2 py-1 text-xs rounded transition-all ${(activeTabs['meta'] || selectedLanguages[0] || 'ko') === lang
+                                                ? 'bg-[var(--primary)] text-white font-bold shadow-sm'
+                                                : 'text-[var(--secondary)] hover:bg-[var(--card-bg)]'
+                                                }`}
+                                        >
+                                            {DEFAULT_LANGUAGES.find(l => l.code === lang)?.label.split(' ')[0] || lang.toUpperCase()}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-none">
                                 <div>
-                                    <Label required size="sm">제목</Label>
+                                    <Label required size="sm">제목 ({(activeTabs['meta'] || selectedLanguages[0] || 'ko').toUpperCase()})</Label>
                                     <Input
                                         type="text"
-                                        value={title}
-                                        onChange={e => setTitle(e.target.value)}
+                                        value={
+                                            (activeTabs['meta'] || selectedLanguages[0] || 'ko') === (selectedLanguages[0] || 'ko')
+                                                ? title
+                                                : (translations[(activeTabs['meta'] || 'ko')]?.title || "")
+                                        }
+                                        onChange={e => {
+                                            const currentLang = activeTabs['meta'] || selectedLanguages[0] || 'ko';
+                                            const val = e.target.value;
+                                            if (currentLang === (selectedLanguages[0] || 'ko')) {
+                                                setTitle(val);
+                                            } else {
+                                                setTranslations((prev: any) => ({
+                                                    ...prev,
+                                                    [currentLang]: { ...prev[currentLang], title: val }
+                                                }));
+                                            }
+                                        }}
                                         placeholder="책 제목"
                                         sizeVariant="sm"
                                     />
                                 </div>
                                 <div>
-                                    <Label required size="sm">저자</Label>
+                                    <Label required size="sm">저자 ({(activeTabs['meta'] || selectedLanguages[0] || 'ko').toUpperCase()})</Label>
                                     <Input
                                         type="text"
-                                        value={author}
-                                        onChange={e => setAuthor(e.target.value)}
+                                        value={
+                                            (activeTabs['meta'] || selectedLanguages[0] || 'ko') === (selectedLanguages[0] || 'ko')
+                                                ? author
+                                                : (translations[(activeTabs['meta'] || 'ko')]?.author || "")
+                                        }
+                                        onChange={e => {
+                                            const currentLang = activeTabs['meta'] || selectedLanguages[0] || 'ko';
+                                            const val = e.target.value;
+                                            if (currentLang === (selectedLanguages[0] || 'ko')) {
+                                                setAuthor(val);
+                                            } else {
+                                                setTranslations((prev: any) => ({
+                                                    ...prev,
+                                                    [currentLang]: { ...prev[currentLang], author: val }
+                                                }));
+                                            }
+                                        }}
                                         placeholder="저자명"
                                         sizeVariant="sm"
                                     />
@@ -409,10 +459,25 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                             </div>
 
                             <div className="flex-1 flex flex-col min-h-[100px]">
-                                <Label required size="sm">설명</Label>
+                                <Label required size="sm">설명 ({(activeTabs['meta'] || selectedLanguages[0] || 'ko').toUpperCase()})</Label>
                                 <Textarea
-                                    value={description}
-                                    onChange={e => setDescription(e.target.value)}
+                                    value={
+                                        (activeTabs['meta'] || selectedLanguages[0] || 'ko') === (selectedLanguages[0] || 'ko')
+                                            ? description
+                                            : (translations[(activeTabs['meta'] || 'ko')]?.description || "")
+                                    }
+                                    onChange={e => {
+                                        const currentLang = activeTabs['meta'] || selectedLanguages[0] || 'ko';
+                                        const val = e.target.value;
+                                        if (currentLang === (selectedLanguages[0] || 'ko')) {
+                                            setDescription(val);
+                                        } else {
+                                            setTranslations((prev: any) => ({
+                                                ...prev,
+                                                [currentLang]: { ...prev[currentLang], description: val }
+                                            }));
+                                        }
+                                    }}
                                     placeholder="책 설명"
                                     sizeVariant="sm"
                                     className="flex-1 h-full min-h-[80px]"

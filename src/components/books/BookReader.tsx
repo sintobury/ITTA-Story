@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Page } from "@/types";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
+import { supabase } from "@/lib/supabase";
 
 function PageImage({ src, alt }: { src: string; alt: string }) {
     const [isLoading, setIsLoading] = useState(true);
@@ -27,13 +28,14 @@ function PageImage({ src, alt }: { src: string; alt: string }) {
 
 interface BookReaderProps {
     pages: Page[];
+    bookId: string; // 조회수 증가용
     onClose: () => void;
     onTriggerToast: (message: string) => void;
     initialPage?: number;
     onPageChange?: (pageIndex: number) => void;
 }
 
-export default function BookReader({ pages, onClose, onTriggerToast, initialPage = 0, onPageChange }: BookReaderProps) {
+export default function BookReader({ pages, bookId, onClose, onTriggerToast, initialPage = 0, onPageChange }: BookReaderProps) {
     const { t } = useLanguage();
     const [currentPageIndex, setCurrentPageIndex] = useState(initialPage);
     const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
@@ -45,6 +47,8 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
         }
     }, [currentPageIndex, onPageChange]);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const hasIncremented = useRef(false);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -58,10 +62,20 @@ export default function BookReader({ pages, onClose, onTriggerToast, initialPage
         // TypeScript는 'selectstart'를 GlobalEventHandlers의 유효한 이벤트로 정의하지만, 
         // 때때로 요소에서 누락될 수 있어 수동으로 연결합니다.
         container.addEventListener('selectstart', handleSelectStart);
+
+        // 조회수 증가 (컴포넌트 마운트 시 1회, Strict Mode 중복 방지)
+        if (bookId && !hasIncremented.current) {
+            hasIncremented.current = true;
+            const incrementView = async () => {
+                await supabase.rpc('increment_views', { book_id: bookId });
+            };
+            incrementView();
+        }
+
         return () => {
             container.removeEventListener('selectstart', handleSelectStart);
         };
-    }, []);
+    }, [bookId]);
 
     return (
         // 읽기 모드: 드래그 방지(select-none) 및 우클릭 방지(onContextMenu) 적용

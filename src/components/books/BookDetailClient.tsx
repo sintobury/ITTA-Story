@@ -125,6 +125,17 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
                     }
                 }
             }
+
+            // 좋아요 수 최신화 (페이지 재진입 시 stale data 방지)
+            const { data: freshBook } = await supabase
+                .from('books')
+                .select('likes_count')
+                .eq('id', rawBook.id)
+                .single();
+
+            if (freshBook) {
+                setLikeCount(freshBook.likes_count);
+            }
         };
 
         loadData();
@@ -307,6 +318,7 @@ export default function BookDetailClient({ initialBook }: { initialBook: Book })
         <div className="w-full py-3 animate-fadeIn flex flex-col items-center">
             {isReading ? (
                 <BookReader
+                    bookId={rawBook.id} // 조회수 증가를 위해 ID 전달
                     pages={pages}
                     onClose={() => setIsReading(false)}
                     onTriggerToast={triggerToast}

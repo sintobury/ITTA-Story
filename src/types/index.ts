@@ -5,6 +5,7 @@ export interface Book {
     description: string;
     coverUrl: string;
     likes: number;
+    views: number; // 조회수
     availableLanguages: string[]; // 제공되는 언어 목록 (예: ['ko', 'en', 'fr'])
     createdAt?: string; // 생성일 (Supabase 연동용)
     translations?: {
