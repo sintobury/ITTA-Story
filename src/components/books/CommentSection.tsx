@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { Comment } from "@/types";
-import { getLocalizedComment } from "@/lib/utils";
+import { getLocalizedComment, formatDate } from "@/lib/utils";
 import { Button } from "@/components/common/Button";
 import { Textarea } from "@/components/common/Textarea";
 import { User } from "@/context/AuthContext";
@@ -39,10 +39,10 @@ export default function CommentSection({ comments, user, onDelete, onBlock, onPo
                             <div key={comment.id} className="bg-[var(--card-bg)] p-4 rounded-lg border border-[var(--border)]">
                                 <div className="flex justify-between mb-2 text-sm">
                                     <strong>{localizedComment.userName}</strong>
-                                    <span className="text-[var(--secondary)]">{localizedComment.createdAt}</span>
+                                    <span className="text-[var(--secondary)]">{formatDate(localizedComment.createdAt)}</span>
                                 </div>
                                 <p>{localizedComment.content}</p>
-                                {user?.role === 'ADMIN' && (
+                                {(user?.role === 'ADMIN' || user?.id === comment.userId) && (
                                     <div className="flex gap-3 mt-3 justify-end">
                                         <Button
                                             onClick={() => onDelete(comment.id)}
@@ -51,13 +51,15 @@ export default function CommentSection({ comments, user, onDelete, onBlock, onPo
                                         >
                                             🗑️ 삭제
                                         </Button>
-                                        <Button
-                                            onClick={() => onBlock(comment.userId, comment.userName)}
-                                            size="sm"
-                                            className="bg-[#ffedd5] text-[#ea580c] hover:bg-[#fed7aa] border-none"
-                                        >
-                                            🚫 차단
-                                        </Button>
+                                        {user?.role === 'ADMIN' && (
+                                            <Button
+                                                onClick={() => onBlock(comment.userId, comment.userName)}
+                                                size="sm"
+                                                className="bg-[#ffedd5] text-[#ea580c] hover:bg-[#fed7aa] border-none"
+                                            >
+                                                🚫 차단
+                                            </Button>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -79,7 +81,7 @@ export default function CommentSection({ comments, user, onDelete, onBlock, onPo
                     />
                     <Button
                         variant="primary"
-                        className="self-start"
+                        className="self-end"
                         onClick={handlePost}
                         disabled={!newComment.trim()}
                     >
