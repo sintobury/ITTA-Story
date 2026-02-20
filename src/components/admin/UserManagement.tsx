@@ -2,6 +2,8 @@
 
 import { BlockedUser } from "@/context/BlockedUserContext";
 import { Button } from "@/components/common/Button";
+import { Table, Th, Td } from "@/components/common/Table";
+import { USER_MANAGEMENT_HEADERS, BLOCK_REASON_LABELS } from "@/lib/constants";
 
 interface UserManagementProps {
     blockedUsers: BlockedUser[];
@@ -15,29 +17,24 @@ export default function UserManagement({ blockedUsers, onUnblock }: UserManageme
             {blockedUsers.length === 0 ? (
                 <p className="p-8 text-center text-[var(--secondary)]">차단된 유저가 없습니다.</p>
             ) : (
-                <table className="w-full border-collapse text-left">
+                <Table>
                     <thead>
                         <tr>
-                            <th className="p-4 font-semibold text-[var(--secondary)] border-b border-[var(--border)]">유저</th>
-                            <th className="p-4 font-semibold text-[var(--secondary)] border-b border-[var(--border)]">사유</th>
-                            <th className="p-4 font-semibold text-[var(--secondary)] border-b border-[var(--border)]">메모</th>
-                            <th className="p-4 font-semibold text-[var(--secondary)] border-b border-[var(--border)]">차단 일시</th>
-                            <th className="p-4 font-semibold text-[var(--secondary)] border-b border-[var(--border)]">작업</th>
+                            {USER_MANAGEMENT_HEADERS.map((header) => (
+                                <Th key={header.label} className={header.className}>{header.label}</Th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody>
                         {blockedUsers.map(user => (
                             <tr key={user.userId}>
-                                <td className="p-4 border-b border-[var(--border)]"><strong>{user.userName}</strong></td>
-                                <td className="p-4 border-b border-[var(--border)]">
-                                    {user.reason === 'spam' && '광고/스팸'}
-                                    {user.reason === 'abuse' && '욕설/비방'}
-                                    {user.reason === 'other' && '기타'}
-                                    {!['spam', 'abuse', 'other'].includes(user.reason) && user.reason}
-                                </td>
-                                <td className="p-4 border-b border-[var(--border)]">{user.memo || '-'}</td>
-                                <td className="p-4 border-b border-[var(--border)]">{user.blockedAt}</td>
-                                <td className="p-4 border-b border-[var(--border)]">
+                                <Td><strong>{user.userName}</strong></Td>
+                                <Td>
+                                    {BLOCK_REASON_LABELS[user.reason] || user.reason}
+                                </Td>
+                                <Td>{user.memo || '-'}</Td>
+                                <Td>{user.blockedAt}</Td>
+                                <Td>
                                     <Button
                                         onClick={() => onUnblock(user.userId)}
                                         variant="secondary"
@@ -45,11 +42,11 @@ export default function UserManagement({ blockedUsers, onUnblock }: UserManageme
                                     >
                                         차단 해제
                                     </Button>
-                                </td>
+                                </Td>
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </Table>
             )}
         </section>
     );

@@ -5,7 +5,9 @@ import { Book } from "@/types";
 import { getLocalizedBook } from "@/lib/utils";
 import { LanguageContextType } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
+import { Table, Th, Td } from "@/components/common/Table";
 import Image from "next/image";
+import { BOOK_MANAGEMENT_HEADERS } from "@/lib/constants";
 
 interface BookManagementProps {
     books: Book[];
@@ -15,15 +17,15 @@ interface BookManagementProps {
 
 export default function BookManagement({ books, language, onDeleteClick }: BookManagementProps) {
     const router = useRouter();
+
     return (
         <section className="bg-[var(--card-bg)] p-8 rounded-xl shadow-[var(--card-shadow)] mt-8 animate-fadeIn" key="books">
-            <table className="w-full border-collapse text-left">
+            <Table>
                 <thead>
                     <tr>
-                        <th className="p-4 font-semibold text-[var(--secondary)] border-b border-[var(--border)]">표지</th>
-                        <th className="p-4 font-semibold text-[var(--secondary)] border-b border-[var(--border)] min-w-[200px]">제목</th>
-                        <th className="p-4 font-semibold text-[var(--secondary)] border-b border-[var(--border)]">저자</th>
-                        <th className="p-4 font-semibold text-[var(--secondary)] border-b border-[var(--border)]">작업</th>
+                        {BOOK_MANAGEMENT_HEADERS.map((header) => (
+                            <Th key={header.label} className={header.className}>{header.label}</Th>
+                        ))}
                     </tr>
                 </thead>
                 <tbody>
@@ -31,7 +33,7 @@ export default function BookManagement({ books, language, onDeleteClick }: BookM
                         const localizedBook = getLocalizedBook(book, language);
                         return (
                             <tr key={book.id}>
-                                <td className="p-4 border-b border-[var(--border)]">
+                                <Td>
                                     <div className="relative w-10 h-[60px]">
                                         <Image
                                             src={localizedBook.coverUrl}
@@ -41,10 +43,10 @@ export default function BookManagement({ books, language, onDeleteClick }: BookM
                                             sizes="40px"
                                         />
                                     </div>
-                                </td>
-                                <td className="p-4 border-b border-[var(--border)] font-medium text-lg">{localizedBook.title}</td>
-                                <td className="p-4 border-b border-[var(--border)] text-[var(--secondary)]">{localizedBook.author}</td>
-                                <td className="p-4 border-b border-[var(--border)]">
+                                </Td>
+                                <Td className="font-medium text-lg">{localizedBook.title}</Td>
+                                <Td className="text-[var(--secondary)]">{localizedBook.author}</Td>
+                                <Td>
                                     <div className="flex gap-2">
                                         <Button
                                             onClick={() => router.push(`/admin/edit/${book.id}`)}
@@ -63,12 +65,12 @@ export default function BookManagement({ books, language, onDeleteClick }: BookM
                                             삭제
                                         </Button>
                                     </div>
-                                </td>
+                                </Td>
                             </tr>
                         );
                     })}
                 </tbody>
-            </table>
+            </Table>
         </section>
     );
 }
