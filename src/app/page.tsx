@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/server";
 import HomeControls from "@/components/home/HomeControls";
 import BookGrid from "@/components/home/BookGrid";
 import HomePagination from "@/components/home/HomePagination";
@@ -26,6 +26,8 @@ async function HomeContent({ searchParams }: { searchParams: Awaited<HomeProps['
   const sortOrder = params.sort || "newest";
   const currentPage = Number(params.page) || 1;
   const ITEMS_PER_PAGE = 8;
+
+  const supabase = await createClient();
 
   // Supabase 쿼리 빌드
   let dbQuery = supabase
@@ -79,6 +81,7 @@ async function HomeContent({ searchParams }: { searchParams: Awaited<HomeProps['
     likes: b.likes_count,
     availableLanguages: b.available_languages,
     translations: b.translations,
+    views: b.views || 0,
   })) || [];
 
 

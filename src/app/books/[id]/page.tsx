@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/server';
 import BookDetailClient from '@/components/books/BookDetailClient';
 
 import { SITE_NAME } from '@/lib/constants';
@@ -11,6 +11,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { id } = await params;
+    const supabase = await createClient();
 
     const { data: book } = await supabase
         .from('books')
@@ -45,6 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BookDetailPage({ params }: Props) {
     const { id } = await params;
+    const supabase = await createClient();
 
     // 책 데이터 가져오기
     const { data: book, error } = await supabase
@@ -69,6 +71,7 @@ export default async function BookDetailPage({ params }: Props) {
         likes: book.likes_count,
         availableLanguages: book.available_languages,
         translations: book.translations,
+        views: book.views || 0,
     };
 
     return <BookDetailClient initialBook={formattedBook} />;

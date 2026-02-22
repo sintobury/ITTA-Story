@@ -69,7 +69,8 @@ export default function EditBookPage({ params }: { params: Promise<{ id: string 
                 likes: bookData.likes_count,
                 availableLanguages: bookData.available_languages,
                 translations: bookData.translations || {},
-                createdAt: bookData.created_at
+                createdAt: bookData.created_at,
+                views: bookData.views || 0,
             };
 
             // 페이지 데이터 변환 (DB -> App)
