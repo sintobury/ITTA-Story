@@ -132,170 +132,195 @@ export default function MyPage() {
         <div className="max-w-[1200px] mx-auto px-4 py-8 animate-fadeIn">
             <h1 className="text-3xl font-bold mb-8 text-[var(--foreground)]">{t.myPage.title}</h1>
 
-            {/* 탭 (알약 스타일) */}
-            <div className="flex justify-center mb-8 bg-[var(--card-bg)] p-1.5 rounded-2xl border border-[var(--border)] shadow-sm inline-flex">
-                <Button
-                    onClick={() => setActiveTab("reading")}
-                    variant={activeTab === "reading" ? "primary" : "ghost"}
-                    className={`px-5 py-2 text-sm font-medium rounded-xl h-auto transition-all ${activeTab === "reading"
-                        ? "shadow-md"
-                        : "hover:bg-[var(--background)] text-[var(--secondary)]"
-                        }`}
-                >
-                    {t.myPage.tabs.reading}
-                </Button>
-                <Button
-                    onClick={() => setActiveTab("completed")}
-                    variant={activeTab === "completed" ? "primary" : "ghost"}
-                    className={`px-5 py-2 text-sm font-medium rounded-xl h-auto transition-all ${activeTab === "completed"
-                        ? "shadow-md"
-                        : "hover:bg-[var(--background)] text-[var(--secondary)]"
-                        }`}
-                >
-                    {t.myPage.tabs.completed}
-                </Button>
-                <Button
-                    onClick={() => setActiveTab("liked")}
-                    variant={activeTab === "liked" ? "primary" : "ghost"}
-                    className={`px-5 py-2 text-sm font-medium rounded-xl h-auto transition-all ${activeTab === "liked"
-                        ? "shadow-md"
-                        : "hover:bg-[var(--background)] text-[var(--secondary)]"
-                        }`}
-                >
-                    {t.myPage.tabs.liked}
-                </Button>
-                <Button
-                    onClick={() => setActiveTab("comments")}
-                    variant={activeTab === "comments" ? "primary" : "ghost"}
-                    className={`px-5 py-2 text-sm font-medium rounded-xl h-auto transition-all ${activeTab === "comments"
-                        ? "shadow-md"
-                        : "hover:bg-[var(--background)] text-[var(--secondary)]"
-                        }`}
-                >
-                    {t.myPage.tabs.comments}
-                </Button>
-            </div>
+            <div className="flex flex-row gap-4 md:gap-8 items-start">
+                {/* 좌측 탭 사이드바 메뉴 */}
+                <div className="flex flex-col gap-1 md:gap-2 bg-[var(--card-bg)] p-2 md:p-4 rounded-2xl border border-[var(--border)] shadow-sm shrink-0 w-max">
+                    <Button
+                        onClick={() => setActiveTab("reading")}
+                        variant={activeTab === "reading" ? "primary" : "ghost"}
+                        className={`w-full !justify-start px-3 py-2 md:px-5 md:py-3 text-xs md:text-sm font-medium rounded-xl h-auto transition-all ${activeTab === "reading"
+                            ? "shadow-md"
+                            : "hover:bg-[var(--background)] text-[var(--secondary)]"
+                            }`}
+                    >
+                        {t.myPage.tabs.reading}
+                    </Button>
+                    <Button
+                        onClick={() => setActiveTab("completed")}
+                        variant={activeTab === "completed" ? "primary" : "ghost"}
+                        className={`w-full !justify-start px-3 py-2 md:px-5 md:py-3 text-xs md:text-sm font-medium rounded-xl h-auto transition-all ${activeTab === "completed"
+                            ? "shadow-md"
+                            : "hover:bg-[var(--background)] text-[var(--secondary)]"
+                            }`}
+                    >
+                        {t.myPage.tabs.completed}
+                    </Button>
+                    <Button
+                        onClick={() => setActiveTab("liked")}
+                        variant={activeTab === "liked" ? "primary" : "ghost"}
+                        className={`w-full !justify-start px-3 py-2 md:px-5 md:py-3 text-xs md:text-sm font-medium rounded-xl h-auto transition-all ${activeTab === "liked"
+                            ? "shadow-md"
+                            : "hover:bg-[var(--background)] text-[var(--secondary)]"
+                            }`}
+                    >
+                        {t.myPage.tabs.liked}
+                    </Button>
+                    <Button
+                        onClick={() => setActiveTab("comments")}
+                        variant={activeTab === "comments" ? "primary" : "ghost"}
+                        className={`w-full !justify-start px-3 py-2 md:px-5 md:py-3 text-xs md:text-sm font-medium rounded-xl h-auto transition-all ${activeTab === "comments"
+                            ? "shadow-md"
+                            : "hover:bg-[var(--background)] text-[var(--secondary)]"
+                            }`}
+                    >
+                        {t.myPage.tabs.comments}
+                    </Button>
+                </div>
 
-            {/* 콘텐츠 */}
-            <div className="min-h-[400px]">
-                {dataLoading ? (
-                    <div className="flex justify-center py-20">{t.myPage.loading}</div>
-                ) : (
-                    <>
-                        {activeTab === "reading" && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-fadeIn">
-                                {readingList.length > 0 ? (
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                    readingList.map((book: any) => (
-                                        <Link key={book.id} href={`/books/${book.id}`} className="group block">
-                                            <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all">
-                                                <Image
-                                                    src={book.coverUrl || book.cover_url}
-                                                    alt={book.title}
-                                                    fill
-                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                                                />
-                                                <div className="absolute bottom-0 left-0 w-full bg-black/60 text-white text-xs p-2 backdrop-blur-sm">
-                                                    {t.myPage.resume} {book.lastPage}{t.myPage.unit}
+                {/* 우측 콘텐츠 */}
+                <div className="flex-1 min-h-[400px] max-w-[850px]">
+                    {dataLoading ? (
+                        <div className="flex justify-center py-20">{t.myPage.loading}</div>
+                    ) : (
+                        <>
+                            {activeTab === "reading" && (
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
+                                    {readingList.length > 0 ? (
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                        readingList.map((book: any) => (
+                                            <div key={book.id} className="max-w-[450px] lg:max-w-none">
+                                                <Link href={`/books/${book.id}`} className="bg-[var(--card-bg)] rounded-xl overflow-hidden shadow-[var(--card-shadow)] border border-[var(--border)] transition-all duration-300 flex flex-col md:flex-row relative group hover:-translate-y-1 hover:shadow-xl h-auto md:h-[230px] lg:h-[280px]">
+                                                    {/* 이미지 영역: 모바일 100%, 데스크탑 2/3 */}
+                                                    <div className="w-full md:w-2/3 h-[240px] md:h-full relative bg-[var(--background)] flex-shrink-0 border-b md:border-b-0 md:border-r border-[var(--border)] rounded-t-xl md:rounded-l-xl md:rounded-tr-none">
+                                                        <Image
+                                                            src={book.coverUrl || book.cover_url}
+                                                            alt={book.title}
+                                                            fill
+                                                            className="object-contain group-hover:scale-[1.03] transition-transform duration-300 p-2"
+                                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 50vw"
+                                                        />
+                                                        <div className="absolute bottom-3 left-3 bg-black/70 text-white text-xs px-2 py-1 rounded-lg backdrop-blur-sm z-10 shadow-sm border border-white/10">
+                                                            {t.myPage.resume} {book.lastPage}{t.myPage.unit}
+                                                        </div>
+                                                    </div>
+                                                    {/* 텍스트 영역: 모바일 100%, 데스크탑 1/3 */}
+                                                    <div className="w-full md:w-1/3 p-5 md:p-6 flex flex-col justify-center bg-[var(--card-bg)]">
+                                                        <h3 className="font-bold text-xl lg:text-2xl text-[var(--foreground)] line-clamp-3 leading-snug mb-2 group-hover:text-[var(--primary)] transition-colors">{book.title}</h3>
+                                                        <p className="text-sm lg:text-base text-[var(--secondary)] truncate font-medium">{book.author}</p>
+                                                    </div>
+                                                </Link>
+                                            </div>
+                                        ))
+                                                ) : (
+                                                <div className="col-span-full flex flex-col items-center justify-center py-20 text-[var(--secondary)]">
+                                                    <p className="mb-4 text-lg">{t.myPage.noReading}</p>
+                                                    <Link href="/" className="btn btn-primary">{t.myPage.goBrowse}</Link>
                                                 </div>
+                                    )}
                                             </div>
-                                            <h3 className="font-bold text-[var(--foreground)] truncate group-hover:text-[var(--primary)] transition-colors">{book.title}</h3>
-                                            <p className="text-xs text-[var(--secondary)] truncate">{book.author}</p>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div className="col-span-full flex flex-col items-center justify-center py-20 text-[var(--secondary)]">
-                                        <p className="mb-4 text-lg">{t.myPage.noReading}</p>
-                                        <Link href="/" className="btn btn-primary">{t.myPage.goBrowse}</Link>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                        )}
 
-                        {activeTab === "completed" && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-fadeIn">
-                                {completedList.length > 0 ? (
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                    completedList.map((book: any) => (
-                                        <Link key={book.id} href={`/books/${book.id}`} className="group block">
-                                            <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all grayscale hover:grayscale-0">
-                                                <Image
-                                                    src={book.coverUrl || book.cover_url}
-                                                    alt={book.title}
-                                                    fill
-                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                                                />
-                                                <div className="absolute top-2 right-2 bg-green-500/90 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm shadow-sm">
-                                                    {t.myPage.completedBadge}
-                                                </div>
-                                            </div>
-                                            <h3 className="font-bold text-[var(--foreground)] truncate group-hover:text-[var(--primary)] transition-colors">{book.title}</h3>
-                                            <p className="text-xs text-[var(--secondary)] truncate">{book.author}</p>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div className="col-span-full flex flex-col items-center justify-center py-20 text-[var(--secondary)]">
-                                        <p className="mb-4 text-lg">{t.myPage.noCompleted}</p>
-                                        <Link href="/" className="btn btn-primary">{t.myPage.goBrowse}</Link>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                    {activeTab === "completed" && (
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
+                                            {completedList.length > 0 ? (
+                                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                completedList.map((book: any) => (
+                                                    <div key={book.id} className="max-w-[450px] lg:max-w-none">
+                                                        <Link href={`/books/${book.id}`} className="bg-[var(--card-bg)] rounded-xl overflow-hidden shadow-[var(--card-shadow)] border border-[var(--border)] transition-all duration-300 flex flex-col md:flex-row relative group hover:-translate-y-1 hover:shadow-xl h-auto md:h-[230px] lg:h-[280px]">
+                                                            {/* 이미지 영역: 모바일 100%, 데스크탑 2/3 */}
+                                                            <div className="w-full md:w-2/3 h-[240px] md:h-full relative bg-[var(--background)] flex-shrink-0 border-b md:border-b-0 md:border-r border-[var(--border)] rounded-t-xl md:rounded-l-xl md:rounded-tr-none">
+                                                                <div className="w-full h-full relative grayscale hover:grayscale-0 transition-all duration-300">
+                                                                    <Image
+                                                                        src={book.coverUrl || book.cover_url}
+                                                                        alt={book.title}
+                                                                        fill
+                                                                        className="object-contain group-hover:scale-[1.03] transition-transform duration-300 p-2"
+                                                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 50vw"
+                                                                    />
+                                                                </div>
+                                                                <div className="absolute top-3 right-3 bg-green-500 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-md z-10">
+                                                                    {t.myPage.completedBadge}
+                                                                </div>
+                                                            </div>
+                                                            {/* 텍스트 영역: 모바일 100%, 데스크탑 1/3 */}
+                                                            <div className="w-full md:w-1/3 p-5 md:p-6 flex flex-col justify-center bg-[var(--card-bg)]">
+                                                                <h3 className="font-bold text-xl lg:text-2xl text-[var(--foreground)] line-clamp-3 leading-snug mb-2 group-hover:text-[var(--primary)] transition-colors">{book.title}</h3>
+                                                                <p className="text-sm lg:text-base text-[var(--secondary)] truncate font-medium">{book.author}</p>
+                                                            </div>
+                                                        </Link>
+                                                    </div>
+                                                ))
+                                                        ) : (
+                                                        <div className="col-span-full flex flex-col items-center justify-center py-20 text-[var(--secondary)]">
+                                                            <p className="mb-4 text-lg">{t.myPage.noCompleted}</p>
+                                                            <Link href="/" className="btn btn-primary">{t.myPage.goBrowse}</Link>
+                                                        </div>
+                                    )}
+                                                    </div>
+                                                )}
 
-                        {activeTab === "liked" && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-fadeIn">
-                                {likedList.length > 0 ? (
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                    likedList.map((book: any) => (
-                                        <Link key={book.id} href={`/books/${book.id}`} className="group block">
-                                            <div className="relative aspect-[2/3] mb-3 overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all">
-                                                <Image
-                                                    src={book.coverUrl || book.cover_url}
-                                                    alt={book.title}
-                                                    fill
-                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                                                />
-                                            </div>
-                                            <h3 className="font-bold text-[var(--foreground)] truncate group-hover:text-[var(--primary)] transition-colors">{book.title}</h3>
-                                            <p className="text-xs text-[var(--secondary)] truncate">{book.author}</p>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div className="col-span-full flex flex-col items-center justify-center py-20 text-[var(--secondary)]">
-                                        <p className="mb-4 text-lg">{t.myPage.noLiked}</p>
-                                        <Link href="/" className="btn btn-primary">{t.myPage.goBrowse}</Link>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                            {activeTab === "liked" && (
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
+                                                    {likedList.length > 0 ? (
+                                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                        likedList.map((book: any) => (
+                                                            <div key={book.id} className="max-w-[450px] lg:max-w-none">
+                                                                <Link href={`/books/${book.id}`} className="bg-[var(--card-bg)] rounded-xl overflow-hidden shadow-[var(--card-shadow)] border border-[var(--border)] transition-all duration-300 flex flex-col md:flex-row relative group hover:-translate-y-1 hover:shadow-xl h-auto md:h-[230px] lg:h-[280px]">
+                                                                    {/* 이미지 영역: 모바일 100%, 데스크탑 2/3 */}
+                                                                    <div className="w-full md:w-2/3 h-[240px] md:h-full relative bg-[var(--background)] flex-shrink-0 border-b md:border-b-0 md:border-r border-[var(--border)] rounded-t-xl md:rounded-l-xl md:rounded-tr-none">
+                                                                        <Image
+                                                                            src={book.coverUrl || book.cover_url}
+                                                                            alt={book.title}
+                                                                            fill
+                                                                            className="object-contain group-hover:scale-[1.03] transition-transform duration-300 p-2"
+                                                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 50vw"
+                                                                        />
+                                                                        <div className="absolute top-3 right-3 bg-[var(--card-bg)] text-red-500 text-xs px-2 py-1 rounded-full font-bold shadow-md border border-[var(--border)] z-10">
+                                                                            ❤️
+                                                                        </div>
+                                                                    </div>
+                                                                    {/* 텍스트 영역: 모바일 100%, 데스크탑 1/3 */}
+                                                                    <div className="w-full md:w-1/3 p-5 md:p-6 flex flex-col justify-center bg-[var(--card-bg)]">
+                                                                        <h3 className="font-bold text-xl lg:text-2xl text-[var(--foreground)] line-clamp-3 leading-snug mb-2 group-hover:text-[var(--primary)] transition-colors">{book.title}</h3>
+                                                                        <p className="text-sm lg:text-base text-[var(--secondary)] truncate font-medium">{book.author}</p>
+                                                                    </div>
+                                                                </Link>
+                                                            </div>
+                                                        ))
+                                                                ) : (
+                                                                <div className="col-span-full flex flex-col items-center justify-center py-20 text-[var(--secondary)]">
+                                                                    <p className="mb-4 text-lg">{t.myPage.noLiked}</p>
+                                                                    <Link href="/" className="btn btn-primary">{t.myPage.goBrowse}</Link>
+                                                                </div>
+                                    )}
+                                                            </div>
+                                                        )}
 
-                        {activeTab === "comments" && (
-                            <div className="flex flex-col gap-4 animate-fadeIn">
-                                {commentList.length > 0 ? (
-                                    commentList.map((comment) => (
-                                        <Link key={comment.id} href={`/books/${comment.bookId}`} className="block bg-[var(--card-bg)] p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] transition-colors shadow-sm">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h4 className="font-bold text-[var(--foreground)] text-sm">
-                                                    📖 {comment.bookTitle}
-                                                </h4>
-                                                <span className="text-xs text-[var(--secondary)]">{comment.createdAt}</span>
-                                            </div>
-                                            <p className="text-[var(--foreground)] text-sm line-clamp-2">{comment.content}</p>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center py-20 text-[var(--secondary)]">
-                                        <p className="text-lg">{t.myPage.noComments}</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </>
-                )}
+                                                    {activeTab === "comments" && (
+                                                        <div className="flex flex-col gap-4 animate-fadeIn">
+                                                            {commentList.length > 0 ? (
+                                                                commentList.map((comment) => (
+                                                                    <Link key={comment.id} href={`/books/${comment.bookId}`} className="block bg-[var(--card-bg)] p-4 rounded-lg border border-[var(--border)] hover:border-[var(--primary)] transition-colors shadow-sm">
+                                                                        <div className="flex justify-between items-start mb-2">
+                                                                            <h4 className="font-bold text-[var(--foreground)] text-sm">
+                                                                                📖 {comment.bookTitle}
+                                                                            </h4>
+                                                                            <span className="text-xs text-[var(--secondary)]">{comment.createdAt}</span>
+                                                                        </div>
+                                                                        <p className="text-[var(--foreground)] text-sm line-clamp-2">{comment.content}</p>
+                                                                    </Link>
+                                                                ))
+                                                            ) : (
+                                                                <div className="flex flex-col items-center justify-center py-20 text-[var(--secondary)]">
+                                                                    <p className="text-lg">{t.myPage.noComments}</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
             </div>
         </div>
-    );
+                    );
 }

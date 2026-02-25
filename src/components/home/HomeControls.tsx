@@ -46,10 +46,10 @@ export default function HomeControls() {
     return (
         <>
             {/* 검색 및 정렬 컨트롤 바 */}
-            <div className="flex flex-col md:flex-row gap-4 mb-10 max-w-[1000px] mx-auto">
+            <div className="flex flex-row flex-nowrap gap-2 md:gap-4 mb-8 md:mb-10 max-w-[1000px] mx-auto w-full">
                 {/* 검색 그룹 */}
-                <div className="flex-1 flex items-center bg-[var(--card-bg)] rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] focus-within:ring-2 ring-[var(--primary)] ring-opacity-30 transition-all">
-                    <div className="flex items-center border-r border-[var(--border)] mr-4 h-full">
+                <div className="flex-auto md:flex-1 flex items-center bg-[var(--card-bg)] rounded-xl md:rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] focus-within:ring-2 ring-[var(--primary)] ring-opacity-30 transition-all min-w-0">
+                    <div className="flex items-center border-r border-[var(--border)] mr-1 md:mr-4 h-full shrink-0">
                         <Select
                             value={filterType}
                             onChange={(val) => setFilterType(val)}
@@ -59,7 +59,7 @@ export default function HomeControls() {
                                 { label: t.home.filter.author, value: 'author' }
                             ]}
                             width="w-full"
-                            className="min-w-[70px] !pl-6 !py-3 rounded-l-2xl"
+                            className="min-w-[65px] md:min-w-[90px] !pl-2 md:!pl-6 !py-2 md:!py-3 rounded-l-xl md:rounded-l-2xl text-xs md:text-base border-none"
                         />
                     </div>
                     <Input
@@ -68,19 +68,19 @@ export default function HomeControls() {
                         onChange={(e) => setKeyword(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder={t.home.searchPlaceholder}
-                        className="flex-1 bg-transparent px-4 py-3 border-none shadow-none focus:shadow-none focus:border-none focus:ring-0 text-[var(--foreground)] text-base placeholder-[var(--secondary)] rounded-none"
+                        className="flex-1 bg-transparent px-2 md:px-4 py-2 md:py-3 border-none shadow-none focus:shadow-none focus:border-none focus:ring-0 text-[var(--foreground)] text-xs md:text-base placeholder-[var(--secondary)] rounded-none min-w-0"
                     />
                     <Button
                         onClick={handleSearch}
                         variant="ghost"
-                        className="w-12 h-11 mr-1 rounded-xl hover:bg-[var(--background)] active:scale-95 text-[var(--secondary)] hover:text-[var(--primary)]"
+                        className="w-8 md:w-12 h-8 md:h-11 mr-1 rounded-lg md:rounded-xl hover:bg-[var(--background)] active:scale-95 text-[var(--secondary)] hover:text-[var(--primary)] !p-0 flex items-center justify-center shrink-0"
                     >
                         🔍
                     </Button>
                 </div>
 
                 {/* 정렬 그룹 */}
-                <div className="md:w-48 bg-[var(--card-bg)] rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] flex items-center">
+                <div className="flex-none bg-[var(--card-bg)] rounded-xl md:rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] flex items-center shrink-0 min-w-[85px] md:min-w-[12rem]">
                     <Select
                         value={sortOrder}
                         onChange={handleSortChange}
@@ -90,9 +90,9 @@ export default function HomeControls() {
                             { label: t.home.sort.oldest, value: 'oldest' },
                             { label: t.home.sort.popular, value: 'popular' }
                         ]}
-                        icon={<span>⇅</span>}
+                        icon={<span className="text-xs md:text-base">⇅</span>}
                         width="w-full"
-                        className="!py-3 w-full rounded-2xl"
+                        className="!py-2 md:!py-3 w-full rounded-xl md:rounded-2xl text-xs md:text-base !pl-6 md:!pl-8 border-none"
                     />
                 </div>
             </div>

@@ -20,11 +20,11 @@ export default function BookGrid({ books }: BookGridProps) {
 
                 return (
                     <Link href={`/books/${book.id}`} key={book.id}
-                        /* 가로형 카드 레이아웃 */
-                        className="bg-[var(--card-bg)] rounded-xl overflow-hidden shadow-[var(--card-shadow)] transition-all duration-[400ms] cubic-bezier(0.25,0.8,0.25,1) flex flex-row relative no-underline text-inherit group hover:rotate-1 hover:scale-102 hover:shadow-xl hover:z-10 hover:-translate-y-1 h-[280px] [backface-visibility:hidden] [transform:translateZ(0)]"
+                        /* 모바일: 세로형(flex-col), 데스크탑: 가로형(flex-row) 레이아웃 */
+                        className="bg-[var(--card-bg)] rounded-xl overflow-hidden shadow-[var(--card-shadow)] transition-all duration-[400ms] cubic-bezier(0.25,0.8,0.25,1) flex flex-col md:flex-row relative no-underline text-inherit group hover:rotate-1 hover:scale-102 hover:shadow-xl hover:z-10 hover:-translate-y-1 h-auto md:h-[280px] [backface-visibility:hidden] [transform:translateZ(0)]"
                     >
-                        {/* 이미지 영역 (2/3) */}
-                        <div className="w-2/3 h-full overflow-hidden bg-gray-100 relative rounded-l-xl">
+                        {/* 이미지 영역: 모바일 100% (고정 높이), 데스크탑 2/3 (전체 높이) */}
+                        <div className="w-full md:w-2/3 h-[240px] md:h-full overflow-hidden bg-gray-100 relative rounded-t-xl md:rounded-l-xl md:rounded-tr-none">
                             <Image
                                 src={localizedBook.coverUrl}
                                 alt={localizedBook.title}
@@ -40,12 +40,12 @@ export default function BookGrid({ books }: BookGridProps) {
                             )}
                         </div>
 
-                        {/* 정보 영역 (1/3) */}
-                        <div className="w-1/3 p-6 flex flex-col justify-center border-l border-[var(--border)] rounded-r-xl">
-                            <h2 className="text-[1.5rem] font-bold mb-3 leading-tight overflow-hidden text-ellipsis line-clamp-3 text-[var(--foreground)]">
+                        {/* 정보 영역: 모바일 100%, 데스크탑 1/3 */}
+                        <div className="w-full md:w-1/3 p-5 md:p-6 flex flex-col justify-center border-t md:border-t-0 md:border-l border-[var(--border)] rounded-b-xl md:rounded-r-xl md:rounded-bl-none">
+                            <h2 className="text-[1.25rem] md:text-[1.5rem] font-bold mb-2 md:mb-3 leading-tight overflow-hidden text-ellipsis line-clamp-2 md:line-clamp-3 text-[var(--foreground)]">
                                 {localizedBook.title}
                             </h2>
-                            <p className="text-[0.95rem] text-[var(--secondary)] font-medium">
+                            <p className="text-[0.875rem] md:text-[0.95rem] text-[var(--secondary)] font-medium">
                                 {localizedBook.author}
                             </p>
                         </div>
