@@ -2,7 +2,6 @@ import { Book, Page, Comment } from '@/types';
 
 // 다국어 컨텐츠를 가져오는 헬퍼 함수
 export function getLocalizedBook(book: Book, lang: string) {
-    if (lang === 'en') return book;
     const translation = book.translations?.[lang];
     return {
         ...book,
@@ -35,7 +34,6 @@ export function getLocalizedPage(page: Page, lang: string) {
 }
 
 export function getLocalizedComment(comment: Comment, lang: string) {
-    if (lang === 'en') return comment;
     const translation = comment.translations?.[lang];
     return {
         ...comment,

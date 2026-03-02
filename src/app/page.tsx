@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import HomeControls from "@/components/home/HomeControls";
 import BookGrid from "@/components/home/BookGrid";
@@ -27,6 +28,9 @@ async function HomeContent({ searchParams }: { searchParams: Awaited<HomeProps['
   const currentPage = Number(params.page) || 1;
   const ITEMS_PER_PAGE = 8;
 
+  const cookieStore = await cookies();
+  const currentLang = cookieStore.get('NEXT_LOCALE')?.value || 'ko';
+
   const supabase = await createClient();
 
   // Supabase 쿼리 빌드
@@ -34,13 +38,13 @@ async function HomeContent({ searchParams }: { searchParams: Awaited<HomeProps['
     .from('books')
     .select('*', { count: 'exact' });
 
-  // 1. 필터링 (Filtering)
+  // 1. 필터링 (Filtering) - 현재 언어 설정에 맞는 번역 제목/작가도 같이 검색
   if (query) {
     if (filterType === "author") {
-      dbQuery = dbQuery.ilike('author', `%${query}%`);
+      dbQuery = dbQuery.or(`author.ilike.%${query}%,translations->${currentLang}->>author.ilike.%${query}%`);
     } else {
       // 기본값: 제목 (Default: Title)
-      dbQuery = dbQuery.ilike('title', `%${query}%`);
+      dbQuery = dbQuery.or(`title.ilike.%${query}%,translations->${currentLang}->>title.ilike.%${query}%`);
     }
   }
 

@@ -5,7 +5,7 @@
  */
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { translations, Language } from "@/lib/translations";
 
 export interface LanguageContextType {
@@ -19,9 +19,29 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: ReactNode }) {
     const [language, setLanguage] = useState<Language>('ko'); // 기본 언어를 한국어로 설정
 
+    // 마운트 시 저장된 언어 불러오기
+    useEffect(() => {
+        const savedLang = localStorage.getItem('NEXT_LOCALE') as Language;
+        if (savedLang && (savedLang === 'ko' || savedLang === 'en')) {
+            setLanguage(savedLang);
+        } else {
+            // 쿠키에서 확인 (초기 접속 시)
+            const match = document.cookie.match(new RegExp('(^| )NEXT_LOCALE=([^;]+)'));
+            if (match && (match[2] === 'ko' || match[2] === 'en')) {
+                setLanguage(match[2] as Language);
+            }
+        }
+    }, []);
+
+    const handleSetLanguage = (lang: Language) => {
+        setLanguage(lang);
+        localStorage.setItem('NEXT_LOCALE', lang);
+        document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`; // 1년 유지
+    };
+
     const value = {
         language,
-        setLanguage,
+        setLanguage: handleSetLanguage,
         t: translations[language],
     };
 
