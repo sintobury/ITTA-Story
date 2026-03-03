@@ -11,7 +11,7 @@ function PageImage({ src, alt }: { src: string; alt: string }) {
     const [isLoading, setIsLoading] = useState(true);
 
     return (
-        <div className={`relative w-full h-full rounded-lg overflow-hidden ${isLoading ? 'bg-[#f3f4f6]' : 'bg-transparent'}`}>
+        <div className={`relative w-full h-[40vh] md:h-full min-h-[300px] md:min-h-0 rounded-lg overflow-hidden shrink-0 ${isLoading ? 'bg-[#f3f4f6]' : 'bg-transparent'}`}>
             {isLoading && <div className="absolute top-0 left-0 w-full h-full bg-gray-200 animate-pulse z-10" />}
             <Image
                 src={src}
@@ -81,7 +81,7 @@ export default function BookReader({ pages, bookId, onClose, onTriggerToast, ini
         // 읽기 모드: 드래그 방지(select-none) 및 우클릭 방지(onContextMenu) 적용
         <div
             ref={containerRef}
-            className="w-fit mx-auto min-h-[80vh] flex flex-col items-center relative select-none"
+            className="w-full mx-auto min-h-[80vh] flex flex-col items-center relative select-none"
             onContextMenu={(e) => {
                 e.preventDefault();
                 onTriggerToast(t.rightClickWarning);
@@ -91,69 +91,96 @@ export default function BookReader({ pages, bookId, onClose, onTriggerToast, ini
                 // 드래그 시에는 토스트를 띄우지 않고 조용히 막음
             }}
         >
-            <div className="w-full flex justify-end mb-3">
-                <Button
-                    onClick={onClose}
-                    variant="outline"
-                    className="bg-white rounded-full hover:bg-[#f8f9fa] hover:text-[var(--primary)] text-sm py-2.5 px-5 h-auto"
-                >
-                    ← {t.bookDetail.closeBook}
-                </Button>
-                {/* 정렬을 위한 공간 확보: 화살표 버튼 너비 + 마진 */}
-                <div className="w-[50px] mx-6" aria-hidden="true" />
-            </div>
-
-            <div className="flex items-center justify-center gap-0 my-0 mb-8 perspective-[1500px]">
-                {/* 왼쪽 이동 버튼 */}
-                <Button
-                    onClick={() => {
-                        setDirection('prev');
-                        setCurrentPageIndex(p => Math.max(0, p - 1));
-                    }}
-                    variant="outline"
-                    className="bg-white/80 rounded-full w-[50px] h-[50px] p-0 text-2xl shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:bg-[#eee] border-[var(--border)]"
-                    disabled={currentPageIndex === 0}
-                >
-                    ‹
-                </Button>
-
-                {/* 왼쪽 페이지 (이미지 영역) */}
-                <div
-                    className={`
-                        w-[450px] h-[560px] flex flex-col justify-between origin-center-bottom bg-[#fffbf0] p-0 border border-[#f0e6d2] relative transition-transform shadow-md duration-200
-                        rounded-l-xl rounded-r-sm shadow-[inset_-15px_0_20px_rgba(0,0,0,0.03),_-5px_5px_15px_rgba(0,0,0,0.1)] border-r-0 origin-right overflow-hidden
-                        ${direction === 'prev' ? 'animate-flipInLeft' : ''} 
-                    `}
-                >
-                    <div className="flex-1 flex flex-col items-center justify-center h-full w-full p-6">
-                        {pages[currentPageIndex]?.imageUrl ? (
-                            <PageImage src={pages[currentPageIndex].imageUrl!} alt={t.admin.uploadPage.labels.illustration} />
-                        ) : (
-                            <div className="w-full h-full" />
-                        )}
-                    </div>
+            {/* 단일 중앙 컨테이너: 최대 너비 900px, 닫기 버튼과 책을 모두 포함 */}
+            <div className="w-full max-w-[900px] flex flex-col px-3 md:px-0">
+                {/* 헤더 영역: 닫기 버튼 (우측 상단 정렬) */}
+                <div className="w-full flex justify-end mb-3">
+                    <Button
+                        onClick={onClose}
+                        variant="outline"
+                        className="bg-white rounded-full hover:bg-[#f8f9fa] hover:text-[var(--primary)] text-sm py-2.5 px-5 h-auto z-20 shadow-sm"
+                    >
+                        ← {t.bookDetail.closeBook}
+                    </Button>
                 </div>
 
-                {/* 책등 */}
-                <div className="w-[2px] h-[540px] bg-[#d1d5db] shadow-inner z-10"></div>
+                {/* 책 본문 영역 */}
+                <div className="flex flex-col md:flex-row items-stretch justify-center gap-0 my-0 mb-8 min-h-[560px] w-full relative">
 
-                {/* 오른쪽 페이지 (텍스트 영역) */}
-                <div
-                    className={`
-                        w-[450px] h-[560px] flex flex-col justify-between origin-center-bottom bg-[#fffbf0] p-12 pb-8 border border-[#f0e6d2] relative transition-transform shadow-md duration-200
-                        rounded-r-xl rounded-l-sm shadow-[inset_15px_0_20px_rgba(0,0,0,0.03),_5px_5px_15px_rgba(0,0,0,0.1)] border-l-0 origin-left
-                        ${direction === 'next' ? 'animate-flipInRight' : ''}
-                    `}
-                >
-                    <div className="flex-1 flex flex-col items-center justify-center text-center perspective-[1000px] overflow-hidden">
-                        {pages[currentPageIndex]?.content ? (
-                            <>
-                                {/* HTML 태그 렌더링 (dangerouslySetInnerHTML) */}
-                                <div
-                                    className="text-xl leading-[1.8] max-w-[360px] w-full ql-editor-content break-keep text-left"
-                                    dangerouslySetInnerHTML={{ __html: pages[currentPageIndex].content || "" }}
-                                />
-                                <style jsx>{`
+                    {/* 왼쪽 페이지 (이미지 영역) - 모바일 세로/데스크톱 가로 */}
+                    <div
+                        className="w-full md:w-1/2 min-w-0 flex flex-col justify-between bg-[#fffbf0] p-0 border border-[#f0e6d2] shadow-sm md:shadow-[inset_-15px_0_20px_rgba(0,0,0,0.03),_-3px_3px_0_#f4ebd8,_-4px_4px_0_#d1d5db,_-6px_6px_0_#f4ebd8,_-7px_7px_0_#d1d5db] rounded-t-xl md:rounded-l-xl md:rounded-tr-none border-b-0 md:border-b md:border-r-0 overflow-hidden shrink-0 relative"
+                    >
+                        {/* 데스크탑 왼쪽 이동 사이드바 버튼 (페이지 높이 전체 차지) */}
+                        <button
+                            onClick={() => {
+                                setDirection('prev');
+                                setCurrentPageIndex(p => Math.max(0, p - 1));
+                            }}
+                            className="hidden md:flex absolute left-0 top-0 h-full w-[40px] md:rounded-l-xl bg-transparent hover:bg-[var(--primary)]/5 hover:backdrop-blur-sm z-30 items-center justify-center transition-colors disabled:opacity-0 disabled:pointer-events-none group border-r border-transparent hover:border-[#f0e6d2]"
+                            disabled={currentPageIndex === 0}
+                            aria-label="Previous Page"
+                        >
+                            <span className="text-2xl text-[var(--secondary)] group-hover:text-[var(--primary)] transition-colors opacity-50 group-hover:opacity-100">
+                                ‹
+                            </span>
+                        </button>
+
+                        {/* 콘텐츠 페이드인 (패딩 영역 조정하여 버튼과 텍스트 안 겹치게) */}
+                        <div key={`img-${currentPageIndex}`} className="flex-1 flex flex-col items-center justify-center h-full w-full p-4 md:py-6 md:pr-6 md:pl-12 animate-fadeIn">
+                            {pages[currentPageIndex]?.imageUrl ? (
+                                <PageImage src={pages[currentPageIndex].imageUrl!} alt={t.admin.uploadPage.labels.illustration} />
+                            ) : (
+                                <div className="w-full h-full" />
+                            )}
+                        </div>
+                    </div>
+
+                    {/* 데스크탑 책등 */}
+                    <div className="hidden md:block w-[2px] bg-[#d1d5db] shadow-inner z-10 my-[10px]"></div>
+
+                    {/* 모바일 가로 구분선 및 네비게이션 */}
+                    <div className="flex md:hidden items-center justify-between w-full px-4 py-3 bg-[#fffbf0] border-x border-[#f0e6d2] z-20 shadow-[0_5px_10px_rgba(0,0,0,0.05)_z-10]">
+                        <Button
+                            onClick={() => {
+                                setDirection('prev');
+                                setCurrentPageIndex(p => Math.max(0, p - 1));
+                            }}
+                            variant="outline"
+                            className="bg-white rounded-full w-[40px] h-[40px] p-0 text-xl shadow-sm border-[var(--border)] text-[var(--primary)] shrink-0 flex items-center justify-center"
+                            disabled={currentPageIndex === 0}
+                        >
+                            ‹
+                        </Button>
+                        <div className="flex-1 h-[2px] bg-[#d1d5db] mx-6 rounded-full shadow-inner opacity-70"></div>
+                        <Button
+                            onClick={() => {
+                                setDirection('next');
+                                setCurrentPageIndex(p => Math.min(pages.length - 1, p + 1));
+                            }}
+                            variant="outline"
+                            className="bg-white rounded-full w-[40px] h-[40px] p-0 text-xl shadow-sm border-[var(--border)] text-[var(--primary)] shrink-0 flex items-center justify-center"
+                            disabled={currentPageIndex >= pages.length - 1}
+                        >
+                            ›
+                        </Button>
+                    </div>
+
+                    {/* 오른쪽 페이지 (텍스트 영역) */}
+                    <div
+                        className="w-full md:w-1/2 min-w-0 flex flex-col justify-between bg-[#fffbf0] p-6 md:py-12 md:pl-12 md:pr-14 pb-6 border border-[#f0e6d2] shadow-sm md:shadow-[inset_15px_0_20px_rgba(0,0,0,0.03),_3px_3px_0_#f4ebd8,_4px_4px_0_#d1d5db,_6px_6px_0_#f4ebd8,_7px_7px_0_#d1d5db] rounded-b-xl md:rounded-r-xl md:rounded-bl-none border-t-0 md:border-t md:border-l-0 shrink-0 relative"
+                    >
+                        {/* 콘텐츠 페이드인 */}
+                        <div key={`txt-${currentPageIndex}`} className="flex-1 flex flex-col items-center justify-center text-center overflow-hidden w-full animate-fadeIn">
+                            {pages[currentPageIndex]?.content ? (
+                                <>
+                                    {/* HTML 태그 렌더링 (dangerouslySetInnerHTML) */}
+                                    <div
+                                        className="text-xl leading-[1.8] w-full ql-editor-content break-words text-left"
+                                        style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
+                                        dangerouslySetInnerHTML={{ __html: pages[currentPageIndex].content || "" }}
+                                    />
+                                    <style jsx>{`
                                     /* Quill 에디터 스타일 */
                                     .ql-editor-content :global(p) { margin-bottom: 1em; }
                                     .ql-editor-content :global(h1), .ql-editor-content :global(h2), .ql-editor-content :global(h3) { margin-bottom: 0.5em; font-weight: bold; }
@@ -164,28 +191,31 @@ export default function BookReader({ pages, bookId, onClose, onTriggerToast, ini
                                     .ql-editor-content :global(ul), .ql-editor-content :global(ol) { margin-left: 1.5em; margin-bottom: 1em; text-align: left; }
                                     .ql-editor-content :global(li) { list-style: inherit; }
                                 `}</style>
-                            </>
-                        ) : (
-                            <div className="w-full h-full" />
-                        )}
-                    </div>
-                    <div className="w-full flex justify-center text-sm text-[var(--secondary)] pt-4">
-                        - {currentPageIndex + 1} -
+                                </>
+                            ) : (
+                                <div className="w-full h-full" />
+                            )}
+                        </div>
+                        <div className="w-full flex justify-center text-sm text-[var(--secondary)] pt-4 mt-auto">
+                            - {currentPageIndex + 1} -
+                        </div>
+
+                        {/* 데스크탑 오른쪽 이동 사이드바 버튼 (페이지 높이 전체 차지) */}
+                        <button
+                            onClick={() => {
+                                setDirection('next');
+                                setCurrentPageIndex(p => Math.min(pages.length - 1, p + 1));
+                            }}
+                            className="hidden md:flex absolute right-0 top-0 h-full w-[40px] md:rounded-r-xl bg-transparent hover:bg-[var(--primary)]/5 hover:backdrop-blur-sm z-30 items-center justify-center transition-colors disabled:opacity-0 disabled:pointer-events-none group border-l border-transparent hover:border-[#f0e6d2]"
+                            disabled={currentPageIndex >= pages.length - 1}
+                            aria-label="Next Page"
+                        >
+                            <span className="text-2xl text-[var(--secondary)] group-hover:text-[var(--primary)] transition-colors opacity-50 group-hover:opacity-100">
+                                ›
+                            </span>
+                        </button>
                     </div>
                 </div>
-
-                {/* 오른쪽 이동 버튼 */}
-                <Button
-                    onClick={() => {
-                        setDirection('next');
-                        setCurrentPageIndex(p => Math.min(pages.length - 1, p + 1));
-                    }}
-                    variant="outline"
-                    className="bg-white/80 rounded-full w-[50px] h-[50px] p-0 text-2xl shadow-md mx-6 text-[var(--primary)] z-20 hover:bg-[var(--primary)] hover:text-white hover:scale-110 disabled:bg-[#eee] border-[var(--border)]"
-                    disabled={currentPageIndex >= pages.length - 1}
-                >
-                    ›
-                </Button>
             </div>
         </div>
     );
