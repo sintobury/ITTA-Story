@@ -56,6 +56,8 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
         initialBook?.availableLanguages || ['ko']
     );
     const [customLangInput, setCustomLangInput] = useState("");
+    const [editingLang, setEditingLang] = useState<string | null>(null);
+    const [editLangInput, setEditLangInput] = useState("");
 
     const [pages, setPages] = useState<{ contentByLang: Record<string, string>; imageUrl: string }[]>(
         initialPages
@@ -139,6 +141,53 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
     const removeCustomLanguage = (langCode: string) => {
         setAvailableLanguages(prev => prev.filter(l => l !== langCode));
         setSelectedLanguages(prev => prev.filter(l => l !== langCode));
+    };
+
+    const saveEditLang = (oldLang: string) => {
+        const newLang = editLangInput.trim().toLowerCase();
+        if (!newLang || newLang === oldLang) {
+            setEditingLang(null);
+            return;
+        }
+        if (availableLanguages.includes(newLang)) {
+            triggerToast("이미 존재하는 언어입니다.");
+            return;
+        }
+
+        setAvailableLanguages(prev => prev.map(l => l === oldLang ? newLang : l));
+        setSelectedLanguages(prev => prev.map(l => l === oldLang ? newLang : l));
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setTranslations((prev: any) => {
+            if (!prev) return prev;
+            const newTranslations = { ...prev };
+            if (newTranslations[oldLang]) {
+                newTranslations[newLang] = newTranslations[oldLang];
+                delete newTranslations[oldLang];
+            }
+            return newTranslations;
+        });
+
+        setPages(prevPages => prevPages.map(page => {
+            const newContentByLang = { ...page.contentByLang };
+            if (newContentByLang[oldLang] !== undefined) {
+                newContentByLang[newLang] = newContentByLang[oldLang];
+                delete newContentByLang[oldLang];
+            }
+            return { ...page, contentByLang: newContentByLang };
+        }));
+
+        setActiveTabs(prev => {
+            const newTabs = { ...prev };
+            for (const key in newTabs) {
+                if (newTabs[key] === oldLang) {
+                    newTabs[key] = newLang;
+                }
+            }
+            return newTabs;
+        });
+
+        setEditingLang(null);
     };
 
     const handleContentChange = (index: number, lang: string, value: string) => {
@@ -646,42 +695,77 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                         <div className="pt-2">
                             <h4 className="font-bold text-[var(--foreground)] mb-2 text-xs uppercase tracking-wide opacity-80">언어 설정</h4>
                             <div className="flex flex-col gap-1.5 mb-3">
-                                {availableLanguages.map(lang => (
-                                    <label key={lang} className={`flex items-center justify-between p-2 rounded border cursor-pointer transition-all select-none ${selectedLanguages.includes(lang) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]'}`}>
-                                        <div className="flex items-center gap-2">
-                                            <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${selectedLanguages.includes(lang) ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300 dark:bg-black dark:border-gray-600'}`}>
-                                                {selectedLanguages.includes(lang) && <span className="text-white text-[10px]">✓</span>}
+                                {availableLanguages.map(lang => {
+                                    const isCustom = !DEFAULT_LANGUAGES.some(l => l.code === lang);
+                                    if (editingLang === lang) {
+                                        return (
+                                            <div key={lang} className="flex flex-col gap-1.5 p-2 rounded border bg-[var(--card-bg)] border-[var(--primary)] shadow-sm">
+                                                <div className="w-full">
+                                                    <Input
+                                                        value={editLangInput}
+                                                        onChange={e => setEditLangInput(e.target.value)}
+                                                        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), saveEditLang(lang))}
+                                                        className="w-full px-2 py-1.5 text-xs bg-white text-[var(--foreground)] font-medium"
+                                                        autoFocus
+                                                        placeholder="언어 이름 수정"
+                                                    />
+                                                </div>
+                                                <div className="flex gap-1 justify-end w-full">
+                                                    <Button type="button" onClick={() => setEditingLang(null)} size="sm" variant="secondary" className="px-3 py-1.5 min-h-0 text-[10px] w-auto shrink-0 border border-[var(--border)] text-[#4b5563] hover:bg-[#e5e7eb]">취소</Button>
+                                                    <Button type="button" onClick={() => saveEditLang(lang)} size="sm" variant="primary" className="px-3 py-1.5 min-h-0 text-[10px] w-auto shrink-0 shadow-sm border-0 font-bold">저장</Button>
+                                                </div>
                                             </div>
-                                            <span className={`text-xs font-medium ${selectedLanguages.includes(lang) ? 'text-blue-700 dark:text-blue-300' : 'text-[var(--secondary)]'}`}>
-                                                {DEFAULT_LANGUAGES.find(l => l.code === lang)?.label.split(' ')[0] || lang.toUpperCase()}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {!DEFAULT_LANGUAGES.some(l => l.code === lang) && (
-                                                <Button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        removeCustomLanguage(lang);
-                                                    }}
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="w-5 h-5 p-0 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                                                    title="언어 삭제"
-                                                >
-                                                    <span className="text-xs">✕</span>
-                                                </Button>
+                                        );
+                                    }
+                                    return (
+                                        <div key={lang} className={`flex items-center justify-between p-2 rounded border transition-all ${selectedLanguages.includes(lang) ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]'}`}>
+                                            <label className="flex items-center gap-2 cursor-pointer select-none flex-1">
+                                                <input
+                                                    type="checkbox"
+                                                    className="hidden"
+                                                    checked={selectedLanguages.includes(lang)}
+                                                    onChange={() => toggleLanguage(lang)}
+                                                />
+                                                <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${selectedLanguages.includes(lang) ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300 dark:bg-black dark:border-gray-600'}`}>
+                                                    {selectedLanguages.includes(lang) && <span className="text-white text-[10px]">✓</span>}
+                                                </div>
+                                                <span className={`text-xs font-medium ${selectedLanguages.includes(lang) ? 'text-blue-700 dark:text-blue-300' : 'text-[var(--secondary)]'}`}>
+                                                    {DEFAULT_LANGUAGES.find(l => l.code === lang)?.label.split(' ')[0] || lang.toUpperCase()}
+                                                </span>
+                                            </label>
+
+                                            {isCustom && (
+                                                <div className="flex items-center gap-0.5 pl-2 z-10 cursor-default h-[16px]">
+                                                    <Button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setEditingLang(lang);
+                                                            setEditLangInput(lang);
+                                                        }}
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="w-4 h-4 min-h-0 p-0 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center leading-none"
+                                                        title="언어명 수정"
+                                                    >
+                                                        <span className="text-[10px]">✏️</span>
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            removeCustomLanguage(lang);
+                                                        }}
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="w-4 h-4 min-h-0 p-0 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center leading-none"
+                                                        title="언어 삭제"
+                                                    >
+                                                        <span className="text-[10px]">✕</span>
+                                                    </Button>
+                                                </div>
                                             )}
-                                            <input
-                                                type="checkbox"
-                                                className="hidden"
-                                                checked={selectedLanguages.includes(lang)}
-                                                onChange={() => toggleLanguage(lang)}
-                                            />
                                         </div>
-                                    </label>
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             <div className="flex gap-1">

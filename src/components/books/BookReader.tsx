@@ -17,7 +17,7 @@ function PageImage({ src, alt }: { src: string; alt: string }) {
                 src={src}
                 alt={alt}
                 fill
-                className={`object-contain rounded-lg transition-opacity duration-700 ${!isLoading ? 'opacity-100' : 'opacity-0'}`}
+                className={`object-contain rounded-lg transition-opacity duration-700 mix-blend-multiply ${!isLoading ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setIsLoading(false)}
                 sizes="(max-width: 768px) 100vw, 50vw"
                 priority

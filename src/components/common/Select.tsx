@@ -17,6 +17,7 @@ interface SelectProps {
     placeholder?: string;
     width?: string;
     align?: 'left' | 'right';
+    alignText?: 'left' | 'center';
     size?: 'sm' | 'md';
 }
 
@@ -36,6 +37,7 @@ export function Select({
     icon,
     width = "", // 기본값: 자동 너비 (내용에 맞게)
     align = "left",
+    alignText = "left",
     size = 'md',
 }: SelectProps) {
     const [isOpen, setIsOpen] = useState(false);
@@ -105,14 +107,14 @@ export function Select({
                 )}
 
                 {/* 선택된 라벨 */}
-                <span className="truncate text-[var(--foreground)] w-full text-left">
+                <span className={`truncate text-[var(--foreground)] w-full ${alignText === 'center' ? 'text-center' : 'text-left'}`}>
                     {selectedOption?.label}
                 </span>
             </div>
 
             {/* 드롭다운 메뉴 */}
             {isOpen && (
-                <div className={`absolute top-full mt-1 ${align === 'right' ? 'right-0' : 'left-0'} w-full max-h-60 overflow-auto bg-[var(--card-bg)] border border-[var(--border)] rounded-xl shadow-lg z-50 animate-slideDown min-w-max`}>
+                <div className={`absolute top-full mt-1 ${align === 'right' ? 'right-0' : 'left-0'} w-full max-h-60 overflow-auto bg-[var(--card-bg)] border border-[var(--border)] rounded-xl shadow-lg z-50 animate-slideDown`}>
                     <ul>
                         {options.map((option) => (
                             <li
@@ -121,11 +123,12 @@ export function Select({
                                     onChange(String(option.value));
                                     setIsOpen(false);
                                 }}
-                                className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-[var(--background)] transition-colors flex items-center justify-between
+                                className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-[var(--background)] transition-colors flex items-center
+                                    ${alignText === 'center' ? 'justify-center' : 'justify-start'}
                                     ${option.value === value ? "text-[var(--primary)] font-bold bg-green-100" : "text-[var(--foreground)]"}
                                 `}
                             >
-                                <span className="truncate">{option.label}</span>
+                                <span className={`truncate w-full ${alignText === 'center' ? 'text-center' : 'text-left'}`}>{option.label}</span>
                             </li>
                         ))}
                     </ul>

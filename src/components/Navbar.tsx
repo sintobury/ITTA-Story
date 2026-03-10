@@ -49,17 +49,20 @@ export default function Navbar() {
                 <div className="flex items-center gap-4">
 
                     {/* 언어 선택 드롭다운 */}
-                    <Select
-                        value={language}
-                        onChange={(val) => setLanguage(val as Language)}
-                        options={[
-                            { label: "한국어", value: "ko" },
-                            { label: "English", value: "en" },
-                        ]}
-                        variant="default"
-                        size="sm"
-                        className="w-24 md:w-28 mr-1 md:mr-4"
-                    />
+                    <div className="mr-1 md:mr-4">
+                        <Select
+                            value={language}
+                            onChange={(val) => setLanguage(val as Language)}
+                            options={[
+                                { label: "한국어", value: "ko" },
+                                { label: "English", value: "en" },
+                            ]}
+                            variant="default"
+                            size="sm"
+                            alignText="center"
+                            className="w-24 md:w-28"
+                        />
+                    </div>
 
                     {/* 로그인 상태에 따른 UI 분기 처리 */}
                     {user ? (

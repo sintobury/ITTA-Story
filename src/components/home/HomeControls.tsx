@@ -59,6 +59,7 @@ export default function HomeControls() {
                                 { label: t.home.filter.author, value: 'author' }
                             ]}
                             width="w-full"
+                            alignText="center"
                             className="min-w-[65px] md:min-w-[90px] !pl-2 md:!pl-6 !py-2 md:!py-3 rounded-l-xl md:rounded-l-2xl text-xs md:text-base border-none"
                         />
                     </div>
@@ -80,7 +81,7 @@ export default function HomeControls() {
                 </div>
 
                 {/* 정렬 그룹 */}
-                <div className="flex-none bg-[var(--card-bg)] rounded-xl md:rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] flex items-center shrink-0 min-w-[85px] md:min-w-[12rem]">
+                <div className="flex-none bg-[var(--card-bg)] rounded-xl md:rounded-2xl shadow-[var(--card-shadow)] border border-[var(--border)] flex items-center shrink-0">
                     <Select
                         value={sortOrder}
                         onChange={handleSortChange}
@@ -91,8 +92,8 @@ export default function HomeControls() {
                             { label: t.home.sort.popular, value: 'popular' }
                         ]}
                         icon={<span className="text-xs md:text-base">⇅</span>}
-                        width="w-full"
-                        className="!py-2 md:!py-3 w-full rounded-xl md:rounded-2xl text-xs md:text-base !pl-6 md:!pl-8 border-none"
+                        alignText="center"
+                        className="!py-2 md:!py-3 rounded-xl md:rounded-2xl text-xs md:text-base !pl-6 md:!pl-8 border-none"
                     />
                 </div>
             </div>
