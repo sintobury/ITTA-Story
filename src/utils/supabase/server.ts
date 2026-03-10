@@ -29,6 +29,9 @@ export async function createClient() {
                     }
                 },
             },
+            cookieOptions: {
+                maxAge: 12 * 60 * 60, // 12시간 유지
+            }
         }
     )
 }

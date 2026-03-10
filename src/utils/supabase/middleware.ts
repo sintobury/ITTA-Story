@@ -28,6 +28,9 @@ export async function updateSession(request: NextRequest) {
                     )
                 },
             },
+            cookieOptions: {
+                maxAge: 12 * 60 * 60, // 12시간 유지
+            }
         }
     )
 
