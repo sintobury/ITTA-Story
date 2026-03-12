@@ -2,6 +2,8 @@
 
 현대적인 UI/UX를 갖춘 다국어(한국어/영어 및 커스텀 언어) 지원 아동 동화 도서관입니다. Next.js와 Supabase를 기반으로 제작되어, 다문화 가정의 아이들과 부모님이 함께 손쉽게 다양한 언어로 된 그림책과 이야기를 읽고 소통할 수 있도록 돕습니다.
 
+![ITTA-STORY 메인 프리뷰](./public/preview.png)
+
 ## 🚀 주요 기능 (Key Features)
 
 ### 1. 양방향 독서 뷰어 (Interactive Book Reader)
