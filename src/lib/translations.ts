@@ -15,7 +15,7 @@ export const translations = {
         home: {
             welcome: "Welcome to E-Library",
             subtitle: "Discover your next favorite book",
-            searchPlaceholder: "Search for books...",
+            searchPlaceholder: "Search...",
             noResults: "No results found. 😢",
             tryAgain: "Please try a different keyword.",
             filter: {
@@ -197,7 +197,7 @@ export const translations = {
         home: {
             welcome: "E-Library에 오신 것을 환영합니다",
             subtitle: "당신의 인생 책을 찾아보세요",
-            searchPlaceholder: "찾고 싶은 책을 입력하세요...",
+            searchPlaceholder: "검색어를 입력...",
             noResults: "검색 결과가 없습니다. 😢",
             tryAgain: "다른 검색어로 다시 시도해보세요.",
             filter: {
