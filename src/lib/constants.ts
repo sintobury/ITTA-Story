@@ -1,4 +1,4 @@
-export const SITE_NAME = "ITTA fairytale";
+export const SITE_NAME = "ITTA-STORY";
 
 export const BOOK_MANAGEMENT_HEADERS = [
     { label: '표지', className: '' },
