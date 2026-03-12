@@ -20,7 +20,7 @@ export default function HomePagination({ totalPages, currentPage }: HomePaginati
         router.push(`/?${params.toString()}`);
     };
 
-    if (totalPages <= 1) return null;
+    // 항상 페이지네이션을 표시하도록 조건문 제거
 
     const safePage = Math.max(1, Math.min(currentPage, totalPages));
 
