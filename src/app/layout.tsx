@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { Gowun_Dodum } from "next/font/google"; // 동화 같은 느낌의 귀여운 폰트 (고운 돋움)
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { BlockedUserProvider } from "@/context/BlockedUserContext";
@@ -32,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={gowunDodum.className} suppressHydrationWarning={true}>
+      <body className={`${gowunDodum.className} min-h-screen flex flex-col`} suppressHydrationWarning={true}>
         {/* 전역 상태 관리자들 (로그인, 언어, 테마 등) */}
         <AuthProvider>
           <LanguageProvider>
@@ -40,9 +41,10 @@ export default function RootLayout({
               {/* 상단 네비게이션 바 */}
               <Navbar />
               {/* 페이지 본문이 표시되는 영역 */}
-              <main className="container" style={{ paddingBottom: "2rem" }}>
+              <main className="container flex-grow" style={{ paddingBottom: "2rem" }}>
                 {children}
               </main>
+              <Footer />
             </BlockedUserProvider>
           </LanguageProvider>
         </AuthProvider>

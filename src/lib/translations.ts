@@ -12,6 +12,9 @@ export const translations = {
             hello: "Hello",
             myPage: "My Page",
         },
+        footer: {
+            copyright: "© 2026 ITTA-STORY. All rights reserved.",
+        },
         home: {
             welcome: "Welcome to ITTA-STORY",
             subtitle: "A Multicultural Children's Fairy Tale Library",
@@ -193,6 +196,9 @@ export const translations = {
             loginAdmin: "관리자 로그인",
             hello: "반갑습니다",
             myPage: "마이페이지",
+        },
+        footer: {
+            copyright: "© 2026 ITTA-STORY. 모든 창작 동화 콘텐츠의 무단 복제 및 상업적 배포를 금합니다.",
         },
         home: {
             welcome: "ITTA-STORY에 오신 것을 환영합니다",
