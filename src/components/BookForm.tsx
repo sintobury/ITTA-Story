@@ -50,7 +50,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
     const [translations, setTranslations] = useState<any>(initialBook?.translations || {});
 
     const [availableLanguages, setAvailableLanguages] = useState<string[]>(
-        initialBook?.availableLanguages || ['ko', 'en', 'ja', 'zh']
+        Array.from(new Set([...DEFAULT_LANGUAGES.map(l => l.code), ...(initialBook?.availableLanguages || [])]))
     );
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
         initialBook?.availableLanguages || ['ko']
