@@ -242,8 +242,8 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
     };
 
     const validateForm = (): boolean => {
-        if (!title.trim() || !author.trim() || !description.trim()) {
-            triggerToast("책 기본 정보를 모두 입력해주세요.");
+        if (!title.trim() || !author.trim()) {
+            triggerToast("제목과 저자를 모두 입력해주세요.");
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return false;
         }
@@ -508,7 +508,7 @@ export default function BookForm({ initialBook, initialPages, mode }: BookFormPr
                             </div>
 
                             <div className="flex-1 flex flex-col min-h-[100px]">
-                                <Label required size="sm">설명 ({(activeTabs['meta'] || selectedLanguages[0] || 'ko').toUpperCase()})</Label>
+                                <Label size="sm">설명 ({(activeTabs['meta'] || selectedLanguages[0] || 'ko').toUpperCase()})</Label>
                                 <Textarea
                                     value={
                                         (activeTabs['meta'] || selectedLanguages[0] || 'ko') === (selectedLanguages[0] || 'ko')
