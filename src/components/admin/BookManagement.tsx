@@ -7,6 +7,7 @@ import { LanguageContextType } from "@/context/LanguageContext";
 import { Button } from "@/components/common/Button";
 import { Table, Th, Td } from "@/components/common/Table";
 import Image from "next/image";
+import Link from "next/link";
 import { BOOK_MANAGEMENT_HEADERS } from "@/lib/constants";
 
 interface BookManagementProps {
@@ -44,7 +45,15 @@ export default function BookManagement({ books, language, onDeleteClick }: BookM
                                         />
                                     </div>
                                 </Td>
-                                <Td className="font-medium text-lg">{localizedBook.title}</Td>
+                                <Td className="font-medium text-lg">
+                                    <Link 
+                                        href={`/books/${book.id}`}
+                                        className="hover:text-[var(--primary)] hover:underline transition-colors block py-2"
+                                        title="책 읽기 페이지로 이동"
+                                    >
+                                        {localizedBook.title}
+                                    </Link>
+                                </Td>
                                 <Td className="text-[var(--secondary)]">{localizedBook.author}</Td>
                                 <Td>
                                     <div className="flex gap-2">
