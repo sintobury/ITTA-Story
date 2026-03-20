@@ -21,8 +21,8 @@ const gowunDodum = Gowun_Dodum({
 });
 
 export const metadata: Metadata = {
-  title: "E-Library",
-  description: "A clean and simple electronic library.",
+  title: "ITTA-STORY",
+  description: "A Multicultural Children's Fairy Tale Library",
 };
 
 // 최상위 레이아웃 컴포넌트: 모든 페이지에 공통으로 적용됩니다.
