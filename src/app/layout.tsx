@@ -23,6 +23,12 @@ const gowunDodum = Gowun_Dodum({
 export const metadata: Metadata = {
   title: "ITTA-STORY",
   description: "A Multicultural Children's Fairy Tale Library",
+  openGraph: {
+    title: "ITTA-STORY",
+    description: "A Multicultural Children's Fairy Tale Library",
+    siteName: "ITTA-STORY",
+    type: "website",
+  },
 };
 
 // 최상위 레이아웃 컴포넌트: 모든 페이지에 공통으로 적용됩니다.
