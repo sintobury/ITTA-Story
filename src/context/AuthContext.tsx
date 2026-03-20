@@ -65,8 +65,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
 
         // 초기 세션 확인
-        supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null }, error: AuthError | null }) => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
+                const expiresAt = localStorage.getItem('itta_session_expires_at');
+                if (expiresAt && Date.now() > parseInt(expiresAt, 10)) {
+                    // 강제 로그아웃
+                    logout();
+                    return;
+                }
+                // 기존 사용자 등 만료시간이 없으면 새로 12시간 부여
+                if (!expiresAt) {
+                    localStorage.setItem('itta_session_expires_at', (Date.now() + 12 * 60 * 60 * 1000).toString());
+                }
                 fetchUserProfile(session);
             } else {
                 setLoading(false);
@@ -78,10 +88,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // 인증 상태 변경 감지
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
+        } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN') {
+                // 로그인 시점으로부터 정확히 12시간 뒤 만료되도록 설정
+                localStorage.setItem('itta_session_expires_at', (Date.now() + 12 * 60 * 60 * 1000).toString());
+            }
+
             if (session) {
+                const expiresAt = localStorage.getItem('itta_session_expires_at');
+                if (expiresAt && Date.now() > parseInt(expiresAt, 10)) {
+                    logout();
+                    return;
+                }
                 fetchUserProfile(session);
             } else {
+                localStorage.removeItem('itta_session_expires_at');
                 setUser(null);
                 setLoading(false);
             }
